@@ -1,0 +1,75 @@
+@import 'main.scss';
+
+// Padding on the inside of form elements.
+$elem-pad: 8px 8px;
+
+// Normalize input stuff
+button, input {
+    font-size: $font-size;
+}
+
+// Text Boxes
+input[type='text'], input[type='password'] {
+    padding: $elem-pad;
+
+    border-radius: $border-rad;
+    border: 1px solid;
+    border-color: $gray;
+    color: $body-color;
+    box-shadow: $shadow;
+
+    background-color: #000;
+    transition: background-color 0.2s;
+
+    &:focus {
+        outline: none;
+        background-color: $gray;
+    }
+}
+
+button, input[type='button'], input[type='submit'], .button {
+    padding: $elem-pad;
+
+    border-radius: $border-rad;
+    border: none;
+    box-shadow: $shadow;
+
+    color: $body-color;
+    background-color: $lightgray;
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+
+    &:focus, &:hover {
+        // Remove chrome's ugly outline
+        outline: none;
+        color: $body-color;
+        background-color: #fff;
+    }
+    &:active {
+        background-color: $gray;
+        color: #fff;
+        box-shadow: inset $shadow;
+    }
+
+    // Color affirmative buttons the primary color.
+    &.affirm { @extend %btnaffirm; }
+}
+%btnaffirm, input[type='submit'] {
+    background-color: $primary;
+    color: #fff;
+
+    &:focus, &:hover {
+        background-color: $prim-light;
+        color: #fff;
+    }
+    &:active {
+        background-color: $prim-dark;
+        color: #fff;
+    }
+}
+
+
+// Make link buttons look like buttons.
+a.button {
+    text-decoration: none;
+}
+

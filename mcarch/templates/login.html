@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Log In{% endblock %}
+{% block content %}
+<h1>Log In</h1>
+<form method="POST">
+    {{ form.csrf_token }}
+    {{ form.username(placeholder="Username", autofocus=True, tabindex=1) }}
+    {{ form.password(placeholder="Password", tabindex=2) }}
+    <input type="submit" value="Log In" tabindex="3">
+</form>
+{% endblock %}

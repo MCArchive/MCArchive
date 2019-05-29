@@ -1,0 +1,79 @@
+$nav-height: 24px;
+
+@import "main.scss";
+
+$nav-color: #fff;
+$nav-bgcolor: $primary;
+$nav-hlcolor: rgba(255, 255, 255, 0.2);
+$nav-active:  rgba(0, 0, 0, 0.8);
+
+
+nav {
+    border: none;
+    overflow: hidden;
+    background: url(image-url('img/top-bg.png'));
+    position: fixed;
+    width: 100%;
+    left: 0;
+    top: 0;
+    right: 0;
+    box-shadow: $shadow;
+}
+
+nav .container {
+    height: 100%;
+    overflow: hidden;
+}
+
+nav a {
+    float: left;
+    background: none;
+    text-decoration: none;
+    border: none;
+
+    color: $nav-color;
+    padding: 6px 8px;
+    display: block;
+    height: $nav-height;
+    line-height: 24px;
+    font-size: 12pt;
+
+    transition: color 0.2s, box-shadow 0.2s, background 0.2s;
+
+    &:hover {
+        color: $nav-color;
+        background-color: $nav-hlcolor;
+    }
+
+    &:active, &.active {
+        color: $nav-color;
+        background-color: $nav-active;
+        box-shadow: inset 0px 0px 8px rgba(0, 0, 0, 0.28);
+    }
+
+    &.right {
+        float: right;
+    }
+}
+
+.logo {
+    font-size: 16pt;
+    border-left-width: 0px;
+    font-weight: bold;
+    margin-right: 20px;
+    padding-left: 0px;
+    background: none;
+    color: $nav-color;
+
+    &:hover {
+        background: none;
+        color: $prim-light;
+        box-shadow: none;
+    }
+    &:active {
+        background: none;
+        color: $primary;
+        box-shadow: none;
+    }
+}
+

@@ -1,0 +1,65 @@
+{% macro nav_btn(url, text, cls="") %}
+<a href="{{ url }}" class="{{ cls }} {% if request.path == url %}active{% endif %}">{{ text }}</a>
+{% endmacro %}
+
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}{% endblock %} &ndash; Minecraft Archive</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Code+Pro"/>
+    {% assets "css_all" %}<link rel=stylesheet type=text/css href="{{ ASSET_URL }}">{% endassets %}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon"/>
+
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a class="logo" href="{{ url_for("root.home") }}">Minecraft Archive</a>
+
+            {#
+            It's OK to use the insecure version here because we're just checking whether to show
+            the login button. This saves us a database query on every single page load.
+            #}
+            {% if insecure_cur_user() %}
+            {{ nav_btn(url_for("user.logout"), "Log Out", "right") }}
+            {% else %}
+            {{ nav_btn(url_for("user.login"), "Log In", "right") }}
+            {% endif %}
+        </div>
+    </nav>
+
+    <header>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class=flashes>
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+    </header>
+
+    {% block main %}
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+    {% endblock %}
+
+    {% block footer %}
+    <footer>
+        <p>Copyright &copy; 2017-2019 Minecraft Mod Archive</p>
+        <p>Powered by <a href="https://flask.pocoo.org/">Flask</a></p>
+   </footer>
+   {% endblock %}
+
+   {% block end %}{% endblock %}
+</body>
+</html>
+

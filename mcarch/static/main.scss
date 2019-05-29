@@ -1,0 +1,106 @@
+// Accent colors
+$primary: #009624;
+$prim-light: #51c854;
+$prim-dark: #006700;
+
+$lightgray: #666;
+$gray: #333;
+
+$font-stack: 'Roboto', sans-serif;
+$font-size:  12pt;
+
+$shadow-color: rgba(0, 0, 0, 0.28); // color of shadows
+
+$border-rad: 8px; // border radius on rounded corners
+$shadow: 0px 1px 4px $shadow-color; // box shadow parameters
+
+$header-color: #eee; // color of text in h1, h2, h3, etc
+$body-color:   #eee; // color of body text
+
+$link-color:       $prim-light;    // color of links
+$link-click-color: $prim-dark;  // color of links when clicked
+$link-hover-color: $primary; // color of links when clicked
+
+$flash-color: $primary;
+
+$footer-text-size:  10pt;
+$footer-text-color: #999; // color of text in the footer
+$footer-link-color: $prim-light; // color of links in the footer
+$footer-link-hover-color: $primary; // color of links in the footer when hovered
+$footer-rule-color: #ccc;
+
+$page-width: 1200px; // maximum width of page content for readability
+
+$mobile: "screen and (max-width: 800px)";
+$fullsize: "screen and (min-width: 800px)";
+
+@import 'nav.scss';
+
+body {
+    margin: 0 0;
+    font-family: $font-stack;
+    font-size: $font-size;
+    color: $body-color;
+    background: url(image-url('img/bg.png'));
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: $font-stack;
+    color: $header-color;
+}
+
+a {
+    color: $link-color;
+    transition: color 0.2s;
+
+    &:hover { color: $link-hover-color; }
+    &:active { color: $link-click-color; }
+}
+
+main, header, footer, .container {
+    margin: auto auto;
+    padding: 0 0;
+    max-width: $page-width;
+}
+
+header {
+    margin-top: $nav-height + 24px;
+}
+
+ul.flashes {
+    background-color: $flash-color;
+    border-radius: $border-rad;
+    list-style-type: none;
+    box-shadow: $shadow;
+    & li {
+        padding-top: 8px;
+        padding-bottom: 8px;
+        color: #fff;
+    }
+}
+
+main {
+    margin-top: 4px;
+    margin-bottom: 8px;
+    padding: 10px 30px;
+}
+
+footer {
+    border-style: solid;
+    border-color: $footer-rule-color;
+    border-width: 0px;
+    border-top-width: 1px;
+
+    & p {
+        font-size: $footer-text-size;
+        color: $footer-text-color;
+        margin: 4px 30px;
+    }
+    & a {
+        color: $footer-link-color;
+        &:hover {
+            color: $footer-link-hover-color;
+        }
+    }
+}
+

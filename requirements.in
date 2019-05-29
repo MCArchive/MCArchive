@@ -1,0 +1,12 @@
+flask
+flask-sqlalchemy
+flask-assets
+flask-wtf
+flask-session
+flask-bcrypt
+
+pyScss
+jsmin
+
+pytest-flask
+
