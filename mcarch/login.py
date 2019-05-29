@@ -15,7 +15,7 @@ from functools import wraps
 from flask import session, request, redirect, url_for, flash
 
 from mcarch.app import db, bcrypt
-from mcarch.model import User, Session
+from mcarch.model.user import User, Session
 
 def login_required(func):
     """
@@ -52,9 +52,9 @@ def log_out():
         # Remove the session from the database.
         db.session.delete(sess)
         db.session.commit()
-        # Remove the session information from the user's cookies.
-        session['sessid'] = None
-        session['user'] = None
+    # Remove the session information from the user's cookies.
+    session['sessid'] = None
+    session['user'] = None
 
 def log_in(uname, passwd):
     """Attempts to log in with the given credentials. Returns true on success, false on failure."""

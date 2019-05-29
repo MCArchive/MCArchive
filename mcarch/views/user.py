@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms.fields import StringField, PasswordField
 from wtforms.validators import DataRequired, Length
 
-from mcarch.model import User
+from mcarch.model.user import User
 from mcarch.login import login_required, logout_required, log_in, log_out, cur_user
 
 user = Blueprint('user', __name__, template_folder="templates")
@@ -34,7 +34,6 @@ def login():
     return render_template("login.html", form=form)
 
 @user.route("/logout")
-@login_required
 def logout():
     log_out()
     flash('Logged out.')
