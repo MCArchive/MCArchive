@@ -1,0 +1,39 @@
+@import 'vars.scss';
+
+.block {
+    border-style: solid;
+    border-width: 1px;
+    padding: 12px 20px;
+    margin: 8px 0px;
+    border: none;
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: none;
+    border-radius: $border-rad;
+
+    /* Make p tags in blocks more compact */
+    & p, & h1 {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+    & h1 { font-size: $h1-size - $h-offset*2; }
+
+    /* If the title of a block is a link, don't underline it unless it's hovered. */
+    & h1 a {
+        text-decoration: none;
+        &:hover { text-decoration: underline; }
+    }
+}
+
+.sub-block {
+    border-style: solid;
+    border-width: 0px;
+    border-top-width: 1px;
+    border-color: $lightgray;
+    padding-top: 8px;
+
+    & h2, & h1 {
+        margin-top: 5px;
+        font-size: $h1-size - $h-offset*3;
+    }
+}
+

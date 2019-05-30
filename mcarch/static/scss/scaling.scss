@@ -1,0 +1,11 @@
+/*
+ * This file implements various tweaks for different screen sizes.
+ */
+
+@import 'vars.scss';
+
+$logo-margin-width: $page-width + 16px;
+@media only screen and (max-width: $logo-margin-width) {
+    .logo { margin-left: 16px; }
+}
+

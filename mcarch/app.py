@@ -38,8 +38,9 @@ def register_extensions(app):
 def register_assets(app):
     assets = Environment(app)
 
-    css = Bundle('scss/main.scss', 'scss/nav.scss', 'scss/forms.scss',
-            filters='pyscss', output='gen/main.css')
+    css = Bundle('scss/vars.scss', 'scss/main.scss', 'scss/forms.scss', 'scss/accordion.scss',
+                 'scss/block.scss', 'scss/scaling.scss', 'scss/nav.scss', 'scss/mod.scss',
+                 filters='pyscss', output='gen/main.css')
 
     js = Bundle('js/accordion.js',
             filters='jsmin', output='gen/main.js')

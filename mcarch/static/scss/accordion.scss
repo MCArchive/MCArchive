@@ -1,0 +1,10 @@
+@import 'vars.scss';
+
+.accordion {
+    transition: max-height 0.4s;
+    overflow: hidden;
+}
+.accordion.hidden {
+    max-height: 0;
+}
+

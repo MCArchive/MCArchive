@@ -20,7 +20,7 @@
     {% for file in vsn.files %}
     <section class="sub-block">
         <h2 class="file-name">{{ file.filename }}</h1>
-        <p class="small">sha256: <span class="sha256 hash">{{ file.sha256 }}</span></p>
+        <p class="small"><span class="sha256 hash">{{ file.sha256 }}</span></p>
         <ul class="urls">
             <li>
                 {% if file.redirect_url %}

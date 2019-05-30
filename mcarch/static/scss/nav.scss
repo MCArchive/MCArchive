@@ -1,7 +1,4 @@
-$nav-height: 24px;
-$total-nav-height: 36px;
-
-@import "main.scss";
+@import "vars.scss";
 
 $nav-color: #fff;
 $nav-bgcolor: $primary;
@@ -26,6 +23,12 @@ nav {
         overflow: hidden;
     }
 
+    @mixin active-navbtn {
+        color: $nav-color;
+        background-color: $nav-active;
+        box-shadow: inset 0px 0px 8px rgba(0, 0, 0, 0.28);
+    }
+
     & a, & button {
         float: left;
         background: none;
@@ -47,9 +50,7 @@ nav {
         }
 
         &:active, &.active {
-            color: $nav-color;
-            background-color: $nav-active;
-            box-shadow: inset 0px 0px 8px rgba(0, 0, 0, 0.28);
+            @include active-navbtn;
         }
 
         &.right {
@@ -68,6 +69,10 @@ nav {
             &::after {
                 font-family: "Font Awesome 5 Free"; font-weight: 900;
                 content: "\f0d7";
+            }
+
+            &:hover, &:active {
+                @include active-navbtn;
             }
 
             // Used for profile picture in the user dropdown.
@@ -94,7 +99,7 @@ nav {
             z-index: 4;
             margin-top: $total-nav-height;
 
-            transition: max-height 0.4s;
+            transition: max-height $fade-dur;
 
             & a, & .button {
                 display: block;
@@ -104,8 +109,14 @@ nav {
             }
         }
 
-        &:hover .dropcontent {
-            max-height: 100%;
+        // Open the dropdown when one of its elements is hovered or focused.
+        &:hover, &:focus, &:focus-within {
+            .dropcontent {
+                max-height: 100%;
+            }
+            .dropbtn {
+                @include active-navbtn;
+            }
         }
     }
 }

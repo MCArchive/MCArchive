@@ -23,7 +23,7 @@ for_game_vsn_table = db.Table('for_game_version', db.Model.metadata,
 class Mod(db.Model):
     __tablename__ = "mod"
     id = db.Column(db.Integer, primary_key=True)
-    slug = db.Column(db.String(80), nullable=False)
+    slug = db.Column(db.String(80), nullable=False, unique=True)
     name = db.Column(db.String(80), nullable=False)
     desc = db.Column(db.Text)
     url = db.Column(db.String(120))
@@ -63,7 +63,7 @@ class Mod(db.Model):
 class ModAuthor(db.Model):
     __tablename__ = "author"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
+    name = db.Column(db.String(80), nullable=False, unique=True)
     info = db.Column(db.Text)
     website = db.Column(db.String(120))
     mods = db.relationship(

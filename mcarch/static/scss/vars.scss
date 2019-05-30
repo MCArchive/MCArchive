@@ -1,0 +1,45 @@
+// Accent colors
+$primary: #67a;
+$prim-light: #78b;
+$prim-dark: #569;
+
+$lightgray: #666;
+$gray: #333;
+
+$font-stack: 'Source Sans Pro', sans-serif;
+$font-size:  12pt;
+$hfont-stack: 'Oswald', sans-serif;
+$h1-size:    24pt;
+$h-offset:   4pt;
+
+$monofont: 'Source Code Pro';
+
+$shadow-color: rgba(0, 0, 0, 0.28); // color of shadows
+
+$fade-dur: 0.2s; // duration of fade transitions
+$border-rad: 6px; // border radius on rounded corners
+$shadow: 0px 1px 4px $shadow-color; // box shadow parameters
+
+$header-color: #eee; // color of text in h1, h2, h3, etc
+$body-color:   #eee; // color of body text
+
+$link-color:       $prim-light;    // color of links
+$link-click-color: $prim-dark;  // color of links when clicked
+$link-hover-color: $primary; // color of links when clicked
+
+$flash-color: $primary;
+
+$footer-text-size:  10pt;
+$footer-text-color: #999; // color of text in the footer
+$footer-link-color: $prim-light; // color of links in the footer
+$footer-link-hover-color: $primary; // color of links in the footer when hovered
+$footer-rule-color: #ccc;
+
+$page-width: 1200px; // maximum width of page content for readability
+
+$nav-height: 24px;
+$total-nav-height: 36px;
+
+$mobile: "screen and (max-width: 1200px)";
+$fullsize: "screen and (min-width: 1200px)";
+
