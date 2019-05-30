@@ -1,3 +1,4 @@
+import hashlib
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -18,6 +19,11 @@ class User(db.Model):
         """
         pwd = bcrypt.generate_password_hash(password)
         db.Model.__init__(self, *args, password=pwd, **kwargs)
+
+    def avatar_url(self):
+        """Returns the Gravatar URL for this user based on their email."""
+        md5 = hashlib.md5(self.email.encode('utf-8')).hexdigest()
+        return "https://gravatar.com/avatar/{}?d=identicon".format(md5)
 
     def __repr__(self):
         return '<User %r>' % self.username

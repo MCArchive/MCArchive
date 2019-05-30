@@ -87,6 +87,7 @@ def create_sess(user):
         id=user.id,
         name=user.name,
         email=user.email,
+        avatar=user.avatar_url(),
     )
 
 def cur_session():

@@ -1,4 +1,5 @@
 $nav-height: 24px;
+$total-nav-height: 36px;
 
 @import "main.scss";
 
@@ -19,41 +20,93 @@ nav {
     right: 0;
     box-shadow: $shadow;
     font-family: $hfont-stack;
-}
 
-nav .container {
-    height: 100%;
-    overflow: hidden;
-}
-
-nav a {
-    float: left;
-    background: none;
-    text-decoration: none;
-    border: none;
-
-    color: $nav-color;
-    padding: 6px 8px;
-    display: block;
-    height: $nav-height;
-    line-height: 24px;
-    font-size: 12pt;
-
-    transition: color $fade-dur, box-shadow $fade-dur, background $fade-dur;
-
-    &:hover {
-        color: $nav-color;
-        background-color: $nav-hlcolor;
+    & .container {
+        height: 100%;
+        overflow: hidden;
     }
 
-    &:active, &.active {
-        color: $nav-color;
-        background-color: $nav-active;
-        box-shadow: inset 0px 0px 8px rgba(0, 0, 0, 0.28);
-    }
+    & a, & button {
+        float: left;
+        background: none;
+        text-decoration: none;
+        border: none;
 
-    &.right {
-        float: right;
+        color: $nav-color;
+        padding: 6px 8px;
+        display: block;
+        height: $nav-height;
+        line-height: 24px;
+        font-size: 12pt;
+
+        transition: color $fade-dur, box-shadow $fade-dur, background $fade-dur;
+
+        &:hover {
+            color: $nav-color;
+            background-color: $nav-hlcolor;
+        }
+
+        &:active, &.active {
+            color: $nav-color;
+            background-color: $nav-active;
+            box-shadow: inset 0px 0px 8px rgba(0, 0, 0, 0.28);
+        }
+
+        &.right {
+            float: right;
+        }
+    }
+    & .dropdown {
+        padding: 0px;
+        float: left;
+        display: block;
+        overflow: visible;
+
+        &.right { float: right; }
+
+        & .dropbtn {
+            &::after {
+                font-family: "Font Awesome 5 Free"; font-weight: 900;
+                content: "\f0d7";
+            }
+
+            // Used for profile picture in the user dropdown.
+            & img {
+                width: $nav-height;
+                height: $nav-height;
+                vertical-align: top;
+                border-radius: 25%;
+            }
+        }
+
+        & .dropcontent {
+            position: fixed;
+
+            border-radius: 0px 0px $border-rad $border-rad;
+
+            background-color: $gray;
+            box-shadow: $shadow;
+
+            min-width: 160px;
+            max-height: 0%;
+            overflow: hidden;
+
+            z-index: 4;
+            margin-top: $total-nav-height;
+
+            transition: max-height 0.4s;
+
+            & a, & .button {
+                display: block;
+                float: none;
+                //&:first-child { border-radius: $border-rad $border-rad 0px 0px; }
+                &:last-child { border-radius: 0px 0px $border-rad $border-rad; }
+            }
+        }
+
+        &:hover .dropcontent {
+            max-height: 100%;
+        }
     }
 }
 

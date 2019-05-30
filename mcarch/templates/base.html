@@ -12,6 +12,7 @@
     <title>{% block title %}{% endblock %} &ndash; Minecraft Archive</title>
 
     <link href="https://fonts.googleapis.com/css?family=Oswald|Source+Code+Pro|Source+Sans+Pro&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
     {% assets "css_all" %}
     <link href="{{ ASSET_URL }}" rel='stylesheet' type='text/css'>
     {% endassets %}
@@ -29,8 +30,17 @@
             It's OK to use the insecure version here because we're just checking whether to show
             the login button. This saves us a database query on every single page load.
             #}
-            {% if insecure_cur_user() %}
-            {{ nav_btn(url_for("user.logout"), "Log Out", "right") }}
+            {% set iuser = insecure_cur_user() %}
+            {% if iuser %}
+            <div class="dropdown right">
+                <a href="javascript:void();" class="dropbtn">
+                    <img src="{{ iuser.avatar }}" alt="{{ iuser.name }} Avatar">
+                    {{ iuser.name }}
+                </a>
+				<div class="dropcontent">
+                    <a href="{{ url_for("user.logout") }}">Log Out</a>
+				</div>
+            </div>
             {% else %}
             {{ nav_btn(url_for("user.login"), "Log In", "right") }}
             {% endif %}
