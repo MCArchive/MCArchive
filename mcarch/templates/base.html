@@ -11,9 +11,11 @@
 
     <title>{% block title %}{% endblock %} &ndash; Minecraft Archive</title>
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Code+Pro"/>
-    {% assets "css_all" %}<link rel=stylesheet type=text/css href="{{ ASSET_URL }}">{% endassets %}
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon"/>
+    <link href="https://fonts.googleapis.com/css?family=Oswald|Source+Code+Pro|Source+Sans+Pro&display=swap" rel="stylesheet">
+    {% assets "css_all" %}
+    <link href="{{ ASSET_URL }}" rel='stylesheet' type='text/css'>
+    {% endassets %}
+    <link href="{{ url_for('static', filename='img/favicon.ico') }}" rel="shortcut icon" type="image/x-icon"/>
 
     {% block head %}{% endblock %}
 </head>
@@ -21,6 +23,7 @@
     <nav>
         <div class="container">
             <a class="logo" href="{{ url_for("root.home") }}">Minecraft Archive</a>
+            {{ nav_btn(url_for("mods.browse"), "Browse") }}
 
             {#
             It's OK to use the insecure version here because we're just checking whether to show
@@ -60,6 +63,11 @@
    {% endblock %}
 
    {% block end %}{% endblock %}
+
+   {% assets "js_all" %}
+   <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+   {% endassets %}
+   {% block js %}{% endblock %}
 </body>
 </html>
 

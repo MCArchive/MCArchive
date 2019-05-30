@@ -1,18 +1,19 @@
 @import 'main.scss';
 
 // Padding on the inside of form elements.
-$elem-pad: 8px 8px;
+$elem-pad: 4px 6px;
+$fborder-rad: $border-rad - 2;
 
 // Normalize input stuff
-button, input {
-    font-size: $font-size;
+button, input, .button {
+    font-size: $font-size - 2;
 }
 
 // Text Boxes
 input[type='text'], input[type='password'] {
     padding: $elem-pad;
 
-    border-radius: $border-rad;
+    border-radius: $fborder-rad;
     border: 1px solid;
     border-color: $gray;
     color: $body-color;
@@ -30,7 +31,7 @@ input[type='text'], input[type='password'] {
 button, input[type='button'], input[type='submit'], .button {
     padding: $elem-pad;
 
-    border-radius: $border-rad;
+    border-radius: $fborder-rad;
     border: none;
     box-shadow: $shadow;
 
@@ -38,15 +39,17 @@ button, input[type='button'], input[type='submit'], .button {
     background-color: $lightgray;
     transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
 
-    &:focus, &:hover {
-        // Remove chrome's ugly outline
+    // Remove chrome's ugly focus outline
+    &:focus {
         outline: none;
-        color: $body-color;
-        background-color: #fff;
     }
-    &:active {
+
+    &:hover {
+        color: $body-color;
+        background-color: #78b;
+    }
+    &:active, &.active {
         background-color: $gray;
-        color: #fff;
         box-shadow: inset $shadow;
     }
 

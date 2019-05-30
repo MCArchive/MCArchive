@@ -18,6 +18,7 @@ nav {
     top: 0;
     right: 0;
     box-shadow: $shadow;
+    font-family: $hfont-stack;
 }
 
 nav .container {
@@ -38,7 +39,7 @@ nav a {
     line-height: 24px;
     font-size: 12pt;
 
-    transition: color 0.2s, box-shadow 0.2s, background 0.2s;
+    transition: color $fade-dur, box-shadow $fade-dur, background $fade-dur;
 
     &:hover {
         color: $nav-color;

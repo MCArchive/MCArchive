@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Browse Archive{% endblock %}
+{% block content %}
+
+<h1>Browse Mods</h1>
+
+<div id="mods">
+    <div class="list">
+        {% for mod in mods %}
+        <section class="block">
+            <h1 class="modname">
+                <a href="{{ url_for('mods.mod_page', slug=mod.slug) }}">{{ mod.name }}</a>
+            </h3>
+            <p class="gamevsn small">Supports Minecraft {{ mod.game_versions_str() }}</p>
+            {% if mod.desc %}
+            <p class="moddesc">{{ mod.desc }}</p>
+            {% endif %}
+        </section>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+

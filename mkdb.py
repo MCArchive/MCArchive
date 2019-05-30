@@ -17,7 +17,7 @@ with app.app_context():
 
     if len(sys.argv) > 1:
         from os import listdir
-        from os.path import isdir, isfile, join
+        from os.path import isdir, isfile, join, splitext
         import yaml
 
         path = sys.argv[1]
@@ -26,12 +26,13 @@ with app.app_context():
             exit()
         print("Importing old archive files from {}".format(path))
         
-        for p in [join(path, f) for f in listdir(path) if isfile(join(path, f))]:
+        for name in [f for f in listdir(path) if isfile(join(path, f))]:
+            p = join(path, name)
             print("Importing {}".format(p))
             obj = None
             with open(p, 'r') as f:
                 obj = yaml.load(f)
-            db.session.add(import_mod(obj))
+            db.session.add(import_mod(obj, splitext(name)[0]))
 
     db.session.commit()
 

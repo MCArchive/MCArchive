@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -21,6 +23,7 @@ for_game_vsn_table = db.Table('for_game_version', db.Model.metadata,
 class Mod(db.Model):
     __tablename__ = "mod"
     id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String(80), nullable=False)
     name = db.Column(db.String(80), nullable=False)
     desc = db.Column(db.Text)
     url = db.Column(db.String(120))
@@ -29,6 +32,33 @@ class Mod(db.Model):
         secondary=authored_by_table,
         back_populates="mods")
     versions = db.relationship("ModVersion", back_populates="mod")
+
+    def vsns_by_game_vsn(self):
+        """
+        Returns a dict mapping supported Minecraft versions to a list of
+        versions of this mod that support that Minecraft version.
+        """
+        vsns = OrderedDict()
+        for v in self.versions:
+            vsns.setdefault(v.game_vsns[0].name, []).append(v)
+        return vsns
+
+    def game_versions(self):
+        """Returns a list of game versions supported by all the versions of this mod."""
+        gvs = GameVersion.query \
+            .join(ModVersion, GameVersion.mod_vsns) \
+            .filter(ModVersion.mod_id == self.id).all()
+        gvsns = set()
+        for gv in gvs:
+            gvsns.add(gv.name)
+        return sorted(list(gvsns))
+        #for vsn in self.versions:
+        #    for gv in vsn.game_vsns: gvsns.add(gv.name)
+        #return gvsns
+
+    def game_versions_str(self):
+        """Returns a comma separated string listing the supported game versions for this mod."""
+        return ", ".join(map(lambda v: v, self.game_versions()))
 
 class ModAuthor(db.Model):
     __tablename__ = "author"
@@ -56,6 +86,10 @@ class ModVersion(db.Model):
         secondary=for_game_vsn_table,
         back_populates="mod_vsns")
     files = db.relationship("ModFile", back_populates="version")
+
+    def game_versions_str(self):
+        """Returns a comma separated string listing the supported game versions for this mod."""
+        return ", ".join(map(lambda v: v.name, self.game_vsnsl))
 
 class GameVersion(db.Model):
     __tablename__ = "game_version"
@@ -94,8 +128,8 @@ class ModFile(db.Model):
 
 
 
-def import_mod(obj):
-    mod = Mod(name=obj['name'])
+def import_mod(obj, slug):
+    mod = Mod(slug=slug, name=obj['name'])
     if 'desc' in obj: mod.desc=obj['desc']
     for name in obj['authors']:
         # Try to find the author in the database.

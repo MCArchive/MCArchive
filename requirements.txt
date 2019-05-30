@@ -11,6 +11,7 @@ cffi==1.12.3              # via bcrypt
 click==7.0                # via flask
 flask-assets==0.12
 flask-bcrypt==0.7.1
+flask-markdown==0.3
 flask-session==0.3.1
 flask-sqlalchemy==2.4.0
 flask-wtf==0.14.2
@@ -19,6 +20,7 @@ importlib-metadata==0.15  # via pluggy
 itsdangerous==1.1.0       # via flask
 jinja2==2.10.1            # via flask
 jsmin==2.2.2
+markdown==3.1.1           # via flask-markdown
 markupsafe==1.1.1         # via jinja2
 more-itertools==7.0.0     # via pytest
 pluggy==0.12.0            # via pytest

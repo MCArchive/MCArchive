@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}{{ mod.name }}{% endblock %}
+
+{% macro vsnblock(vsn) %}
+<section class="block">
+    <h1>
+        {{ vsn.name }}
+        {% if len(vsn.mcvsn) > 0 %}
+        for Minecraft {{ ", ".join(vsn.mcvsn) }}
+        {% endif %}
+    </h1>
+
+    {% if vsn.desc %}
+    <div class="vsn-desc">
+        {{ vsn.desc | markdown }}
+    </div>
+    {% endif %}
+
+    {% for file in vsn.files %}
+    <section class="sub-block">
+        <h2 class="file-name">{{ file.filename }}</h1>
+        <p class="small">sha256: <span class="sha256 hash">{{ file.sha256 }}</span></p>
+        <ul class="urls">
+            <li>
+                {% if file.redirect_url %}
+                <a class="button" href="{{ file.redirect_url }}">Official Indirect Download</a>
+                {% endif %}
+                {% if file.direct_url %}
+                <a class="button" href="{{ file.direct_url }}">Official Direct Download</a>
+                {% endif %}
+                {% if file.page_url %}
+                <a class="button" href="{{ file.page_url }}">Download Page</a>
+                {% endif %}
+            </li>
+        </ul>
+    </section>
+    {% endfor %}
+</section>
+{% endmacro %}
+
+{% block content %}
+
+<h1>{{ mod.name }}</h1>
+
+{% macro author_name(author) %}
+{{ author.name }}
+{% endmacro %}
+
+{% if len(mod.authors) > 0 %}
+<p class="mod-authors"><i>
+Authored by
+{% for author in mod.authors %}
+    {% if author == mod.authors|first and len(mod.authors) <= 2 %}
+        {{ author_name(author) }}
+    {% elif author == mod.authors|last %}
+        and {{ author_name(author) }}
+    {% else %}
+        {{ author_name(author) }}, 
+    {% endif %}
+{% endfor %}
+</i></p>
+{% endif %}
+
+{% if mod.desc %}
+<div class="mod-desc">
+    {{ mod.desc | markdown }}
+</div>
+{% endif %}
+
+{% for mcv, vsns in mod.vsns_by_game_vsn().items() %}
+
+<h2>For Minecraft {{ mcv }}</h2>
+
+{% if len(vsns) > 0 %}
+{{ vsnblock(vsns[0]) }}
+{% endif %}
+
+{% if len(vsns) > 1 %}
+<button class="accbtn">{{ len(vsns) - 1 }} more</button>
+<div class="accordion">
+    {% for vsn in vsns[1:] %}
+    {{ vsnblock(vsn) }}
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endfor %}
+
+{% endblock %}
+

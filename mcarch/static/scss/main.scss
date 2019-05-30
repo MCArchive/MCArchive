@@ -1,17 +1,23 @@
 // Accent colors
-$primary: #009624;
-$prim-light: #51c854;
-$prim-dark: #006700;
+$primary: #67a;
+$prim-light: #78b;
+$prim-dark: #569;
 
 $lightgray: #666;
 $gray: #333;
 
-$font-stack: 'Roboto', sans-serif;
+$font-stack: 'Source Sans Pro', sans-serif;
 $font-size:  12pt;
+$hfont-stack: 'Oswald', sans-serif;
+$h1-size:    24pt;
+$h-offset:   4pt;
+
+$monofont: 'Source Code Pro';
 
 $shadow-color: rgba(0, 0, 0, 0.28); // color of shadows
 
-$border-rad: 8px; // border radius on rounded corners
+$fade-dur: 0.2s; // duration of fade transitions
+$border-rad: 6px; // border radius on rounded corners
 $shadow: 0px 1px 4px $shadow-color; // box shadow parameters
 
 $header-color: #eee; // color of text in h1, h2, h3, etc
@@ -45,13 +51,19 @@ body {
 }
 
 h1, h2, h3, h4, h5 {
-    font-family: $font-stack;
+    font-family: $hfont-stack;
     color: $header-color;
 }
 
+h1 { font-size: $h1-size; }
+h2 { font-size: $h1-size - $h-offset*1; }
+h3 { font-size: $h1-size - $h-offset*2; }
+h4 { font-size: $h1-size - $h-offset*3; }
+h5 { font-size: $h1-size - $h-offset*4; }
+
 a {
     color: $link-color;
-    transition: color 0.2s;
+    transition: color $fade-dur;
 
     &:hover { color: $link-hover-color; }
     &:active { color: $link-click-color; }
@@ -102,5 +114,75 @@ footer {
             color: $footer-link-hover-color;
         }
     }
+}
+
+/**** Blocks ****/
+
+.block {
+    border-style: solid;
+    border-width: 1px;
+    padding: 12px 20px;
+    margin: 8px 0px;
+    border: none;
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: none;
+    border-radius: $border-rad;
+
+    /* Make p tags in blocks more compact */
+    & p, & h1 {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+    & h1 { font-size: $h1-size - $h-offset*2; }
+
+    /* If the title of a block is a link, don't underline it unless it's hovered. */
+    & h1 a {
+        text-decoration: none;
+        &:hover { text-decoration: underline; }
+    }
+}
+
+.sub-block {
+    border-style: solid;
+    border-width: 0px;
+    border-top-width: 1px;
+    border-color: $lightgray;
+    padding-top: 8px;
+
+    & h2, & h1 {
+        margin-top: 5px;
+        font-size: $h1-size - $h-offset*3;
+    }
+}
+
+
+/**** Accordion ****/
+.accordion {
+    transition: max-height 0.4s;
+    overflow: hidden;
+}
+.accordion.hidden {
+    max-height: 0;
+}
+
+
+/**** Mod Page ****/
+.urls {
+    list-style-type: none;
+    padding: 0;
+    & li {
+        display: inline;
+        margin: 0px 4px;
+        &:first-child { margin-left: 0px; }
+    }
+}
+.hash {
+    font-family: $monofont;
+}
+
+/**** Misc ****/
+
+.small {
+    font-size: $font-size - 2;
 }
 
