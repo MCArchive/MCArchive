@@ -1,5 +1,9 @@
-# Flask-asset generated files
-mcarch/static/gen/
+# Node crap
+node_modules/
+_webpack_manifest.json
+
+# Webpack generated files
+mcarch/static/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

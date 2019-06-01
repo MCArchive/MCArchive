@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_assets import Environment, Bundle
 from flask_bcrypt import Bcrypt
 from flaskext.markdown import Markdown
 
@@ -25,7 +24,6 @@ def create_app(config_object):
     if app.env == 'development': app.config.from_object(DevelopmentConfig)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     register_extensions(app)
-    register_assets(app)
     register_blueprints(app)
     register_conprocs(app)
     return app
@@ -34,19 +32,6 @@ def register_extensions(app):
     Markdown(app)
     db.init_app(app)
     bcrypt.init_app(app)
-
-def register_assets(app):
-    assets = Environment(app)
-
-    css = Bundle('scss/vars.scss', 'scss/main.scss', 'scss/forms.scss', 'scss/accordion.scss',
-                 'scss/block.scss', 'scss/scaling.scss', 'scss/nav.scss', 'scss/mod.scss',
-                 filters='pyscss', output='gen/main.css')
-
-    js = Bundle('js/accordion.js',
-            filters='jsmin', output='gen/main.js')
-
-    assets.register("css_all", css)
-    assets.register("js_all", js)
 
 def register_conprocs(app):
     login.register_conproc(app)

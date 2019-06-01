@@ -26,7 +26,7 @@ class Mod(db.Model):
     slug = db.Column(db.String(80), nullable=False, unique=True)
     name = db.Column(db.String(80), nullable=False)
     desc = db.Column(db.Text)
-    url = db.Column(db.String(120))
+    website = db.Column(db.String(120))
     authors = db.relationship(
         "ModAuthor",
         secondary=authored_by_table,

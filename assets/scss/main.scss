@@ -1,11 +1,17 @@
 @import 'vars.scss';
+@import 'nav.scss';
+@import 'forms.scss';
+@import 'accordion.scss';
+@import 'block.scss';
+@import 'scaling.scss';
+@import 'mod.scss';
 
 body {
     margin: 0 0;
     font-family: $font-stack;
     font-size: $font-size;
     color: $body-color;
-    background: url(image-url('img/bg.png'));
+    background: url('../img/bg.png');
 }
 
 h1, h2, h3, h4, h5 {

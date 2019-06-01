@@ -11,12 +11,11 @@
 
     <title>{% block title %}{% endblock %} &ndash; Minecraft Archive</title>
 
+    <link href="/static/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+
     <link href="https://fonts.googleapis.com/css?family=Oswald|Source+Code+Pro|Source+Sans+Pro&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
-    {% assets "css_all" %}
-    <link href="{{ ASSET_URL }}" rel='stylesheet' type='text/css'>
-    {% endassets %}
-    <link href="{{ url_for('static', filename='img/favicon.ico') }}" rel="shortcut icon" type="image/x-icon"/>
+    <link rel="stylesheet" href="/static/main.css">
 
     {% block head %}{% endblock %}
 </head>
@@ -74,9 +73,7 @@
 
    {% block end %}{% endblock %}
 
-   {% assets "js_all" %}
-   <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-   {% endassets %}
+   <script type="text/javascript" src="/static/main.js"></script>
    {% block js %}{% endblock %}
 </body>
 </html>

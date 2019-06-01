@@ -1,6 +1,5 @@
 flask
 flask-sqlalchemy
-flask-assets
 flask-markdown
 flask-wtf
 flask-session
