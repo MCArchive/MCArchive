@@ -19,6 +19,7 @@ module.exports = {
 
     entry: {
         main: './assets/js/main.js',
+        'edit-mod': './assets/js/edit-mod.jsx',
     },
     output: {
         publicPath: '/static/',
@@ -26,9 +27,18 @@ module.exports = {
         filename: '[name].js'
     },
     mode: dev_mode ? 'development' : 'production',
+    devtool: dev_mode ? 'source-map' : undefined,
 
     module: {
         rules: [
+            {
+                test: /\.(js|jsx)$/,
+                exclude: '/node_modules/',
+                loader: 'babel-loader',
+                query: {
+                    presets: ['@babel/preset-env', '@babel/preset-react']
+                }
+            },
             {
                 test: /\.scss$/,
                 use: [

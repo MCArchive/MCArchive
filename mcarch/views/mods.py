@@ -16,7 +16,8 @@ def mod_page(slug):
     mod = Mod.query.filter_by(slug=slug).first_or_404()
     return render_template("mods/mod.html", mod=mod)
 
-@modbp.route("/edit/<slug>")
+@modbp.route("/mods/<slug>/edit")
 def edit_mod(slug):
     mod = Mod.query.filter_by(slug=slug).first_or_404()
+    return render_template("mods/edit.html", mod=mod)
 

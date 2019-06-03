@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}{{ mod.name }}{% endblock %}
+
+{% block content %}
+
+<noscript>
+    <ul class='flashes'>
+        <li>The mod editor requires JavaScript to function. Please enable JavaScript in your web browser.</li>
+    </ul>
+</noscript>
+
+<h1>Edit Mod</h1>
+
+{# This page is handled by react #}
+<div id="mod-form"></div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="/static/edit-mod.js"></script>
+{% endblock %}
+
+

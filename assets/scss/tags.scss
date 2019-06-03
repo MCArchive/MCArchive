@@ -1,0 +1,30 @@
+.tags {
+    & .tags-selected {
+        display: inline;
+
+        & .tag {
+            border-radius: 0px;
+            &:first-child { border-radius: $border-rad 0px 0px $border-rad; }
+
+            & .tag-name {
+                &::after {
+                    font-family: "Font Awesome 5 Free"; font-weight: 900;
+                    content: " \f00d";
+                };
+            }
+        }
+    }
+
+    & .tags-search {
+        display: inline;
+
+        & .tags-search-input {
+            display: inline;
+
+            & input {
+                border-radius: 0px $border-rad $border-rad 0px;
+            }
+        }
+    }
+}
+

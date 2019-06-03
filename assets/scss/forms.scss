@@ -10,7 +10,7 @@ button, input, .button {
 }
 
 // Text Boxes
-input[type='text'], input[type='password'] {
+input, textarea {
     padding: $elem-pad;
 
     border-radius: $fborder-rad;
