@@ -25,6 +25,36 @@
                 border-radius: 0px $border-rad $border-rad 0px;
             }
         }
+
+        & .tags-suggestions {
+            position: absolute;
+            background-color: $lightgray;
+            border-radius: $border-rad $border-rad;
+
+            & ul {
+                list-style: none;
+                padding: 0px;
+                margin: 0px;
+
+                & li {
+                    padding: 6px;
+
+                    &.is-active, &:hover {
+                        background-color: $prim-light;
+                    }
+
+                    border-top-width: 1px;
+                    border-top-style: solid;
+                    border-top-color: $gray;
+                    &:first-child {
+                        border-radius: $border-rad $border-rad 0px 0px;
+                        border-top-style: none;
+                    }
+                    &:last-child { border-radius: 0px 0px $border-rad $border-rad; }
+                    &:first-child:last-child { border-radius: $border-rad; }
+                }
+            }
+        }
     }
 }
 

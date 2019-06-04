@@ -9,34 +9,44 @@ import ReactTags from 'react-tag-autocomplete';
 let DB_NAME_LEN = 80;
 let DB_URL_LEN = 120;
 
+// Transform null values to empty strings
+yup.addMethod(yup.string, 'optional', function() {
+    return this.transform(function(value, originalValue) {
+        if (this.isType(value)) return value;
+        else if (value === null) return '';
+    });
+});
+
 let ModSchema = yup.object().shape({
     name: yup.string().max(DB_NAME_LEN).required(),
-    desc: yup.string(),
-    website: yup.string().max(DB_URL_LEN),
+    desc: yup.string().optional(),
+    website: yup.string().max(DB_URL_LEN).optional(),
 
     versions: yup.array().min(0).of(yup.object().shape({
         name: yup.string().max(DB_NAME_LEN).required(),
-        desc: yup.string(),
-        url: yup.string().max(DB_URL_LEN),
+        desc: yup.string().optional(),
+        url: yup.string().max(DB_URL_LEN).optional(),
 
         files: yup.array().min(1).of(yup.object().shape({
-            desc: yup.string(),
-            page_url: yup.string().max(DB_URL_LEN),
-            redirect_url: yup.string().max(DB_URL_LEN),
-            direct_url: yup.string().max(DB_URL_LEN),
+            desc: yup.string().optional(),
+            page_url: yup.string().max(DB_URL_LEN).optional(),
+            redirect_url: yup.string().max(DB_URL_LEN).optional(),
+            direct_url: yup.string().max(DB_URL_LEN).optional(),
         })),
     })),
 });
 
+// mod_json is a global variable passed in through a jinja template
+const initVals = ModSchema.validateSync(mod_json)
+
 const ModForm = () => (
     <Formik
-        initialValues={{
-            name: '', desc: '', website: '', versions: [], authors: [],
-        }}
+        initialValues={initVals}
         validationSchema={ModSchema}
         onSubmit={(values, { setSubmitting }) => {
             setTimeout(() => {
                 alert(JSON.stringify(values, null, 2));
+                console.log(values);
                 setSubmitting(false);
             }, 400);
         }}
@@ -59,7 +69,7 @@ const ModForm = () => (
                         <tr>
                             <td><label htmlFor="authors">Authors: </label></td>
                             <td><Field name="authors" component={TagInput}
-                                    placeholder="Add an author"
+                                    suggestions={authors_json} placeholder="Add an author"
                                 /></td>
                             <td><ErrorMessage name="authors" component="div" /></td>
                         </tr>
@@ -105,15 +115,17 @@ const VersionListForm = ({
                     <tbody>
                         <tr>
                             <td><label htmlFor={pfx+".name"}>Name: </label></td>
-                            <td><Field autoComplete='off' type="text" name={pfx+".name"} /></td>
+                            <td><Field autoComplete='off' type="text" name={pfx+".name"}
+                                       style={{"fontSize": "36px"}}
+                                /></td>
                             <td><ErrorMessage name={pfx+".name"} component="div" /></td>
                         </tr>
                         <tr>
-                            <td><label htmlFor="game_vsns">Game Versions: </label></td>
-                            <td><Field name="game_vsns" component={TagInput}
-                                    placeholder="Add a version"
+                            <td><label htmlFor={pfx+".game_vsns"}>Game Versions: </label></td>
+                            <td><Field name={pfx+".game_vsns"} component={TagInput}
+                                    suggestions={game_vsns_json} placeholder="Add a version"
                                 /></td>
-                            <td><ErrorMessage name="game_vsns" component="div" /></td>
+                            <td><ErrorMessage name={pfx+".game_vsns"} component="div" /></td>
                         </tr>
                         <tr>
                             <td><label htmlFor={pfx+".url"}>Web Page: </label></td>
@@ -187,9 +199,7 @@ const FileListForm = ({
 class TagInput extends Component {
     constructor(props) {
         super(props);
-        this.state = {tags: [
-            {id: 1, name: "test"}
-        ]};
+        this.state = {tags: props.field.value};
         this.classes = {
             root: 'tags',
             rootFocused: 'is-focused',

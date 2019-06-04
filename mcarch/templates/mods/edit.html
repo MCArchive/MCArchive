@@ -18,6 +18,11 @@
 {% endblock %}
 
 {% block js %}
+<script type="text/javascript">
+var mod_json = {{ modjson | tojson }};
+var authors_json = {{ authorjson | tojson }};
+var game_vsns_json = {{ gvsnjson | tojson }};
+</script>
 <script type="text/javascript" src="/static/edit-mod.js"></script>
 {% endblock %}
 

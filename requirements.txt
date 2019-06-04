@@ -11,6 +11,7 @@ cffi==1.12.3              # via bcrypt
 click==7.0                # via flask
 flask-bcrypt==0.7.1
 flask-markdown==0.3
+flask-marshmallow==0.10.1
 flask-session==0.3.1
 flask-sqlalchemy==2.4.0
 flask-wtf==0.14.2
@@ -18,18 +19,19 @@ flask==1.0.3
 importlib-metadata==0.15  # via pluggy
 itsdangerous==1.1.0       # via flask
 jinja2==2.10.1            # via flask
-jsmin==2.2.2
 markdown==3.1.1           # via flask-markdown
 markupsafe==1.1.1         # via jinja2
+marshmallow-sqlalchemy==0.16.3
+marshmallow==2.19.2
 more-itertools==7.0.0     # via pytest
 pluggy==0.12.0            # via pytest
 py==1.8.0                 # via pytest
 pycparser==2.19           # via cffi
-pyscss==1.3.5
 pytest-flask==0.15.0
 pytest==4.5.0             # via pytest-flask
-six==1.12.0               # via bcrypt, pyscss, pytest
-sqlalchemy==1.3.3         # via flask-sqlalchemy
+pyyaml==5.1
+six==1.12.0               # via bcrypt, flask-marshmallow, pytest
+sqlalchemy==1.3.3         # via flask-sqlalchemy, marshmallow-sqlalchemy
 wcwidth==0.1.7            # via pytest
 werkzeug==0.15.4          # via flask, pytest-flask
 wtforms==2.2.1            # via flask-wtf

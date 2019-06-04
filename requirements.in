@@ -4,9 +4,11 @@ flask-markdown
 flask-wtf
 flask-session
 flask-bcrypt
+flask-marshmallow
 
-pyScss
-jsmin
+marshmallow
+marshmallow_sqlalchemy
+pyYaml
 
 pytest-flask
 
