@@ -24,6 +24,13 @@
         <div class="container">
             <a class="logo" href="{{ url_for("root.home") }}">Minecraft Archive</a>
             {{ nav_btn(url_for("mods.browse"), "Browse") }}
+            <div class="dropdown">
+                <a href="javascript:void();" class="dropbtn">Browse By</a>
+				<div class="dropcontent">
+                    {{ nav_btn(url_for("mods.gamevsns"), "Game Version") }}
+                    {{ nav_btn(url_for("mods.authors"), "Author") }}
+				</div>
+            </div>
 
             {#
             It's OK to use the insecure version here because we're just checking whether to show
@@ -34,10 +41,9 @@
             <div class="dropdown right">
                 <a href="javascript:void();" class="dropbtn">
                     <img src="{{ iuser.avatar }}" alt="{{ iuser.name }} Avatar">
-                    {{ iuser.name }}
-                </a>
-				<div class="dropcontent">
-                    <a href="{{ url_for("user.logout") }}">Log Out</a>
+                    {{ iuser.name }}</a>
+                <div class="dropcontent">
+                    {{ nav_btn(url_for("user.logout"), "Log Out") }}
 				</div>
             </div>
             {% else %}

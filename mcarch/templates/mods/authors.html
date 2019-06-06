@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Mod Authors{% endblock %}
+{% block content %}
+
+<h1>Mod Authors</h1>
+
+<div id="authors" class="list">
+    <ul>
+        {% for author in authors %}
+        <li><a href="{{ url_for('mods.browse', author=author.name) }}">{{ author.name }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}
+

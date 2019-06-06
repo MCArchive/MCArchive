@@ -4,6 +4,16 @@
 
 <h1>Browse Mods</h1>
 
+{% if len(filters) > 0 %}
+<p>Showing mods
+{% for (f, x) in filters %}
+{% if f == 'author' %} by {{ x }}{% endif %}
+{% if f == 'gvsn' %} for Minecraft {{ x }}{% endif %}
+{% endfor %}
+</p>
+<p><a href="{{ url_for('mods.browse') }}">Show all</a></p>
+{% endif %}
+
 <div id="mods">
     <div class="list">
         {% for mod in mods %}

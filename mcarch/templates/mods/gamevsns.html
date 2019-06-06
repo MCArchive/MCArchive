@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Game Versions{% endblock %}
+{% block content %}
+
+<h1>Game Versions</h1>
+
+<div id="gamevsns" class="list">
+    <ul>
+    {% for gvsn in gamevsns %}
+    <li><a href="{{ url_for('mods.browse', gvsn=gvsn.name) }}">Minecraft {{ gvsn.name }}</a></li>
+    {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}
+
+

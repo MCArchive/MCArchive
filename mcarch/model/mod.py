@@ -52,9 +52,6 @@ class Mod(db.Model):
         for gv in gvs:
             gvsns.add(gv.name)
         return sorted(list(gvsns))
-        #for vsn in self.versions:
-        #    for gv in vsn.game_vsns: gvsns.add(gv.name)
-        #return gvsns
 
     def game_versions_str(self):
         """Returns a comma separated string listing the supported game versions for this mod."""
@@ -64,7 +61,7 @@ class ModAuthor(db.Model):
     __tablename__ = "author"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False, unique=True)
-    info = db.Column(db.Text)
+    desc = db.Column(db.Text)
     website = db.Column(db.String(120))
     mods = db.relationship(
         "Mod",

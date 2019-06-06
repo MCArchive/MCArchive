@@ -1,16 +1,32 @@
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, request
 
-from mcarch.model.mod import Mod, ModAuthor, GameVersion
+from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
 from mcarch.login import login_required
 from mcarch.jsonschema import ModSchema, ModAuthorSchema, GameVersionSchema
+from mcarch.util import key_mc_version
 
 modbp = Blueprint('mods', __name__, template_folder="templates")
 
 
 @modbp.route("/mods")
 def browse():
-    mods = Mod.query.all()
-    return render_template("mods/browse.html", mods=mods)
+    mod_query = Mod.query
+    by_author = request.args.get('author')
+    by_gvsn = request.args.get('gvsn')
+    # list of filters to be listed on the page
+    filters = []
+
+    if by_author:
+        filters.append(('author', by_author))
+        mod_query = mod_query.join(ModAuthor, Mod.authors).filter(ModAuthor.name == by_author)
+    if by_gvsn:
+        filters.append(('gvsn', by_gvsn))
+        mod_query = mod_query.join(ModVersion) \
+                             .join(GameVersion, ModVersion.game_vsns) \
+                             .filter(GameVersion.name == by_gvsn)
+
+    mods = mod_query.all()
+    return render_template("mods/browse.html", mods=mods, filters=filters)
 
 @modbp.route("/mods/<slug>")
 def mod_page(slug):
@@ -33,4 +49,15 @@ def edit_mod(slug):
     gvsnjson = [GameVersionSchema().dump(g).data for g in game_vsns]
     return render_template("mods/edit.html", mod=mod,
             modjson=ModSchema().dump(mod).data, authorjson=authorjson, gvsnjson=gvsnjson)
+
+
+@modbp.route("/authors")
+def authors():
+    authors = ModAuthor.query.all()
+    return render_template('mods/authors.html', authors=authors)
+
+@modbp.route("/gamevsns")
+def gamevsns():
+    gamevsns = sorted(GameVersion.query.all(), key=lambda a: key_mc_version(a.name), reverse=True)
+    return render_template('mods/gamevsns.html', gamevsns=gamevsns)
 

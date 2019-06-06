@@ -4,12 +4,7 @@
 
 {% macro vsnblock(vsn) %}
 <section class="block">
-    <h1>
-        {{ vsn.name }}
-        {% if len(vsn.mcvsn) > 0 %}
-        for Minecraft {{ ", ".join(vsn.mcvsn) }}
-        {% endif %}
-    </h1>
+    <h1>{{ vsn.name }}</h1>
 
     {% if vsn.desc %}
     <div class="vsn-desc">
@@ -44,7 +39,7 @@
 <h1>{{ mod.name }}</h1>
 
 {% macro author_name(author) %}
-{{ author.name }}
+<a href="{{ url_for('mods.browse', author=author.name) }}">{{ author.name }}</a>
 {% endmacro %}
 
 {% if len(mod.authors) > 0 %}
@@ -70,7 +65,7 @@ Authored by
 
 {% for mcv, vsns in mod.vsns_by_game_vsn().items() %}
 
-<h2>For Minecraft {{ mcv }}</h2>
+<h2>For Minecraft <a href="{{ url_for('mods.browse', gvsn=mcv) }}">{{ mcv }}</a></h2>
 
 {% if len(vsns) > 0 %}
 {{ vsnblock(vsns[0]) }}
