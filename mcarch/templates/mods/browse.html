@@ -19,7 +19,7 @@
         {% for mod in mods %}
         <section class="block">
             <h1 class="modname">
-                <a href="{{ url_for('mods.mod_page', slug=mod.slug) }}">{{ mod.name }}</a>
+                <a href="{{ url_for('mods.mod_page', slug=mod.slug, gvsn=gvsn) }}">{{ mod.name }}</a>
             </h3>
             <p class="gamevsn small">Supports Minecraft {{ mod.game_versions_str() }}</p>
             {% if mod.desc %}

@@ -2,25 +2,33 @@ from collections import OrderedDict
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy_continuum import make_versioned
 
 from util.sqla_uuid import GUID
 
 from mcarch.app import db, bcrypt
 
+make_versioned(user_cls='User', options={'table_name': '%s_log'})
+
 # Association table for relation between authors and mods.
 authored_by_table = db.Table('authored_by', db.Model.metadata,
-    db.Column('mod_id', db.Integer, db.ForeignKey('mod.id')),
-    db.Column('author_id', db.Integer, db.ForeignKey('author.id'))
+    db.Column('mod_id', db.Integer,
+        db.ForeignKey('mod.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('author_id', db.Integer,
+        db.ForeignKey('author.id', ondelete='CASCADE'), primary_key=True)
 )
 
 # Association table for relation between Minecraft versions and mods.
 for_game_vsn_table = db.Table('for_game_version', db.Model.metadata,
-    db.Column('mod_vsn_id', db.Integer, db.ForeignKey('mod_version.id')),
-    db.Column('game_vsn_id', db.Integer, db.ForeignKey('game_version.id'))
+    db.Column('mod_vsn_id', db.Integer,
+        db.ForeignKey('mod_version.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('game_vsn_id', db.Integer,
+        db.ForeignKey('game_version.id', ondelete='CASCADE'), primary_key=True),
 )
 
 
 class Mod(db.Model):
+    __versioned__ = {}
     __tablename__ = "mod"
     id = db.Column(db.Integer, primary_key=True)
     slug = db.Column(db.String(80), nullable=False, unique=True)
@@ -58,6 +66,7 @@ class Mod(db.Model):
         return ", ".join(map(lambda v: v, self.game_versions()))
 
 class ModAuthor(db.Model):
+    __versioned__ = {}
     __tablename__ = "author"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False, unique=True)
@@ -70,6 +79,7 @@ class ModAuthor(db.Model):
 
 
 class ModVersion(db.Model):
+    __versioned__ = {}
     __tablename__ = "mod_version"
     id = db.Column(db.Integer, primary_key=True)
     mod_id = db.Column(db.Integer, db.ForeignKey('mod.id'))
@@ -89,9 +99,10 @@ class ModVersion(db.Model):
         return ", ".join(map(lambda v: v.name, self.game_vsnsl))
 
 class GameVersion(db.Model):
+    __versioned__ = {}
     __tablename__ = "game_version"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(40), nullable=False)
+    name = db.Column(db.String(40), nullable=False, unique=True)
     mod_vsns = db.relationship(
         "ModVersion",
         secondary=for_game_vsn_table,
@@ -99,6 +110,7 @@ class GameVersion(db.Model):
 
 
 class ModFile(db.Model):
+    __versioned__ = {}
     __tablename__ = "mod_file"
     id = db.Column(db.Integer, primary_key=True)
     version_id = db.Column(db.Integer, db.ForeignKey('mod_version.id'))
@@ -123,48 +135,4 @@ class ModFile(db.Model):
     # Whether we're providing our own download links for this file.
     redist = db.Column(db.Boolean)
 
-
-
-def import_mod(obj, slug):
-    mod = Mod(slug=slug, name=obj['name'])
-    if 'desc' in obj: mod.desc=obj['desc']
-    for name in obj['authors']:
-        # Try to find the author in the database.
-        auth = ModAuthor.query.filter_by(name=name).first()
-        if auth is None:
-            # Add a new author to the database.
-            auth = ModAuthor(name=name)
-        mod.authors.append(auth)
-    for vsn in obj['versions']:
-        mod.versions.append(import_mod_vsn(vsn))
-    return mod
-
-def import_mod_vsn(obj):
-    vsn = ModVersion(name=obj['name'])
-    if 'desc' in obj: vsn.desc=obj['desc']
-    for name in obj['mcvsn']:
-        # Try to find the game version in the database.
-        gvsn = GameVersion.query.filter_by(name=name).first()
-        if gvsn is None:
-            # Add a new game version to the database.
-            gvsn = GameVersion(name=name)
-        vsn.game_vsns.append(gvsn)
-    for mfile in obj['files']:
-        vsn.files.append(import_mod_file(mfile))
-    return vsn
-
-def import_mod_file(obj):
-    mfile = ModFile(filename=obj['filename'], sha256=obj['hash']['digest'])
-    if 'desc' in obj: mfile.desc=obj['desc']
-
-    if 'urls' in obj:
-        for url in obj['urls']:
-            if url['type'] == 'page':
-                mfile.page_url = url['url']
-            elif url['type'] == 'original' and 'adf.ly' in url['url']:
-                mfile.redirect_url = url['url']
-            elif url['type'] == 'original':
-                mfile.direct_url = url['url']
-
-    return mfile
 

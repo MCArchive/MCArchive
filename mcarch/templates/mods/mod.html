@@ -36,6 +36,9 @@
 
 {% block content %}
 
+{% if insecure_cur_user() %}
+<a class="button right" href="{{ url_for('mods.edit_mod', slug=mod.slug) }}">Edit</a>
+{% endif %}
 <h1>{{ mod.name }}</h1>
 
 {% macro author_name(author) %}
@@ -63,7 +66,14 @@ Authored by
 </div>
 {% endif %}
 
-{% for mcv, vsns in mod.vsns_by_game_vsn().items() %}
+{% if by_gvsn %}
+<div class="filter alert">
+    Showing versions of this mod that support Minecraft {{ by_gvsn }}.
+    <a href="{{ url_for('mods.mod_page', slug=mod.slug) }}">Show all</a>
+</div>
+{% endif %}
+
+{% for mcv, vsns in vsns_grouped.items() %}
 
 <h2>For Minecraft <a href="{{ url_for('mods.browse', gvsn=mcv) }}">{{ mcv }}</a></h2>
 

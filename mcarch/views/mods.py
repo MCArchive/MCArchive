@@ -26,29 +26,23 @@ def browse():
                              .filter(GameVersion.name == by_gvsn)
 
     mods = mod_query.all()
-    return render_template("mods/browse.html", mods=mods, filters=filters)
+    return render_template("mods/browse.html", mods=mods, filters=filters, gvsn=by_gvsn)
 
 @modbp.route("/mods/<slug>")
 def mod_page(slug):
     mod = Mod.query.filter_by(slug=slug).first_or_404()
-    return render_template("mods/mod.html", mod=mod)
+    vsns = mod.vsns_by_game_vsn()
+
+    by_gvsn = request.args.get('gvsn')
+    if by_gvsn:
+        vsns = { by_gvsn: vsns.get(by_gvsn) }
+
+    return render_template("mods/mod.html", mod=mod, vsns_grouped=vsns, by_gvsn=by_gvsn)
 
 @modbp.route("/mods/<slug>.json")
 def mod_page_json(slug):
     mod = Mod.query.filter_by(slug=slug).first_or_404()
     return jsonify(ModSchema().dump(mod).data)
-
-@modbp.route("/mods/<slug>/edit")
-@login_required
-def edit_mod(slug):
-    mod = Mod.query.filter_by(slug=slug).first_or_404()
-    authors = ModAuthor.query.all()
-    game_vsns = GameVersion.query.all()
-
-    authorjson = [ModAuthorSchema().dump(a).data for a in authors]
-    gvsnjson = [GameVersionSchema().dump(g).data for g in game_vsns]
-    return render_template("mods/edit.html", mod=mod,
-            modjson=ModSchema().dump(mod).data, authorjson=authorjson, gvsnjson=gvsnjson)
 
 
 @modbp.route("/authors")
@@ -60,4 +54,17 @@ def authors():
 def gamevsns():
     gamevsns = sorted(GameVersion.query.all(), key=lambda a: key_mc_version(a.name), reverse=True)
     return render_template('mods/gamevsns.html', gamevsns=gamevsns)
+
+
+@modbp.route("/mods/<slug>/edit", methods=['GET', 'POST'])
+@login_required
+def edit_mod(slug):
+    mod = Mod.query.filter_by(slug=slug).first_or_404()
+    authors = ModAuthor.query.all()
+    game_vsns = GameVersion.query.all()
+
+    authorjson = [ModAuthorSchema().dump(a).data for a in authors]
+    gvsnjson = [GameVersionSchema().dump(g).data for g in game_vsns]
+    return render_template("mods/edit.html", mod=mod,
+            modjson=ModSchema().dump(mod).data, authorjson=authorjson, gvsnjson=gvsnjson)
 

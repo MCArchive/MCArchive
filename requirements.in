@@ -8,6 +8,9 @@ flask-marshmallow
 
 marshmallow
 marshmallow_sqlalchemy
+
+SQLAlchemy-Continuum
+
 pyYaml
 
 pytest-flask

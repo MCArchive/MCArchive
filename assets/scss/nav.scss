@@ -52,10 +52,6 @@ nav {
         &:active, &.active {
             @include active-navbtn;
         }
-
-        &.right {
-            float: right;
-        }
     }
     & .dropdown {
         padding: 0px;
