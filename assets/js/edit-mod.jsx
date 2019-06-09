@@ -44,11 +44,39 @@ const ModForm = () => (
         initialValues={initVals}
         validationSchema={ModSchema}
         onSubmit={(values, { setSubmitting }) => {
-            setTimeout(() => {
-                alert(JSON.stringify(values, null, 2));
-                console.log(values);
+            console.log(values);
+            fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(values),
+            }).then(r => {
+                if (r.ok) {
+                    return r.json();
+                } else {
+                    throw Error(r.statusText);
+                }
+            }).then(data => {
+                console.log(data);
+                if (data.hasOwnProperty('result')) {
+                    if (data['result'] == 'success') {
+                        alert("Changes saved");
+                    } else if (data.hasOwnProperty('result') && data['result'] == 'success') {
+                        alert("Error submitting changes: " + data['error']);
+                    } else {
+                        alert("Received invalid response");
+                    }
+                } else {
+                    alert("Received invalid response");
+                }
+            }).catch(error => {
+                console.log(error);
+                alert("Error submitting changes")
+            }).finally(() => {
                 setSubmitting(false);
-            }, 400);
+            });
         }}
     >
         {({ isSubmitting }) => (

@@ -77,11 +77,11 @@ Authored by
 
 <h2>For Minecraft <a href="{{ url_for('mods.browse', gvsn=mcv) }}">{{ mcv }}</a></h2>
 
-{% if len(vsns) > 0 %}
+{% if vsns and len(vsns) > 0 %}
 {{ vsnblock(vsns[0]) }}
 {% endif %}
 
-{% if len(vsns) > 1 %}
+{% if vsns and len(vsns) > 1 %}
 <button class="accbtn">{{ len(vsns) - 1 }} more</button>
 <div class="accordion">
     {% for vsn in vsns[1:] %}

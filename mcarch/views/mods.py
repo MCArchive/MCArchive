@@ -4,6 +4,7 @@ from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
 from mcarch.login import login_required
 from mcarch.jsonschema import ModSchema, ModAuthorSchema, GameVersionSchema
 from mcarch.util import key_mc_version
+from mcarch.app import db
 
 modbp = Blueprint('mods', __name__, template_folder="templates")
 
@@ -59,12 +60,25 @@ def gamevsns():
 @modbp.route("/mods/<slug>/edit", methods=['GET', 'POST'])
 @login_required
 def edit_mod(slug):
-    mod = Mod.query.filter_by(slug=slug).first_or_404()
-    authors = ModAuthor.query.all()
-    game_vsns = GameVersion.query.all()
+    if request.method == 'POST':
+        json = request.get_json()
+        if json:
+            mod = Mod.query.filter_by(slug=slug).first_or_404()
+            mod_schema = ModSchema(instance=mod, session=db.session)
+            mod_schema.load(json)
+            db.session.commit()
+            return jsonify({"result": "success"})
+        else:
+            response = jsonify({"result": "error", "error": "No JSON data received."})
+            response.status_code = 400
+            return response
+    else:
+        mod = Mod.query.filter_by(slug=slug).first_or_404()
+        authors = ModAuthor.query.all()
+        game_vsns = GameVersion.query.all()
 
-    authorjson = [ModAuthorSchema().dump(a).data for a in authors]
-    gvsnjson = [GameVersionSchema().dump(g).data for g in game_vsns]
-    return render_template("mods/edit.html", mod=mod,
-            modjson=ModSchema().dump(mod).data, authorjson=authorjson, gvsnjson=gvsnjson)
+        authorjson = [ModAuthorSchema().dump(a).data for a in authors]
+        gvsnjson = [GameVersionSchema().dump(g).data for g in game_vsns]
+        return render_template("mods/edit.html", mod=mod,
+                modjson=ModSchema().dump(mod).data, authorjson=authorjson, gvsnjson=gvsnjson)
 
