@@ -20,7 +20,7 @@ input, textarea {
     box-shadow: $shadow;
 
     background-color: #000;
-    transition: background-color 0.2s;
+    transition: background-color $fade-dur;
 
     &:focus {
         outline: none;
@@ -70,9 +70,15 @@ button, input[type='button'], input[type='submit'], .button {
     }
 }
 
-
 // Make link buttons look like buttons.
 a.button {
     text-decoration: none;
+}
+
+.btngroup {
+    &>* { float: left; border-radius: 0px; }
+    &>:first-child { border-radius: $fborder-rad 0px 0px $fborder-rad; }
+    &>:last-child { border-radius: 0px $fborder-rad $fborder-rad 0px; }
+    &>:first-child:last-child { border-radius: $fborder-rad; }
 }
 

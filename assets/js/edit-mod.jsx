@@ -22,7 +22,7 @@ let ModSchema = yup.object().shape({
     desc: yup.string().optional(),
     website: yup.string().max(DB_URL_LEN).optional(),
 
-    versions: yup.array().min(0).of(yup.object().shape({
+    mod_vsns: yup.array().min(0).of(yup.object().shape({
         name: yup.string().max(DB_NAME_LEN).required(),
         desc: yup.string().optional(),
         url: yup.string().max(DB_URL_LEN).optional(),
@@ -63,6 +63,7 @@ const ModForm = () => (
                 if (data.hasOwnProperty('result')) {
                     if (data['result'] == 'success') {
                         alert("Changes saved");
+                        window.location.href = data['redirect'];
                     } else if (data.hasOwnProperty('result') && data['result'] == 'success') {
                         alert("Error submitting changes: " + data['error']);
                     } else {
@@ -112,7 +113,7 @@ const ModForm = () => (
                 <hr/>
                 
                 <h2>Mod Versions</h2>
-                <FieldArray name="versions" component={VersionListForm}/>
+                <FieldArray name="mod_vsns" component={VersionListForm}/>
 
                 <hr/>
 
@@ -132,8 +133,8 @@ const VersionListForm = ({
     move, swap, push, insert, unshift, pop, form, remove
 }) => (
     <div className="edit-versions">
-        {form.values.versions.map((vsn, index) => {
-            var pfx = `versions.${index}`;
+        {form.values.mod_vsns.map((vsn, index) => {
+            var pfx = `mod_vsns.${index}`;
 
             return <div key={index} className="block edit-version">
                 <button type="button" onClick={() => remove(index)}
@@ -187,8 +188,8 @@ const FileListForm = ({
     move, swap, push, insert, unshift, pop, form, remove, vsnidx
 }) => {
     return <div className="edit-files">
-        {form.values.versions[vsnidx].files.map((f, index) => {
-            const pfx = `versions.${vsnidx}.files.${index}`;
+        {form.values.mod_vsns[vsnidx].files.map((f, index) => {
+            const pfx = `mod_vsns.${vsnidx}.files.${index}`;
 
             return <div key={index} className="sub-block edit-file">
                 <button type="button" onClick={() => remove(index)}

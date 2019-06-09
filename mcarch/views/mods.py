@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, url_for
 
 from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
 from mcarch.login import login_required
@@ -67,7 +67,10 @@ def edit_mod(slug):
             mod_schema = ModSchema(instance=mod, session=db.session)
             mod_schema.load(json)
             db.session.commit()
-            return jsonify({"result": "success"})
+            return jsonify({
+                "result": "success",
+                "redirect": url_for('mods.mod_page', slug=slug)
+            })
         else:
             response = jsonify({"result": "error", "error": "No JSON data received."})
             response.status_code = 400
@@ -81,4 +84,10 @@ def edit_mod(slug):
         gvsnjson = [GameVersionSchema().dump(g).data for g in game_vsns]
         return render_template("mods/edit.html", mod=mod,
                 modjson=ModSchema().dump(mod).data, authorjson=authorjson, gvsnjson=gvsnjson)
+
+@modbp.route("/mods/<slug>/history")
+@login_required
+def mod_history(slug):
+    mod = Mod.query.filter_by(slug=slug).first_or_404()
+    return render_template("mods/history.html", mod=mod)
 

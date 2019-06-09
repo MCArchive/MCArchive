@@ -38,6 +38,8 @@ def register_conprocs(app):
     @app.context_processor
     def inject():
         return dict(
+            list = list,
+            enumerate = enumerate,
             len = len
         )
 

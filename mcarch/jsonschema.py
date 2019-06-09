@@ -32,7 +32,7 @@ class ModVersionSchema(ModelSchema):
         sqla_session = db.session
 
 class ModSchema(ModelSchema):
-    versions = fields.Nested(ModVersionSchema, many=True, exclude=("mod",))
+    mod_vsns = fields.Nested(ModVersionSchema, many=True, exclude=("mod",))
     authors = fields.Nested(ModAuthorSchema, many=True, exclude=("mods",))
     class Meta:
         model = Mod

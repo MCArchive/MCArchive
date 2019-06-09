@@ -39,7 +39,7 @@ class Mod(db.Model):
         "ModAuthor",
         secondary=authored_by_table,
         back_populates="mods")
-    versions = db.relationship("ModVersion", back_populates="mod")
+    mod_vsns = db.relationship("ModVersion", back_populates="mod")
 
     def vsns_by_game_vsn(self):
         """
@@ -47,7 +47,7 @@ class Mod(db.Model):
         versions of this mod that support that Minecraft version.
         """
         vsns = OrderedDict()
-        for v in self.versions:
+        for v in self.mod_vsns:
             vsns.setdefault(v.game_vsns[0].name, []).append(v)
         return vsns
 
@@ -83,7 +83,7 @@ class ModVersion(db.Model):
     __tablename__ = "mod_version"
     id = db.Column(db.Integer, primary_key=True)
     mod_id = db.Column(db.Integer, db.ForeignKey('mod.id'))
-    mod = db.relationship("Mod", back_populates="versions")
+    mod = db.relationship("Mod", back_populates="mod_vsns")
 
     name = db.Column(db.String(40), nullable=False)
     desc = db.Column(db.Text)

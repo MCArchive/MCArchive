@@ -37,7 +37,10 @@
 {% block content %}
 
 {% if insecure_cur_user() %}
-<a class="button right" href="{{ url_for('mods.edit_mod', slug=mod.slug) }}">Edit</a>
+<div class="btngroup right">
+<a class="button" href="{{ url_for('mods.mod_history', slug=mod.slug) }}">History</a>
+<a class="button" href="{{ url_for('mods.edit_mod', slug=mod.slug) }}">Edit</a>
+</div>
 {% endif %}
 <h1>{{ mod.name }}</h1>
 

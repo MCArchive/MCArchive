@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Change History{% endblock %}
+{% block content %}
+
+<h1>Mod Page Change History</h1>
+
+<p>This is a history of changes made to the listing for {{ mod.name }}</p>
+
+{% for i, vsn in enumerate(mod.versions)|reverse %}
+<section class="block">
+    <h1>Version {{ i }}</h1>
+    <ul>
+        {% for field, vals in vsn.changeset.items() %}
+        <li>Changed {{ field }} from "{{ vals[0] }}" to "{{ vals[1] }}".</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endfor %}
+
+{% endblock %}
+
+

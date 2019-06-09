@@ -20,7 +20,7 @@ def import_mod(obj, slug):
             auth = ModAuthor(name=name)
         mod.authors.append(auth)
     for vsn in obj['versions']:
-        mod.versions.append(import_mod_vsn(vsn))
+        mod.mod_vsns.append(import_mod_vsn(vsn))
     return mod
 
 def import_mod_vsn(obj):
