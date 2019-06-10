@@ -20,8 +20,8 @@ class DevelopmentConfig(object):
 
 def create_app(config_object):
     app = Flask(__name__)
-    app.config.from_object(config_object)
     if app.env == 'development': app.config.from_object(DevelopmentConfig)
+    app.config.from_object(config_object)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     register_extensions(app)
     register_blueprints(app)

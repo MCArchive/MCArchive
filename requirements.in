@@ -13,5 +13,7 @@ SQLAlchemy-Continuum
 
 pyYaml
 
+pytest
 pytest-flask
+pytest-flask-sqlalchemy
 

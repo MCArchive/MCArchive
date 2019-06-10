@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, jsonify, request, url_for
 from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
 from mcarch.login import login_required
 from mcarch.jsonschema import ModSchema, ModAuthorSchema, GameVersionSchema
-from mcarch.util import key_mc_version
+from mcarch.util.minecraft import key_mc_version
 from mcarch.app import db
 
 modbp = Blueprint('mods', __name__, template_folder="templates")

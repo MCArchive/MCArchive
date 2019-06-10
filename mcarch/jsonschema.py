@@ -15,7 +15,6 @@ class ModFileSchema(ModelSchema):
 class ModAuthorSchema(ModelSchema):
     class Meta:
         model = ModAuthor
-        exclude = ('mods',)
         sqla_session = db.session
 
 class GameVersionSchema(ModelSchema):
@@ -33,7 +32,7 @@ class ModVersionSchema(ModelSchema):
 
 class ModSchema(ModelSchema):
     mod_vsns = fields.Nested(ModVersionSchema, many=True, exclude=("mod",))
-    authors = fields.Nested(ModAuthorSchema, many=True, exclude=("mods",))
+    authors = fields.Nested(ModAuthorSchema, many=True)
     class Meta:
         model = Mod
         sqla_session = db.session
