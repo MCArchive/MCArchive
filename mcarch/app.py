@@ -40,6 +40,7 @@ def register_conprocs(app):
         return dict(
             list = list,
             enumerate = enumerate,
+            map = map,
             len = len
         )
 

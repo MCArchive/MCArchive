@@ -2,17 +2,17 @@
 {% block title %}Browse Archive{% endblock %}
 {% block content %}
 
-<h1>Browse Mods</h1>
-
 {% if len(filters) > 0 %}
-<p>Showing mods
-{% for (f, x) in filters %}
-{% if f == 'author' %} by {{ x }}{% endif %}
-{% if f == 'gvsn' %} for Minecraft {{ x }}{% endif %}
-{% endfor %}
-</p>
-<p><a href="{{ url_for('mods.browse') }}">Show all</a></p>
+<div class='alert'>Showing mods
+{%- for (f, x) in filters %}
+{%- if f == 'author' %} by {{ x }}{% endif %}
+{%- if f == 'gvsn' %} for Minecraft {{ x }}{% endif %}
+{%- endfor %}.
+<a href="{{ url_for('mods.browse') }}">Show all</a>
+</div>
 {% endif %}
+
+<h1>Browse Mods</h1>
 
 <div id="mods">
     <div class="list">

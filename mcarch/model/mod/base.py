@@ -1,9 +1,11 @@
+from collections import OrderedDict
+
 from mcarch.app import db
 from mcarch.util.copydiff import CopyDiff
 
 def mk_authored_by_table(mod_table):
     """Generates an association table between mods and the author table"""
-    return db.Table('authored_by', db.Model.metadata,
+    return db.Table('{}_authored_by'.format(mod_table), db.Model.metadata,
         db.Column('mod_id', db.Integer,
             db.ForeignKey('{}.id'.format(mod_table), ondelete='CASCADE'), primary_key=True),
         db.Column('author_id', db.Integer,
@@ -12,7 +14,7 @@ def mk_authored_by_table(mod_table):
 
 def mk_for_game_vsn_table(mod_vsn_table):
     """Generates an assocation table between mod versions and the game version table"""
-    return db.Table('for_game_version', db.Model.metadata,
+    return db.Table('{}_for_game_version'.format(mod_vsn_table), db.Model.metadata,
         db.Column('mod_vsn_id', db.Integer,
             db.ForeignKey('{}.id'.format(mod_vsn_table), ondelete='CASCADE'), primary_key=True),
         db.Column('game_vsn_id', db.Integer,
@@ -21,7 +23,7 @@ def mk_for_game_vsn_table(mod_vsn_table):
 
 
 #### Mixins for mod tables ####
-# Fields are shared between Mod and DraftMod
+# Fields are shared between Mod and LogMod
 
 class ModBase(CopyDiff):
     id = db.Column(db.Integer, primary_key=True)
@@ -88,7 +90,7 @@ class ModFileBase(CopyDiff):
     def get_children(self): return []
 
 
-# These models are shared between Mod and DraftMod.
+# These models are shared between Mod and LogMod.
 
 class ModAuthor(db.Model):
     __versioned__ = {}

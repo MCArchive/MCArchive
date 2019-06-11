@@ -44,6 +44,20 @@ def logout_required(func):
             return func(*args, **kwargs)
     return wrapped
 
+def user_required(func):
+    """
+    Like login_required, but also passes the currently logged in user to the function.
+    """
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        user = cur_user()
+        if user:
+            return func(*args, user=user, **kwargs)
+        else:
+            flash('You must log in to access that page.')
+            return redirect(url_for('user.login', next=request.url))
+    return wrapped
+
 
 def log_out():
     """Logs out the current user. Does nothing if there is no login session."""

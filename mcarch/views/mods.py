@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, jsonify, request, url_for
 
 from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
-from mcarch.login import login_required
+from mcarch.model.mod.logs import LogMod
+from mcarch.login import login_required, user_required
 from mcarch.jsonschema import ModSchema, ModAuthorSchema, GameVersionSchema
 from mcarch.util.minecraft import key_mc_version
 from mcarch.app import db
@@ -58,14 +59,15 @@ def gamevsns():
 
 
 @modbp.route("/mods/<slug>/edit", methods=['GET', 'POST'])
-@login_required
-def edit_mod(slug):
+@user_required
+def edit_mod(user, slug):
     if request.method == 'POST':
         json = request.get_json()
         if json:
             mod = Mod.query.filter_by(slug=slug).first_or_404()
             mod_schema = ModSchema(instance=mod, session=db.session)
             mod_schema.load(json)
+            mod.log_change(user=user)
             db.session.commit()
             return jsonify({
                 "result": "success",
@@ -89,5 +91,23 @@ def edit_mod(slug):
 @login_required
 def mod_history(slug):
     mod = Mod.query.filter_by(slug=slug).first_or_404()
-    return render_template("mods/history.html", mod=mod)
+    changes = []
+    for i, log in enumerate(mod.logs):
+        diff = None
+        if i > 0: diff = mod.logs[i-1].diff(log)
+        else: diff = Mod(slug='').diff(log)
+        changes.append({
+            'obj': log,
+            'user': log.user,
+            'date': log.date,
+            'diff': diff,
+        })
+    return render_template("mods/history.html", mod=mod, changes=changes)
+
+@modbp.route("/mods/<slug>/history/<revid>")
+@login_required
+def mod_revision(slug, revid):
+    rev = LogMod.query.filter_by(id=revid).first_or_404()
+    vsns = rev.vsns_by_game_vsn()
+    return render_template("mods/mod.html", mod=rev, rev=rev, vsns_grouped=vsns)
 

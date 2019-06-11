@@ -1,11 +1,7 @@
-from collections import OrderedDict
-
 from .base import *
+from .logs import LogMod, LogModVersion, LogModFile
 
-from sqlalchemy_continuum import make_versioned
 from mcarch.app import db
-
-make_versioned(user_cls='User', options={'table_name': '%s_log'})
 
 authored_by_table = mk_authored_by_table('mod')
 for_game_vsn_table = mk_for_game_vsn_table('mod_version')
@@ -35,6 +31,12 @@ class Mod(ModBase, db.Model):
         return ", ".join(map(lambda v: v, self.game_versions()))
 
     def blank(self, **kwargs): return Mod(**kwargs)
+    def blank_child(self, **kwargs): return ModVersion(**kwargs)
+    def log_change(self, user):
+        entry = LogMod(user=user, cur_id=self.id)
+        entry.copy_from(self)
+        db.session.add(entry)
+        return entry
 
 class ModVersion(ModVersionBase, db.Model):
     __tablename__ = "mod_version"
@@ -47,6 +49,7 @@ class ModVersion(ModVersionBase, db.Model):
     files = db.relationship("ModFile", back_populates="version")
 
     def blank(self, **kwargs): return ModVersion(**kwargs)
+    def blank_child(self, **kwargs): return ModFile(**kwargs)
 
 class ModFile(ModFileBase, db.Model):
     __tablename__ = "mod_file"

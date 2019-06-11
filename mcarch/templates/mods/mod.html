@@ -36,7 +36,21 @@
 
 {% block content %}
 
-{% if insecure_cur_user() %}
+{% if by_gvsn %}
+<div class="filter alert">
+    Showing versions of this mod that support Minecraft {{ by_gvsn }}.
+    <a href="{{ url_for('mods.mod_page', slug=mod.slug) }}">Show all</a>
+</div>
+{% endif %}
+
+{% if rev is defined %}
+<div class="alert">
+    Showing an older version of this mod page (revision {{ rev.id }}).
+    <a href="{{ url_for('mods.mod_page', slug=rev.current.slug) }}">Show current</a>
+</div>
+{% endif %}
+
+{% if insecure_cur_user() and rev is not defined %}
 <div class="btngroup right">
 <a class="button" href="{{ url_for('mods.mod_history', slug=mod.slug) }}">History</a>
 <a class="button" href="{{ url_for('mods.edit_mod', slug=mod.slug) }}">Edit</a>
@@ -66,13 +80,6 @@ Authored by
 {% if mod.desc %}
 <div class="mod-desc">
     {{ mod.desc | markdown }}
-</div>
-{% endif %}
-
-{% if by_gvsn %}
-<div class="filter alert">
-    Showing versions of this mod that support Minecraft {{ by_gvsn }}.
-    <a href="{{ url_for('mods.mod_page', slug=mod.slug) }}">Show all</a>
 </div>
 {% endif %}
 

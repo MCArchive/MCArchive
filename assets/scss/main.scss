@@ -44,8 +44,8 @@ header {
     margin-top: $nav-height + 24px;
 }
 
-ul.flashes {
-    background-color: $flash-color;
+ul.flashes, .alert {
+    background-color: $alert-color;
     border-radius: $border-rad;
     list-style-type: none;
     box-shadow: $shadow;
@@ -54,6 +54,9 @@ ul.flashes {
         padding-bottom: 8px;
         color: #fff;
     }
+}
+.alert {
+    padding: 8px;
 }
 
 main {

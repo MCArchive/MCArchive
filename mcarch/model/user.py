@@ -26,7 +26,7 @@ class User(db.Model):
         return "https://gravatar.com/avatar/{}?d=identicon".format(md5)
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.name
 
 class Session(db.Model):
     """Represents a user's login session."""

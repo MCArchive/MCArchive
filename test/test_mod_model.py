@@ -6,39 +6,18 @@ from mcarch.model.mod import Mod, ModVersion, ModFile, ModAuthor, GameVersion
 import re
 
 
-@pytest.fixture
-def sample_mod(db_session):
-    mod = Mod(
-        name="Test", slug="test", desc="This is a test",
-        authors=[
-            ModAuthor(name="tester")
-        ],
-        mod_vsns=[
-            ModVersion(
-                name='4.2.0',
-                desc='This is a test',
-                game_vsns=[GameVersion(name='1.2.5')],
-                files=[
-                    ModFile(filename='test-4.2.0.jar', sha256='fake')
-                ]
-            ),
-            ModVersion(
-                name='1.3.3.7',
-                desc='This is another test',
-                game_vsns=[GameVersion(name='b1.7.3')],
-                files=[
-                    ModFile(filename='test-1.3.3.7-client.jar', sha256='fakeclient'),
-                    ModFile(filename='test-1.3.3.7-server.jar', sha256='fakeserver'),
-                ]
-            ),
-        ]
-    )
-    db_session.add(mod)
-    db_session.commit()
-    return mod
+
+def test_log(sample_mod):
+    sm = sample_mod
+    entry = sm.log_change(user=None)
+    assert entry.name == sample_mod.name
+    assert entry.desc == sample_mod.desc
+    assert len(entry.mod_vsns) == len(sample_mod.mod_vsns)
+    assert entry.mod_vsns[0].name == sample_mod.mod_vsns[0].name
+    assert len(entry.mod_vsns[0].files) == len(sample_mod.mod_vsns[0].files)
+    assert entry.mod_vsns[0].files[0].sha256 == sample_mod.mod_vsns[0].files[0].sha256
 
 def test_copy(sample_mod):
-    """Checks that the home page renders with no channels added."""
     copy = sample_mod.copy(slug='copy')
     assert copy.name == sample_mod.name
     assert copy.desc == sample_mod.desc
@@ -69,7 +48,7 @@ def test_diff_add(sample_mod):
     copy.mod_vsns.append(ModVersion(
         name='6.9',
         desc='This is also a test',
-        game_vsns=[GameVersion(name='a1.2.3')],
+        game_vsns=[GameVersion(name='a1.2.4')],
         files=[
             ModFile(filename='test-6.9-client.jar', sha256='fakeclient2'),
             ModFile(filename='test-6.9-server.jar', sha256='fakeserver2'),
@@ -89,4 +68,17 @@ def test_diff_rm(sample_mod):
     diff = sm.diff(copy)
     print('Diff: {}'.format(diff))
     assert diff['children']['removed'][0] == sm.mod_vsns[0]
+
+def test_diff_no_child_changes(sample_mod, db_session):
+    sm = sample_mod
+    log1 = sm.logs[0]
+    sm.name = 'test'
+    log2 = sm.log_change(user=None)
+    diff = log1.diff(log2)
+    db_session.add(log2)
+    db_session.commit()
+    print('Diff: {}'.format(diff))
+    assert diff['name']['old'] == log1.name
+    assert diff['name']['new'] == log2.name
+    assert 'children' not in diff
 

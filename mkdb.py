@@ -97,7 +97,10 @@ with app.app_context():
             db.session.commit()
 
         for name, obj in modyaml.items():
-            db.session.add(import_mod(obj, splitext(name)[0]))
+            mod = import_mod(obj, splitext(name)[0])
+            db.session.add(mod)
+            db.session.commit()
+            mod.log_change(user=None)
             db.session.commit()
 
     db.session.commit()

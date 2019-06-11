@@ -22,7 +22,9 @@ class CopyDiff(object):
             if schild:
                 schild.copy_from(ochild)
             else:
-                self.add_child(ochild.copy())
+                newchild = self.blank_child()
+                newchild.copy_from(ochild)
+                self.add_child(newchild)
 
     def diff(self, new, prefix=[]):
         """
@@ -52,6 +54,7 @@ class CopyDiff(object):
                 diff[f] = {'type': 'scalar', 'old': a, 'new': b}
         # List removed children
         diff['children'] = {'type': 'dict', 'added': [], 'removed': [], 'changed': []}
+        dchildren = diff['children']
         for schild in self.get_children():
             if not any(map(lambda n: n.same_as(schild), new.get_children())):
                 diff['children']['removed'].append(schild)
@@ -60,19 +63,31 @@ class CopyDiff(object):
             # Find a matching child in this object
             schild = next(filter(lambda s: nchild.same_as(s), self.get_children()), None)
             if schild:
-                diff['children']['changed'].append({
-                    'old': schild,
-                    'new': nchild,
-                    'changes': schild.diff(nchild),
-                })
+                chdiff = schild.diff(nchild)
+                print(chdiff)
+                if len(chdiff) > 0:
+                    diff['children']['changed'].append({
+                        'old': schild,
+                        'new': nchild,
+                        'changes': chdiff,
+                    })
             else:
                 diff['children']['added'].append(nchild)
+
+        # If no children changed, remove the children field from the result.
+        if len(dchildren['added']) == 0 and len(dchildren['removed']) == 0 and \
+                len(dchildren['changed']) == 0:
+            del diff['children']
 
         return diff
 
     def blank(self, **kwargs):
         """Creates an "empty" instance of this object"""
         raise NotImplementedError
+    def blank_child(self, **kwargs):
+        """Creates an "empty" instance of a child of this object.
+        None if this object can't have children"""
+        return None
     def copydiff_fields(self):
         """Returns a list of fields to be copied or diffed"""
         return []
