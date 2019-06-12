@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify, request, url_for
+from flask import Blueprint, render_template, jsonify, request, url_for, redirect, flash
 
 from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
 from mcarch.model.mod.logs import LogMod
@@ -107,7 +107,24 @@ def mod_history(slug):
 @modbp.route("/mods/<slug>/history/<revid>")
 @login_required
 def mod_revision(slug, revid):
+    Mod.query.filter_by(slug=slug).first_or_404()
     rev = LogMod.query.filter_by(id=revid).first_or_404()
     vsns = rev.vsns_by_game_vsn()
     return render_template("mods/mod.html", mod=rev, rev=rev, vsns_grouped=vsns)
+
+@modbp.route("/mods/<slug>/history/<revid>/revert", methods=['GET', 'POST'])
+@user_required
+def revert_mod(user, slug, revid):
+    mod = Mod.query.filter_by(slug=slug).first_or_404()
+    revto = LogMod.query.filter_by(id=revid, cur_id=mod.id).first_or_404()
+    if request.method == 'POST':
+        mod.revert_to(revto)
+        db.session.commit()
+        mod.log_change(user=user)
+        db.session.commit()
+        flash('Mod reverted to revision {}'.format(revid))
+        return redirect(url_for('mods.mod_page', slug=slug))
+    else:
+        diff = mod.diff(revto)
+        return render_template("mods/revert_confirm.html", mod=mod, revto=revto, diff=diff)
 

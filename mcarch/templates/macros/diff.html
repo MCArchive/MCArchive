@@ -1,0 +1,51 @@
+{%- macro author_list(alist) %}
+{%- for a in alist %}
+{{- a.name }}{% if not loop.last %}, {% endif %}
+{%- endfor %}
+{%- endmacro %}
+
+{% macro change_list(diff, childname) %}
+<ul>
+    {% for field, vals in diff.items() %}
+    {% if field == 'children' %}
+    {# do this later #}
+    {% elif field == 'authors' %}
+    <li>Change authors from "{{ author_list(vals['old']) }}" to
+        "{{ author_list(vals['new']) }}".</li>
+    {% else %}
+    <li>Change {{ field }} from "{{ vals['old'] }}" to "{{ vals['new'] }}".</li>
+    {% endif %}
+    {% endfor %}
+
+    {% if 'children' in diff %}
+    {% if len(diff['children']['added']) > 0 %}
+    <li>Add {{ childname }}:
+        <ul>
+            {% for ch in diff['children']['added'] %}
+            <li>{{ ch.name }}</li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% endif %}
+    {% if len(diff['children']['removed']) > 0 %}
+    <li>Remove {{ childname }}:
+        <ul>
+            {% for ch in diff['children']['removed'] %}
+            <li>{{ ch.name }}</li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% endif %}
+    {% if len(diff['children']['changed']) > 0 %}
+    <li>Change {{ childname }}:
+        <ul>
+            {% for vsn in diff['children']['changed'] %}
+            {{ change_list(vsn['changes'], childname='files') }}
+            {% endfor %}
+        </ul>
+    </li>
+    {% endif %}
+    {% endif %}
+</ul>
+{% endmacro %}
+

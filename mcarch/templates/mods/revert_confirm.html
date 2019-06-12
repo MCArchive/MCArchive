@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Confirm Revert{% endblock %}
+{% block content %}
+
+{% import 'macros/diff.html' as d with context %}
+
+<h1>Confirm Revert</h1>
+
+<p>Are you sure you want to revert {{ mod.name }} to revision {{ revto.id }}?</p>
+<p>This will cause the following changes:</p>
+
+{{ d.change_list(diff, childname='versions') }}
+
+<p>A new revision will be created so this revert operation can be reverted.</p>
+
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="submit" value="Confirm Changes">
+</form>
+
+{% endblock %}
+
+

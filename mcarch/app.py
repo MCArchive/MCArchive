@@ -1,10 +1,12 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_wtf import CSRFProtect
 from flaskext.markdown import Markdown
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
+csrf = CSRFProtect()
 
 from mcarch import login
 
@@ -32,6 +34,7 @@ def register_extensions(app):
     Markdown(app)
     db.init_app(app)
     bcrypt.init_app(app)
+    csrf.init_app(app)
 
 def register_conprocs(app):
     login.register_conproc(app)

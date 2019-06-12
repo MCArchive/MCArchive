@@ -49,13 +49,10 @@ class LogMod(ModBase, db.Model):
 
     def blank(self, **kwargs): return LogMod(**kwargs)
     def blank_child(self, **kwargs): return LogModVersion(**kwargs)
-
     def copy_from(self, other):
-        self.mod_id = other.id
+        if hasattr(other, 'cur_id'): self.cur_id = other.cur_id
+        self.cur_id = other.id
         super(ModBase, self).copy_from(other)
-    def same_as(self, other):
-        return self.id == other.id or other.id == self.cur_id \
-            or (hasattr(other, 'cur_id') and other.cur_id == self.cur_id)
 
 class LogModVersion(ModVersionBase, db.Model):
     __tablename__ = "log_mod_version"
@@ -72,11 +69,9 @@ class LogModVersion(ModVersionBase, db.Model):
     def blank(self, **kwargs): return LogModVersion(**kwargs)
     def blank_child(self, **kwargs): return LogModFile(**kwargs)
     def copy_from(self, other):
+        if hasattr(other, 'cur_id'): self.cur_id = other.cur_id
         self.cur_id = other.id
         super(ModVersionBase, self).copy_from(other)
-    def same_as(self, other):
-        return self.id == other.id or other.id == self.cur_id \
-            or (hasattr(other, 'cur_id') and other.cur_id == self.cur_id)
 
 class LogModFile(ModFileBase, db.Model):
     __tablename__ = "log_mod_file"
@@ -90,9 +85,7 @@ class LogModFile(ModFileBase, db.Model):
 
     def blank(self, **kwargs): return LogModFile(**kwargs)
     def copy_from(self, other):
+        if hasattr(other, 'cur_id'): self.cur_id = other.cur_id
         self.cur_id = other.id
         super(ModFileBase, self).copy_from(other)
-    def same_as(self, other):
-        return self.id == other.id or other.id == self.cur_id \
-            or (hasattr(other, 'cur_id') and other.cur_id == self.cur_id)
 

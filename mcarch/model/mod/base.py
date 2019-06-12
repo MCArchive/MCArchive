@@ -43,7 +43,16 @@ class ModBase(CopyDiff):
 
     # Methods for CopyDiff
     def copydiff_fields(self): return ['name', 'desc', 'website', 'authors']
-    def same_as(self, other): return self.id == other.id
+
+    def same_as(self, other):
+        scur = hasattr(self, 'cur_id')
+        ocur = hasattr(other, 'cur_id')
+        if self.id == other.id: return True
+        if scur and ocur: return self.cur_id == other.cur_id
+        elif scur: return self.cur_id == other.id
+        elif ocur: return other.cur_id == self.id
+        else: return False
+
     def get_children(self): return self.mod_vsns
     def add_child(self, ch): self.mod_vsns.append(ch)
     def rm_child(self, ch): self.mod_vsns.remove(ch)
@@ -60,7 +69,16 @@ class ModVersionBase(CopyDiff):
         return ", ".join(map(lambda v: v.name, self.game_vsnsl))
 
     def copydiff_fields(self): return ['name', 'desc', 'url', 'game_vsns']
-    def same_as(self, other): return self.name == other.name
+
+    def same_as(self, other):
+        scur = hasattr(self, 'cur_id')
+        ocur = hasattr(other, 'cur_id')
+        if self.id == other.id: return True
+        if scur and ocur: return self.cur_id == other.cur_id
+        elif scur: return self.cur_id == other.id
+        elif ocur: return other.cur_id == self.id
+        else: return False
+
     def get_children(self): return self.files
     def add_child(self, ch): self.files.append(ch)
     def rm_child(self, ch): self.files.remove(ch)
@@ -86,7 +104,16 @@ class ModFileBase(CopyDiff):
 
     def copydiff_fields(self):
         return ['filename', 'sha256', 'page_url', 'redirect_url', 'direct_url']
-    def same_as(self, other): return self.id == other.id
+
+    def same_as(self, other):
+        scur = hasattr(self, 'cur_id')
+        ocur = hasattr(other, 'cur_id')
+        if self.id == other.id: return True
+        if scur and ocur: return self.cur_id == other.cur_id
+        elif scur: return self.cur_id == other.id
+        elif ocur: return other.cur_id == self.id
+        else: return False
+
     def get_children(self): return []
 
 

@@ -32,11 +32,21 @@ class Mod(ModBase, db.Model):
 
     def blank(self, **kwargs): return Mod(**kwargs)
     def blank_child(self, **kwargs): return ModVersion(**kwargs)
+
     def log_change(self, user):
         entry = LogMod(user=user, cur_id=self.id)
         entry.copy_from(self)
         db.session.add(entry)
         return entry
+
+    def revert_to(self, log):
+        """
+        Takes a `ModLog` and reverts this mod to its state at the time of that log entry.
+        Raises `ValueError` if the given log entry is not for this mod.
+        """
+        if log.cur_id != self.id:
+            raise ValueError('Log entry {} is not for mod {}'.format(log, self))
+        self.copy_from(log)
 
 class ModVersion(ModVersionBase, db.Model):
     __tablename__ = "mod_version"

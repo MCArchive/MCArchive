@@ -2,56 +2,7 @@
 {% block title %}Change History{% endblock %}
 {% block content %}
 
-{%- macro author_list(alist) %}
-{%- for a in alist %}
-{{- a.name }}{% if not loop.last %}, {% endif %}
-{%- endfor %}
-{%- endmacro %}
-
-{% macro change_list(diff, childname) %}
-<ul>
-    {% for field, vals in diff.items() %}
-    {% if field == 'children' %}
-    {# do this later #}
-    {% elif field == 'authors' %}
-    <li>Changed authors from "{{ author_list(vals['old']) }}" to
-        "{{ author_list(vals['new']) }}".</li>
-    {% else %}
-    <li>Changed {{ field }} from "{{ vals['old'] }}" to "{{ vals['new'] }}".</li>
-    {% endif %}
-    {% endfor %}
-
-    {% if 'children' in diff %}
-    {% if len(diff['children']['added']) > 0 %}
-    <li>Added {{ childname }}:
-        <ul>
-            {% for ch in diff['children']['added'] %}
-            <li>{{ ch.name }}</li>
-            {% endfor %}
-        </ul>
-    </li>
-    {% endif %}
-    {% if len(diff['children']['removed']) > 0 %}
-    <li>Removed {{ childname }}:
-        <ul>
-            {% for ch in diff['children']['removed'] %}
-            <li>{{ ch.name }}</li>
-            {% endfor %}
-        </ul>
-    </li>
-    {% endif %}
-    {% if len(diff['children']['changed']) > 0 %}
-    <li>Changed {{ childname }} {{ len(diff['children']['changed']) }}:
-        <ul>
-            {% for vsn in diff['children']['changed'] %}
-            {{ change_list(vsn['changes'], childname='files') }}
-            {% endfor %}
-        </ul>
-    </li>
-    {% endif %}
-    {% endif %}
-</ul>
-{% endmacro %}
+{% import 'macros/diff.html' as d with context %}
 
 <h1>Mod Page Change History</h1>
 
@@ -59,14 +10,17 @@
 
 {% for i, change in enumerate(changes)|reverse %}
 <section class="block">
+    {% if not loop.first %}
+    <a href='{{ url_for('mods.revert_mod', slug=mod.slug, revid=change['obj'].id)}}'
+       class='right button'>Revert to Here</a>
+    {% endif %}
     <h1><a href="{{ url_for('mods.mod_revision', slug=mod.slug, revid=change['obj'].id) }}">Revision
     {{ i }}</a></h1>
     <p class='small'>By {{ change['user'].name if change['user'] else 'script' }}
     at {{ change['date'] }}</p>
-    {{ change_list(change['diff'], childname='versions') }}
+    {{ d.change_list(change['diff'], childname='versions') }}
 </section>
 {% endfor %}
 
 {% endblock %}
-
 

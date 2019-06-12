@@ -49,6 +49,7 @@ const ModForm = () => (
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRFToken': csrf_token,
                 },
                 credentials: 'include',
                 body: JSON.stringify(values),

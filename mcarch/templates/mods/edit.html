@@ -19,6 +19,7 @@
 
 {% block js %}
 <script type="text/javascript">
+var csrf_token = '{{ csrf_token() }}';
 var mod_json = {{ modjson | tojson }};
 var authors_json = {{ authorjson | tojson }};
 var game_vsns_json = {{ gvsnjson | tojson }};
