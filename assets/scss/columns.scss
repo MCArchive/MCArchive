@@ -1,0 +1,22 @@
+@import 'vars.scss';
+
+.row {
+    display: flex;
+    & .column {
+        flex: 1;
+        &.block {
+            margin-left: 8px;
+            margin-right: 8px;
+        }
+        &:first-child.block { margin-left: 0px; }
+        &:last-child.block { margin-right: 0px; }
+    }
+
+    // Clear floats
+    &:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+}
+

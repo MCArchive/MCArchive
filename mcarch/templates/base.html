@@ -23,6 +23,12 @@
     <nav>
         <div class="container">
             <a class="logo" href="{{ url_for("root.home") }}">Minecraft Archive</a>
+            {#
+            It's OK to use the insecure version here because we're just checking whether to show
+            nav buttons. This saves us a database query on every single page load.
+            #}
+            {% set iuser = insecure_cur_user() %}
+
             {{ nav_btn(url_for("mods.browse"), "Browse") }}
             <div class="dropdown">
                 <a href="javascript:void();" class="dropbtn">Browse By</a>
@@ -31,12 +37,10 @@
                     {{ nav_btn(url_for("mods.authors"), "Author") }}
 				</div>
             </div>
+            {% if iuser and has_role(_roles.moderator) %}
+            {{ nav_btn(url_for("admin.main"), "Admin") }}
+            {% endif %}
 
-            {#
-            It's OK to use the insecure version here because we're just checking whether to show
-            the login button. This saves us a database query on every single page load.
-            #}
-            {% set iuser = insecure_cur_user() %}
             {% if iuser %}
             <div class="dropdown right">
                 <a href="javascript:void();" class="dropbtn">
@@ -55,7 +59,7 @@
     <header>
         {% with messages = get_flashed_messages() %}
           {% if messages %}
-            <ul class=flashes>
+            <ul class="flashes">
             {% for message in messages %}
               <li>{{ message }}</li>
             {% endfor %}

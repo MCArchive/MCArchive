@@ -8,6 +8,7 @@ flask-marshmallow
 
 marshmallow
 marshmallow_sqlalchemy
+sqlalchemy-utils
 
 pyYaml
 

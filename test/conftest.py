@@ -5,9 +5,10 @@ import pytest
 
 from sqlalchemy import event
 
-from mcarch.app import create_app, db
+from mcarch.app import create_app, db, bcrypt
 import mcarch.model
 from mcarch.model.mod import Mod, ModVersion, ModFile, GameVersion, ModAuthor
+from mcarch.model.user import User, roles
 
 @pytest.fixture(scope='session')
 def _db(app):
@@ -89,6 +90,40 @@ def mk_sample_mods():
         ),
     ]
 
+@pytest.fixture(scope='session')
+def sample_passwds():
+    """Pre-generates password hashes for `sample_users`. This drastically speeds up any tests
+    relying on sample users, as bcrypt is intentionally very slow."""
+    pwds = dict(
+        admin='a',
+        mod='b',
+        arch='c',
+        user='d',
+    )
+    for k, pwd in pwds.items():
+        pwds[k] = dict(password=pwd, passhash=bcrypt.generate_password_hash(pwd))
+    return pwds
+
+@pytest.fixture
+def sample_users(db_session, sample_passwds):
+    """Returns a dict of sample users keyed by their roles.
+    This function also adds a field called `plainpasswd` to each user, which contains the
+    password for that user in plain text.
+    """
+    def mk_user(name, **kwargs):
+        u = User(name=name, **sample_passwds[name], **kwargs)
+        # Add the `plainpasswd` field so tests can log in as these users.
+        setattr(u, 'plainpasswd', sample_passwds[name]['password'])
+        return u
+    users = dict(
+        admin = mk_user(name="admin", email="test@example.com", role=roles.admin),
+        moderator = mk_user(name="mod", email="a@example.com", role=roles.moderator),
+        archivist = mk_user(name="arch", email="b@example.com", role=roles.archivist),
+        user = mk_user(name="user", email="c@example.com", role=roles.user),
+    )
+    for _, u in users.items(): db_session.add(u)
+    db_session.commit()
+    return users
 
 @pytest.fixture
 def sample_mod(db_session):

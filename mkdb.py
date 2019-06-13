@@ -69,8 +69,12 @@ def import_game_vsns(mod):
 app = create_app(DevelopmentConfig)
 with app.app_context():
     db.create_all()
-    test_usr = User(name="admin", password="a", email="test@example.com", admin=True)
-    db.session.add(test_usr)
+
+    db.session.add(User(name="admin", password="a", email="test@example.com", role=UserRole.admin))
+    db.session.add(User(name="mod", password="a", email="a@example.com", role=UserRole.moderator))
+    db.session.add(User(name="arch", password="a", email="b@example.com", role=UserRole.archivist))
+    db.session.add(User(name="user", password="a", email="c@example.com", role=UserRole.user))
+    db.session.commit()
 
     if len(sys.argv) > 1:
         from os import listdir

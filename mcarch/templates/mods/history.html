@@ -4,18 +4,18 @@
 
 {% import 'macros/diff.html' as d with context %}
 
-<h1>Mod Page Change History</h1>
+<h1>{{ mod.name }} Change History</h1>
 
 <p>This is a history of changes made to the listing for {{ mod.name }}</p>
 
 {% for i, change in enumerate(changes)|reverse %}
 <section class="block">
     {% if not loop.first %}
-    <a href='{{ url_for('mods.revert_mod', slug=mod.slug, revid=change['obj'].id)}}'
+    <a href='{{ url_for('mods.revert_mod', slug=mod.slug, index=change['obj'].index)}}'
        class='right button'>Revert to Here</a>
     {% endif %}
-    <h1><a href="{{ url_for('mods.mod_revision', slug=mod.slug, revid=change['obj'].id) }}">Revision
-    {{ i }}</a></h1>
+    <h1><a href="{{ url_for('mods.mod_revision', slug=mod.slug, index=change['obj'].index) }}">
+            Revision {{ change['obj'].index }}</a></h1>
     <p class='small'>By {{ change['user'].name if change['user'] else 'script' }}
     at {{ change['date'] }}</p>
     {{ d.change_list(change['diff'], childname='versions') }}

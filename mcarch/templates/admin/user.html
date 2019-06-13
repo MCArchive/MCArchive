@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Recent Changes{% endblock %}
+
+{% import "macros/diff.html" as d with context %}
+
+{% block content %}
+
+<h1>Manage User: {{ user.name }}</h1>
+
+<p>Email: {{ user.email }}</p>
+<p>Role: {{ user.role }}</p>
+<p>Last Seen: {{ user.last_seen }}</p>
+
+<section class='sessions'>
+    <h1>Sessions</h1>
+    <table class='pretty'>
+        <thead>
+            <tr>
+                <td>ID</td>
+                <td>IP Address</td>
+                <td>Login Date</td>
+                <td>Last Seen Date</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in user.sessions %}
+            <tr>
+                <td>{{ s.id }}</td>
+                <td>{{ s.login_ip }}</td>
+                <td>{{ s.login_date }}</td>
+                <td>{{ s.last_seen }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4"><i>User is logged out.</i></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+{% endblock %}
+

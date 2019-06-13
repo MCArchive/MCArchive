@@ -45,12 +45,12 @@
 
 {% if rev is defined %}
 <div class="alert">
-    Showing an older version of this mod page (revision {{ rev.id }}).
+    Showing an older version of this mod page (revision {{ rev.index }}).
     <a href="{{ url_for('mods.mod_page', slug=rev.current.slug) }}">Show current</a>
 </div>
 {% endif %}
 
-{% if insecure_cur_user() and rev is not defined %}
+{% if rev is not defined and insecure_cur_user() and has_role(_roles.archivist) %}
 <div class="btngroup right">
 <a class="button" href="{{ url_for('mods.mod_history', slug=mod.slug) }}">History</a>
 <a class="button" href="{{ url_for('mods.edit_mod', slug=mod.slug) }}">Edit</a>

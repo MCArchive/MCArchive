@@ -40,12 +40,30 @@
     <li>Change {{ childname }}:
         <ul>
             {% for vsn in diff['children']['changed'] %}
-            {{ change_list(vsn['changes'], childname='files') }}
-            {% endfor %}
+            <li>{{ vsn['new'].filename if childname == files else vsn['new'].name }}
+                ({{ vsn['old'].id }}):
+                {{ change_list(vsn['changes'], childname='files') }}
+                {% endfor %}
+            </li>
         </ul>
     </li>
     {% endif %}
     {% endif %}
 </ul>
+{% endmacro %}
+
+{% macro diff_list(changes, class='block') %}
+{% for change in changes %}
+{% set mod = change['obj'].current %}
+<section class="{{ class }}">
+    <a class="right button" href="{{ url_for('mods.mod_history', slug=mod.slug) }}">
+        Full Mod History</a>
+    <h1><a href="{{ url_for('mods.mod_revision', slug=mod.slug, index=change['obj'].index) }}">
+            Revision {{ change['obj'].index }} for {{ mod.name }}</a></h1>
+    <p class='small'>By {{ change['user'].name if change['user'] else 'script' }}
+    at {{ change['date'] }}</p>
+    {{ change_list(change['diff'], childname='versions') }}
+</section>
+{% endfor %}
 {% endmacro %}
 

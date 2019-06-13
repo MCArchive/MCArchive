@@ -9,33 +9,40 @@ such as `cur_user` and `cur_session` inside templates.
 """
 
 import uuid
+import functools
 from datetime import datetime
-from functools import wraps
 
 from flask import session, request, redirect, url_for, flash
 
 from mcarch.app import db, bcrypt
-from mcarch.model.user import User, Session
+from mcarch.model.user import User, Session, roles
 
-def login_required(func):
+def login_required(func=None, role=None, pass_user=False):
     """
     This decorator can be used on a route to redirect the user to the login page if they aren't
     logged in.
     """
-    @wraps(func)
+    if not func: return functools.partial(login_required, role=role, pass_user=pass_user)
+    @functools.wraps(func)
     def wrapped(*args, **kwargs):
-        if not cur_user():
+        user = cur_user()
+        if user:
+            if user.has_role(role):
+                if pass_user: kwargs['user'] = user
+                return func(*args, **kwargs)
+            else:
+                flash("You don't have permission to access that page.")
+                return redirect(url_for('root.home'))
+        else:
             flash('You must log in to access that page.')
             return redirect(url_for('user.login', next=request.url))
-        else:
-            return func(*args, **kwargs)
     return wrapped
 
 def logout_required(func):
     """
     The inverse of login_required. Redirects a user to the home page if they're already logged in.
     """
-    @wraps(func)
+    @functools.wraps(func)
     def wrapped(*args, **kwargs):
         if cur_user():
             flash('You are already logged in.')
@@ -43,21 +50,6 @@ def logout_required(func):
         else:
             return func(*args, **kwargs)
     return wrapped
-
-def user_required(func):
-    """
-    Like login_required, but also passes the currently logged in user to the function.
-    """
-    @wraps(func)
-    def wrapped(*args, **kwargs):
-        user = cur_user()
-        if user:
-            return func(*args, user=user, **kwargs)
-        else:
-            flash('You must log in to access that page.')
-            return redirect(url_for('user.login', next=request.url))
-    return wrapped
-
 
 def log_out():
     """Logs out the current user. Does nothing if there is no login session."""
@@ -88,8 +80,7 @@ def create_sess(user):
     dbsess = Session(
         sess_id = sessid,
         user_id = user.id,
-        ip_addr = request.remote_addr,
-        login_date = datetime.now(),
+        login_ip = request.remote_addr,
     )
     db.session.add(dbsess)
     db.session.commit()
@@ -111,7 +102,24 @@ def cur_session():
     Returns None if there is no session.
     """
     if 'sessid' not in session: return None
-    return Session.query.filter_by(sess_id=session['sessid']).first()
+    sess = Session.query.filter_by(sess_id=session['sessid']).first()
+    if sess:
+        # If the session is expired or the user has a different IP, remove it from the database
+        # and pretend it didn't exist.
+        if sess.expired():
+            flash('Your last session expired. Please log in again.')
+            db.session.delete(sess)
+            db.session.commit()
+            return None
+        elif sess.login_ip != request.remote_addr:
+            flash('Your IP address changed. Please log in again.')
+            db.session.delete(sess)
+            db.session.commit()
+            return None
+        # Update `last_seen` and `last_ip`.
+        sess.touch()
+        db.session.commit()
+    return sess
 
 def cur_user():
     """
@@ -138,6 +146,11 @@ def insecure_cur_user():
     if 'user' not in session: return None
     return session['user']
 
+def has_role(role):
+    """Returns true if the current user has the given role."""
+    user = cur_user()
+    if user: return user.has_role(role)
+    else: return False
 
 def register_conproc(app):
     """
@@ -151,7 +164,9 @@ def register_conproc(app):
         return dict(
             cur_session = cur_session,
             cur_user = cur_user,
+            has_role = has_role,
             insecure_cur_user = insecure_cur_user,
+            _roles = roles,
         )
     
 

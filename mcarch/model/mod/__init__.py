@@ -34,7 +34,7 @@ class Mod(ModBase, db.Model):
     def blank_child(self, **kwargs): return ModVersion(**kwargs)
 
     def log_change(self, user):
-        entry = LogMod(user=user, cur_id=self.id)
+        entry = LogMod(user=user, cur_id=self.id, index=len(self.logs))
         entry.copy_from(self)
         db.session.add(entry)
         return entry

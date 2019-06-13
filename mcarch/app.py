@@ -1,3 +1,4 @@
+from datetime import timedelta
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -9,6 +10,11 @@ bcrypt = Bcrypt()
 csrf = CSRFProtect()
 
 from mcarch import login
+
+class DefaultConfig(object):
+    # Time until sessions in the database expire
+    SERV_SESSION_EXPIRE_TIME = timedelta(days=5)
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class DevelopmentConfig(object):
     DEBUG = True
@@ -22,9 +28,9 @@ class DevelopmentConfig(object):
 
 def create_app(config_object):
     app = Flask(__name__)
+    app.config.from_object(DefaultConfig)
     if app.env == 'development': app.config.from_object(DevelopmentConfig)
     app.config.from_object(config_object)
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     register_extensions(app)
     register_blueprints(app)
     register_conprocs(app)
@@ -54,4 +60,6 @@ def register_blueprints(app):
     app.register_blueprint(user)
     from mcarch.views.mods import modbp
     app.register_blueprint(modbp)
+    from mcarch.views.admin import admin
+    app.register_blueprint(admin)
 

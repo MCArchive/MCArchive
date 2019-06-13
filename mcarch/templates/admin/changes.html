@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Recent Changes{% endblock %}
+
+{% import "macros/diff.html" as d with context %}
+
+{% block content %}
+
+<h1>Recent Changes</h1>
+{{ d.diff_list(changes) }}
+
+{% endblock %}
+

@@ -5,7 +5,8 @@ from wtforms.fields import StringField, PasswordField
 from wtforms.validators import DataRequired, Length
 
 from mcarch.model.user import User
-from mcarch.login import login_required, logout_required, log_in, log_out, cur_user
+from mcarch.login import login_required, logout_required, log_in, log_out, \
+    cur_user, insecure_cur_user
 
 user = Blueprint('user', __name__, template_folder="templates")
 
@@ -24,8 +25,8 @@ def login():
     form = LoginForm()
     if request.method == 'POST':
         if form.validate() and log_in(form.data['username'], form.data['password']):
-            user = cur_user()
-            flash('Logged in as {}.'.format(user.name))
+            user = insecure_cur_user()
+            flash('Logged in as {}.'.format(user['name']))
             nextpage = request.args.get('next')
             if nextpage: return redirect(nextpage)
             else: return redirect(url_for('root.home'))

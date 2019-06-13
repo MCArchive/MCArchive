@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, jsonify, request, url_for, redirect, flash
 
 from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
-from mcarch.model.mod.logs import LogMod
-from mcarch.login import login_required, user_required
+from mcarch.model.mod.logs import LogMod, gen_diffs
+from mcarch.model.user import roles
+from mcarch.login import login_required
 from mcarch.jsonschema import ModSchema, ModAuthorSchema, GameVersionSchema
 from mcarch.util.minecraft import key_mc_version
 from mcarch.app import db
@@ -59,7 +60,7 @@ def gamevsns():
 
 
 @modbp.route("/mods/<slug>/edit", methods=['GET', 'POST'])
-@user_required
+@login_required(role=roles.archivist, pass_user=True)
 def edit_mod(user, slug):
     if request.method == 'POST':
         json = request.get_json()
@@ -88,41 +89,31 @@ def edit_mod(user, slug):
                 modjson=ModSchema().dump(mod).data, authorjson=authorjson, gvsnjson=gvsnjson)
 
 @modbp.route("/mods/<slug>/history")
-@login_required
+@login_required(role=roles.archivist)
 def mod_history(slug):
     mod = Mod.query.filter_by(slug=slug).first_or_404()
-    changes = []
-    for i, log in enumerate(mod.logs):
-        diff = None
-        if i > 0: diff = mod.logs[i-1].diff(log)
-        else: diff = Mod(slug='').diff(log)
-        changes.append({
-            'obj': log,
-            'user': log.user,
-            'date': log.date,
-            'diff': diff,
-        })
+    changes = gen_diffs(mod)
     return render_template("mods/history.html", mod=mod, changes=changes)
 
-@modbp.route("/mods/<slug>/history/<revid>")
-@login_required
-def mod_revision(slug, revid):
-    Mod.query.filter_by(slug=slug).first_or_404()
-    rev = LogMod.query.filter_by(id=revid).first_or_404()
+@modbp.route("/mods/<slug>/history/<index>")
+@login_required(role=roles.archivist)
+def mod_revision(slug, index):
+    mod = Mod.query.filter_by(slug=slug).first_or_404()
+    rev = LogMod.query.filter_by(cur_id=mod.id, index=index).first_or_404()
     vsns = rev.vsns_by_game_vsn()
     return render_template("mods/mod.html", mod=rev, rev=rev, vsns_grouped=vsns)
 
-@modbp.route("/mods/<slug>/history/<revid>/revert", methods=['GET', 'POST'])
-@user_required
-def revert_mod(user, slug, revid):
+@modbp.route("/mods/<slug>/history/<index>/revert", methods=['GET', 'POST'])
+@login_required(role=roles.moderator, pass_user=True)
+def revert_mod(user, slug, index):
     mod = Mod.query.filter_by(slug=slug).first_or_404()
-    revto = LogMod.query.filter_by(id=revid, cur_id=mod.id).first_or_404()
+    revto = LogMod.query.filter_by(index=index, cur_id=mod.id).first_or_404()
     if request.method == 'POST':
         mod.revert_to(revto)
         db.session.commit()
         mod.log_change(user=user)
         db.session.commit()
-        flash('Mod reverted to revision {}'.format(revid))
+        flash('Mod reverted to revision {}'.format(index))
         return redirect(url_for('mods.mod_page', slug=slug))
     else:
         diff = mod.diff(revto)

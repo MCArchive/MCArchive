@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Recent Changes{% endblock %}
+
+{% import "macros/diff.html" as d with context %}
+
+{% block content %}
+
+<h1>Users</h1>
+
+<table class='pretty'>
+    <thead>
+        <tr>
+            <td>ID</td>
+            <td>Name</td>
+            <td>Email</td>
+            <td>Role</td>
+            <td>Last IP</td>
+            <td>Last Seen</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td><a href="{{ url_for('admin.user', name=u.name) }}">{{ u.name }}</a></td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.role }}</td>
+            {% if len(u.sessions) > 0 %}
+            <td>{{ u.sessions[0].login_ip }}</td>
+            {% else %}
+            <td><i>Logged out</i></td>
+            {% endif %}
+            {% if u.last_seen %}
+            <td>{{ u.last_seen }}</td>
+            {% else %}
+            <td><i>Logged out</i></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
+
+
