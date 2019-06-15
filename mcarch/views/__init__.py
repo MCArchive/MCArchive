@@ -11,3 +11,11 @@ root = Blueprint('root', __name__, template_folder="templates")
 def home():
     return render_template("home.html")
 
+@root.app_errorhandler(404)
+def err404(err):
+    return render_template("error/404.html")
+
+@root.app_errorhandler(403)
+def err403(err):
+    return render_template("error/403.html")
+

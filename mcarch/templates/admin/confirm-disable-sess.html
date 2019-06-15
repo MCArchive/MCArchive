@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Confirm Disable Session{% endblock %}
+{% block content %}
+
+<h1>Confirm Disable Session</h1>
+
+<p>Are you sure you want to disable session {{ sess.id }}. This will log {{ sess.user.name }}
+out of whatever device they have associated with this session.</p>
+
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="submit" value="Confirm">
+</form>
+
+{% endblock %}
+
+

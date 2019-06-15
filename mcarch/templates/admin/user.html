@@ -10,6 +10,7 @@
 <p>Email: {{ user.email }}</p>
 <p>Role: {{ user.role }}</p>
 <p>Last Seen: {{ user.last_seen }}</p>
+<a href={{ url_for('admin.reset_passwd', name=user.name) }}>Reset Password</a>
 
 <section class='sessions'>
     <h1>Sessions</h1>
@@ -20,6 +21,7 @@
                 <td>IP Address</td>
                 <td>Login Date</td>
                 <td>Last Seen Date</td>
+                <td>Alive?</td>
             </tr>
         </thead>
         <tbody>
@@ -29,10 +31,17 @@
                 <td>{{ s.login_ip }}</td>
                 <td>{{ s.login_date }}</td>
                 <td>{{ s.last_seen }}</td>
+                {% if s.expired() %}
+                <td>No</td>
+                {% else %}
+                <td>Yes &ndash;<a href="{{ url_for('admin.disable_sess', sessid=s.id) }}">
+                    Disable Session
+                </a></td>
+                {% endif %}
             </tr>
             {% else %}
             <tr>
-                <td colspan="4"><i>User is logged out.</i></td>
+                <td colspan="4"><i>User has no login sessions.</i></td>
             </tr>
             {% endfor %}
         </tbody>

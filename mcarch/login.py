@@ -12,7 +12,7 @@ import uuid
 import functools
 from datetime import datetime
 
-from flask import session, request, redirect, url_for, flash
+from flask import session, request, redirect, url_for, flash, abort
 
 from mcarch.app import db, bcrypt
 from mcarch.model.user import User, Session, roles
@@ -31,8 +31,7 @@ def login_required(func=None, role=None, pass_user=False):
                 if pass_user: kwargs['user'] = user
                 return func(*args, **kwargs)
             else:
-                flash("You don't have permission to access that page.")
-                return redirect(url_for('root.home'))
+                return abort(403)
         else:
             flash('You must log in to access that page.')
             return redirect(url_for('user.login', next=request.url))
@@ -56,9 +55,11 @@ def log_out():
     sess = cur_session()
     if sess:
         # Remove the session from the database.
-        db.session.delete(sess)
+        sess.disable()
         db.session.commit()
-    # Remove the session information from the user's cookies.
+    clear_session()
+
+def clear_session():
     session['sessid'] = None
     session['user'] = None
 
@@ -76,9 +77,7 @@ def log_in(uname, passwd):
 def create_sess(user):
     """Creates a new session for the given user and stores the session ID in the flask session
     object"""
-    sessid = uuid.uuid4()
     dbsess = Session(
-        sess_id = sessid,
         user_id = user.id,
         login_ip = request.remote_addr,
     )
@@ -86,7 +85,7 @@ def create_sess(user):
     db.session.commit()
 
     # Add the session ID to the flask session cookie.
-    session['sessid'] = str(sessid)
+    session['sessid'] = str(dbsess.sess_id)
     # Also add the user object for insecure_cur_user
     session['user'] = dict(
         id=user.id,
@@ -102,18 +101,20 @@ def cur_session():
     Returns None if there is no session.
     """
     if 'sessid' not in session: return None
-    sess = Session.query.filter_by(sess_id=session['sessid']).first()
+    sess = Session.query.filter_by(sess_id=session['sessid'], active=True).first()
     if sess:
         # If the session is expired or the user has a different IP, remove it from the database
         # and pretend it didn't exist.
         if sess.expired():
             flash('Your last session expired. Please log in again.')
-            db.session.delete(sess)
+            sess.disable()
+            clear_session()
             db.session.commit()
             return None
         elif sess.login_ip != request.remote_addr:
             flash('Your IP address changed. Please log in again.')
-            db.session.delete(sess)
+            sess.disable()
+            clear_session()
             db.session.commit()
             return None
         # Update `last_seen` and `last_ip`.

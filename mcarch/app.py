@@ -10,10 +10,12 @@ bcrypt = Bcrypt()
 csrf = CSRFProtect()
 
 from mcarch import login
+from mcarch.util.filters import register_filters
 
 class DefaultConfig(object):
     # Time until sessions in the database expire
     SERV_SESSION_EXPIRE_TIME = timedelta(days=5)
+    PASSWD_RESET_EXPIRE_TIME = timedelta(days=5)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class DevelopmentConfig(object):
@@ -33,6 +35,7 @@ def create_app(config_object):
     app.config.from_object(config_object)
     register_extensions(app)
     register_blueprints(app)
+    register_filters(app)
     register_conprocs(app)
     return app
 
@@ -52,6 +55,7 @@ def register_conprocs(app):
             map = map,
             len = len
         )
+
 
 def register_blueprints(app):
     from mcarch.views import root

@@ -25,7 +25,7 @@
         <ul>
             {% for user in users %}
             <li><a href="{{ url_for('admin.user', name=user.name) }}">
-                    {{ user.name }}</a> last seen {{ user.last_seen }}</li>
+                    {{ user.name }}</a> last seen {{ user.last_seen|timesince }}</li>
             {% endfor %}
         </ul>
         <a href="{{ url_for('admin.users') }}">All Users</a>

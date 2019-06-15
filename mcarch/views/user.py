@@ -2,11 +2,13 @@ from flask import Blueprint, render_template, url_for, redirect, abort, flash, r
 
 from flask_wtf import FlaskForm
 from wtforms.fields import StringField, PasswordField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, EqualTo
 
-from mcarch.model.user import User
+from mcarch.app import db
+from mcarch.model.user import User, ResetToken
 from mcarch.login import login_required, logout_required, log_in, log_out, \
     cur_user, insecure_cur_user
+from mcarch.util.security import is_safe_url
 
 user = Blueprint('user', __name__, template_folder="templates")
 
@@ -24,10 +26,12 @@ class LoginForm(FlaskForm):
 def login():
     form = LoginForm()
     if request.method == 'POST':
+        nextpage = request.args.get('next')
+        if nextpage and not is_safe_url(nextpage):
+            return abort(400)
         if form.validate() and log_in(form.data['username'], form.data['password']):
             user = insecure_cur_user()
             flash('Logged in as {}.'.format(user['name']))
-            nextpage = request.args.get('next')
             if nextpage: return redirect(nextpage)
             else: return redirect(url_for('root.home'))
         else:
@@ -39,4 +43,26 @@ def logout():
     log_out()
     flash('Logged out.')
     return redirect(url_for('root.home'))
+
+
+class PassResetForm(FlaskForm):
+    password = PasswordField('New Password',
+            validators=[DataRequired(), Length(max=MAX_PASSWORD_LEN),
+                EqualTo('confirm', message='Passwords must match')
+            ])
+    confirm = PasswordField('Confirm Password',
+            validators=[DataRequired(), Length(max=MAX_PASSWORD_LEN)])
+
+@user.route("/reset-password/<token>", methods=['GET', 'POST'])
+def reset_password(token):
+    token = ResetToken.query.filter_by(token=token).first_or_404()
+    form = PassResetForm()
+    if request.method == 'POST':
+        if form.validate():
+            token.user.set_password(form.data['password'])
+            db.session.delete(token)
+            db.session.commit()
+            flash('Your password has been changed. Please log in with your new password.')
+            return redirect(url_for('user.login'))
+    return render_template("reset-password.html", form=form)
 
