@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, jsonify, request, url_for, redirect, flash
+from flask import Blueprint, render_template, jsonify, request, url_for, redirect, flash, \
+        current_app as app
 
 from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
 from mcarch.model.mod.logs import LogMod, gen_diffs

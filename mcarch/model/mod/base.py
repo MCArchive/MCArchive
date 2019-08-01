@@ -1,7 +1,10 @@
 from collections import OrderedDict
 
+from sqlalchemy.ext.declarative import declared_attr
+
 from mcarch.app import db
 from mcarch.util.copydiff import CopyDiff
+from mcarch.model.file import StoredFile
 
 def mk_authored_by_table(mod_table):
     """Generates an association table between mods and the author table"""
@@ -43,16 +46,6 @@ class ModBase(CopyDiff):
 
     # Methods for CopyDiff
     def copydiff_fields(self): return ['name', 'desc', 'website', 'authors']
-
-    def same_as(self, other):
-        scur = hasattr(self, 'cur_id')
-        ocur = hasattr(other, 'cur_id')
-        if self.id == other.id: return True
-        if scur and ocur: return self.cur_id == other.cur_id
-        elif scur: return self.cur_id == other.id
-        elif ocur: return other.cur_id == self.id
-        else: return False
-
     def get_children(self): return self.mod_vsns
     def add_child(self, ch): self.mod_vsns.append(ch)
     def rm_child(self, ch): self.mod_vsns.remove(ch)
@@ -66,28 +59,25 @@ class ModVersionBase(CopyDiff):
 
     def game_versions_str(self):
         """Returns a comma separated string listing the supported game versions for this mod."""
-        return ", ".join(map(lambda v: v.name, self.game_vsnsl))
+        return ", ".join(map(lambda v: v.name, self.game_vsns))
 
     def copydiff_fields(self): return ['name', 'desc', 'url', 'game_vsns']
-
-    def same_as(self, other):
-        scur = hasattr(self, 'cur_id')
-        ocur = hasattr(other, 'cur_id')
-        if self.id == other.id: return True
-        if scur and ocur: return self.cur_id == other.cur_id
-        elif scur: return self.cur_id == other.id
-        elif ocur: return other.cur_id == self.id
-        else: return False
-
     def get_children(self): return self.files
     def add_child(self, ch): self.files.append(ch)
     def rm_child(self, ch): self.files.remove(ch)
 
 class ModFileBase(CopyDiff):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=True)
+    desc = db.Column(db.Text)
 
-    filename = db.Column(db.String(80), nullable=False)
-    sha256 = db.Column(db.String(130), nullable=False)
+    @declared_attr
+    def stored_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('stored_file.id'), nullable=True)
+
+    @declared_attr
+    def stored(cls):
+        return db.relation('StoredFile')
 
     # Link to official web page with download links.
     page_url = db.Column(db.String(120))
@@ -96,24 +86,8 @@ class ModFileBase(CopyDiff):
     # Official direct file download link.
     direct_url = db.Column(db.String(120))
 
-    # Path to the file on the local filesystem.
-    local_path = db.Column(db.String(200))
-
-    # Path to the file on B2 cloud storage.
-    b2_path = db.Column(db.String(200))
-
     def copydiff_fields(self):
-        return ['filename', 'sha256', 'page_url', 'redirect_url', 'direct_url']
-
-    def same_as(self, other):
-        scur = hasattr(self, 'cur_id')
-        ocur = hasattr(other, 'cur_id')
-        if self.id == other.id: return True
-        if scur and ocur: return self.cur_id == other.cur_id
-        elif scur: return self.cur_id == other.id
-        elif ocur: return other.cur_id == self.id
-        else: return False
-
+        return ['stored', 'page_url', 'redirect_url', 'direct_url']
     def get_children(self): return []
 
 

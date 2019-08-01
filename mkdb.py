@@ -1,6 +1,7 @@
 # This file creates an empty SQLite database for development.
 
 import sys
+import os
 
 from mcarch.app import create_app, db
 import mcarch.model
@@ -8,6 +9,7 @@ import mcarch.model
 from mcarch.app import DevelopmentConfig
 from mcarch.model.user import *
 from mcarch.model.mod import *
+from mcarch.model.file import *
 
 def import_mod(obj, slug):
     mod = Mod(slug=slug, name=obj['name'])
@@ -38,7 +40,7 @@ def import_mod_vsn(obj):
     return vsn
 
 def import_mod_file(obj):
-    mfile = ModFile(filename=obj['filename'], sha256=obj['hash']['digest'])
+    mfile = ModFile()
     if 'desc' in obj: mfile.desc=obj['desc']
 
     if 'urls' in obj:
@@ -49,8 +51,19 @@ def import_mod_file(obj):
                 mfile.redirect_url = url['url']
             elif url['type'] == 'original':
                 mfile.direct_url = url['url']
-
+    mfile.stored = import_b2_stored_file(obj)
     return mfile
+
+def import_b2_stored_file(obj):
+    """Imports a StoredFile that's already in the local storage directory."""
+    filehash = obj['hash']['digest']
+    path = os.path.join(filehash, obj['filename'])
+    if os.path.isfile(os.path.join(app.config['MOD_STORE_DIR'], path)):
+        print('Found stored file {}'.format(path))
+        sfile = StoredFile(name=obj['filename'], sha256=obj['hash']['digest'], b2_path=path)
+        return sfile
+    else:
+        return None
 
 def import_game_vsns(mod):
     """Import game versions from a mod."""

@@ -19,8 +19,12 @@ def check_allowed(client, user, page, expect=True):
     asserts that the user can't."""
     login_as(client, user)
     rv = client.get(page)
-    if expect: assert rv.status_code == 200
-    else: assert rv.status_code == 302
+    if expect:
+        assert rv.status_code == 200, \
+                "Expected user {} to be able to access page {}".format(user.name, page)
+    else:
+        assert rv.status_code == 403, \
+                "Expected user {} to be blocked from accessing page {}".format(user.name, page)
     log_out(client)
 
 def test_browse(client, sample_mods):
@@ -33,7 +37,7 @@ def test_mod_page(client, sample_mods):
         for vsn in mod.mod_vsns:
             assert vsn.name.encode('utf-8') in rv.data
             for f in vsn.files:
-                assert f.filename.encode('utf-8') in rv.data
+                assert f.stored.name.encode('utf-8') in rv.data
 
 def test_mod_page_json(client, sample_mods):
     for mod in sample_mods:
@@ -41,7 +45,7 @@ def test_mod_page_json(client, sample_mods):
         for vsn in mod.mod_vsns:
             assert vsn.name.encode('utf-8') in rv.data
             for f in vsn.files:
-                assert f.filename.encode('utf-8') in rv.data
+                assert f.stored.name.encode('utf-8') in rv.data
 
 def test_authors(client, sample_authors):
     rv = client.get('/authors')

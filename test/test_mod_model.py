@@ -2,6 +2,7 @@ import pytest
 from flask import url_for
 
 from mcarch.model.mod import Mod, ModVersion, ModFile, ModAuthor, GameVersion
+from mcarch.model.file import StoredFile
 
 import re
 
@@ -15,7 +16,7 @@ def test_log(sample_mod):
     assert len(entry.mod_vsns) == len(sample_mod.mod_vsns)
     assert entry.mod_vsns[0].name == sample_mod.mod_vsns[0].name
     assert len(entry.mod_vsns[0].files) == len(sample_mod.mod_vsns[0].files)
-    assert entry.mod_vsns[0].files[0].sha256 == sample_mod.mod_vsns[0].files[0].sha256
+    assert entry.mod_vsns[0].files[0].stored.sha256 == sample_mod.mod_vsns[0].files[0].stored.sha256
 
 def test_copy(sample_mod):
     copy = sample_mod.copy(slug='copy')
@@ -24,7 +25,7 @@ def test_copy(sample_mod):
     assert len(copy.mod_vsns) == len(sample_mod.mod_vsns)
     assert copy.mod_vsns[0].name == sample_mod.mod_vsns[0].name
     assert len(copy.mod_vsns[0].files) == len(sample_mod.mod_vsns[0].files)
-    assert copy.mod_vsns[0].files[0].sha256 == sample_mod.mod_vsns[0].files[0].sha256
+    assert copy.mod_vsns[0].files[0].stored.sha256 == sample_mod.mod_vsns[0].files[0].stored.sha256
 
 def test_same_as(sample_mod, db_session):
     sm = sample_mod
@@ -38,7 +39,7 @@ def test_same_as(sample_mod, db_session):
         name='6.9',
         game_vsns=[GameVersion(name='a1.2.4')],
         files=[
-            ModFile(filename='test-6.9-client.jar', sha256='fakeclient2'),
+            ModFile(stored=StoredFile(name='test-6.9-client.jar', sha256='fakeclient2')),
         ]
     ))
 
@@ -60,7 +61,7 @@ def test_diff(sample_mod, db_session):
 
     sm.name = 'changed'
     sm.mod_vsns[0].desc = 'changed'
-    sm.mod_vsns[1].files[0].sha256 = 'changed'
+    sm.mod_vsns[1].files[0].stored.sha256 = 'changed'
 
     log = sm.log_change(user=None)
     db_session.commit()
@@ -80,8 +81,8 @@ def test_log_add(sample_mod, db_session):
         desc='This is also a test',
         game_vsns=[GameVersion(name='a1.2.4')],
         files=[
-            ModFile(filename='test-6.9-client.jar', sha256='fakeclient2'),
-            ModFile(filename='test-6.9-server.jar', sha256='fakeserver2'),
+            ModFile(stored=StoredFile(name='test-6.9-client.jar', sha256='fakeclient2')),
+            ModFile(stored=StoredFile(name='test-6.9-server.jar', sha256='fakeserver2')),
         ]
     ))
     log = sm.log_change(user=None)
@@ -125,7 +126,7 @@ def test_revert_to(sample_mod, db_session):
         name='6.9',
         game_vsns=[GameVersion(name='a1.2.4')],
         files=[
-            ModFile(filename='test-6.9-client.jar', sha256='fakeclient2'),
+            ModFile(stored=StoredFile(name='test-6.9-client.jar', sha256='fakeclient2')),
         ]
     ))
     sm.log_change(user=None)
@@ -138,6 +139,6 @@ def test_revert_to(sample_mod, db_session):
 
     assert sm.name == sm.logs[0].name
     assert sm.mod_vsns[0].name == sm.logs[0].mod_vsns[0].name
-    assert sm.mod_vsns[0].files[0].filename == sm.logs[0].mod_vsns[0].files[0].filename
+    assert sm.mod_vsns[0].files[0].stored.name == sm.logs[0].mod_vsns[0].files[0].stored.name
     assert len(sm.mod_vsns) == len(sm.logs[0].mod_vsns)
 

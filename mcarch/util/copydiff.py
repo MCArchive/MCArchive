@@ -91,6 +91,14 @@ class CopyDiff(object):
     def copydiff_fields(self):
         """Returns a list of fields to be copied or diffed"""
         return []
+    def same_as(self, other):
+        scur = hasattr(self, 'cur_id')
+        ocur = hasattr(other, 'cur_id')
+        if self.id == other.id: return True
+        if scur and ocur: return self.cur_id == other.cur_id
+        elif scur: return self.cur_id == other.id
+        elif ocur: return other.cur_id == self.id
+        else: return False
     def get_children(self): raise NotImplementedError
     def add_child(self, ch): raise NotImplementedError
     def rm_child(self, ch): raise NotImplementedError

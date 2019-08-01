@@ -11,6 +11,7 @@ marshmallow_sqlalchemy
 sqlalchemy-utils
 
 pyYaml
+b2sdk
 
 pytest
 pytest-flask

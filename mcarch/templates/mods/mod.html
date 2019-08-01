@@ -14,8 +14,8 @@
 
     {% for file in vsn.files %}
     <section class="sub-block">
-        <h2 class="file-name">{{ file.filename }}</h1>
-        <p class="small"><span class="sha256 hash">{{ file.sha256 }}</span></p>
+        <h2 class="file-name">{{ file.stored.name }}</h2>
+        <p class="small"><span class="sha256 hash">{{ file.stored.sha256 }}</span></p>
         <ul class="urls">
             <li>
                 {% if file.redirect_url %}
@@ -26,6 +26,9 @@
                 {% endif %}
                 {% if file.page_url %}
                 <a class="button" href="{{ file.page_url }}">Download Page</a>
+                {% endif %}
+                {% if file.stored and file.stored.b2_download_url() %}
+                <a class="button" href="{{ file.stored.b2_download_url() }}">Archive Download</a>
                 {% endif %}
             </li>
         </ul>

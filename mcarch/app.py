@@ -1,3 +1,5 @@
+import os
+import os.path
 from datetime import timedelta
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -15,8 +17,10 @@ from mcarch.util.filters import register_filters
 class DefaultConfig(object):
     # Time until sessions in the database expire
     SERV_SESSION_EXPIRE_TIME = timedelta(days=5)
-    PASSWD_RESET_EXPIRE_TIME = timedelta(days=5)
+    PASSWD_RESET_EXPIRE_TIME = timedelta(hours=1)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    B2_KEY_ID = None
+    B2_APP_KEY = None
 
 class DevelopmentConfig(object):
     DEBUG = True
@@ -25,13 +29,16 @@ class DevelopmentConfig(object):
     SECRET_KEY = "notsecret"
     DATABASE = 'sqlite:////tmp/test.db'
     SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
-    print('APP IS USING DEVELOPMENT CONFIG. DO NOT USE IN PRODUCTION')
+    MOD_STORE_DIR = os.path.abspath('mod_store/')
 
 
 def create_app(config_object):
     app = Flask(__name__)
     app.config.from_object(DefaultConfig)
-    if app.env == 'development': app.config.from_object(DevelopmentConfig)
+    app.config.from_envvar('MCARCH_CONFIG')
+    if app.env == 'development':
+        app.config.from_object(DevelopmentConfig)
+        print('APP IS USING DEVELOPMENT CONFIG. DO NOT USE IN PRODUCTION')
     app.config.from_object(config_object)
     register_extensions(app)
     register_blueprints(app)

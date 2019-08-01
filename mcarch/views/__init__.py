@@ -13,9 +13,9 @@ def home():
 
 @root.app_errorhandler(404)
 def err404(err):
-    return render_template("error/404.html")
+    return render_template("error/404.html"), 404
 
 @root.app_errorhandler(403)
 def err403(err):
-    return render_template("error/403.html")
+    return render_template("error/403.html"), 403
 

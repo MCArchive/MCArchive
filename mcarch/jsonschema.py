@@ -7,9 +7,18 @@ from mcarch.app import db
 from mcarch.model.mod import *
 
 class ModFileSchema(ModelSchema):
+    sha256 = fields.Method("get_sha256")
+    filename = fields.Method("get_filename")
+
+    def get_filename(self, obj):
+        return obj.stored.name
+
+    def get_sha256(self, obj):
+        return obj.stored.sha256
+
     class Meta:
         model = ModFile
-        exclude = ('b2_path', 'local_path', 'redist', 'version')
+        exclude = ('redist', 'version', 'stored')
         sqla_session = db.session
 
 class ModAuthorSchema(ModelSchema):

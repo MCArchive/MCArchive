@@ -8,6 +8,7 @@ from sqlalchemy import event
 from mcarch.app import create_app, db, bcrypt
 import mcarch.model
 from mcarch.model.mod import Mod, ModVersion, ModFile, GameVersion, ModAuthor
+from mcarch.model.file import StoredFile
 from mcarch.model.user import User, roles
 
 @pytest.fixture(scope='session')
@@ -43,6 +44,8 @@ def fresh_db(app):
 
 # Generate a list of sample mods to test with
 def mk_sample_mods():
+    def mkfile(**kwargs):
+        return ModFile(stored=StoredFile(b2_path=None, **kwargs))
     gv_125 = GameVersion(name='1.2.5')
     gv_b173 = GameVersion(name='b1.7.3')
     gv_a123 = GameVersion(name='a1.2.3')
@@ -55,7 +58,7 @@ def mk_sample_mods():
                     desc='This is a test',
                     game_vsns=[gv_125],
                     files=[
-                        ModFile(filename='test-4.2.0.jar', sha256='fake')
+                        mkfile(name='test-4.2.0.jar', sha256='fake')
                     ]
                 ),
                 ModVersion(
@@ -63,8 +66,8 @@ def mk_sample_mods():
                     desc='This is another test',
                     game_vsns=[gv_b173],
                     files=[
-                        ModFile(filename='test-1.3.3.7-client.jar', sha256='fakeclient'),
-                        ModFile(filename='test-1.3.3.7-server.jar', sha256='fakeserver'),
+                        mkfile(name='test-1.3.3.7-client.jar', sha256='fakeclient'),
+                        mkfile(name='test-1.3.3.7-server.jar', sha256='fakeserver'),
                     ]
                 ),
             ]
@@ -76,14 +79,14 @@ def mk_sample_mods():
                     name='4.2',
                     game_vsns=[gv_b173],
                     files=[
-                        ModFile(filename='guide-4.2.jar', sha256='theanswer')
+                        mkfile(name='guide-4.2.jar', sha256='theanswer')
                     ]
                 ),
                 ModVersion(
                     name='2.7',
                     game_vsns=[gv_a123],
                     files=[
-                        ModFile(filename='guide-2.7.jar', sha256='bypass')
+                        mkfile(name='guide-2.7.jar', sha256='bypass')
                     ]
                 ),
             ]

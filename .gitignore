@@ -1,3 +1,9 @@
+# Local mod file storage
+mod_store/
+
+# Local development config
+dev_config.py
+
 # Node crap
 node_modules/
 _webpack_manifest.json
