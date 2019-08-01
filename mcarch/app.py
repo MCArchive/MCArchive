@@ -35,7 +35,8 @@ class DevelopmentConfig(object):
 def create_app(config_object):
     app = Flask(__name__)
     app.config.from_object(DefaultConfig)
-    app.config.from_envvar('MCARCH_CONFIG')
+    if 'MCARCH_CONFIG' in os.environ:
+        app.config.from_envvar('MCARCH_CONFIG')
     if app.env == 'development':
         app.config.from_object(DevelopmentConfig)
         print('APP IS USING DEVELOPMENT CONFIG. DO NOT USE IN PRODUCTION')

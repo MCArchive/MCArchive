@@ -58,12 +58,9 @@ def import_b2_stored_file(obj):
     """Imports a StoredFile that's already in the local storage directory."""
     filehash = obj['hash']['digest']
     path = os.path.join(filehash, obj['filename'])
-    if os.path.isfile(os.path.join(app.config['MOD_STORE_DIR'], path)):
-        print('Found stored file {}'.format(path))
-        sfile = StoredFile(name=obj['filename'], sha256=obj['hash']['digest'], b2_path=path)
-        return sfile
-    else:
-        return None
+    print('Import stored file {}'.format(path))
+    sfile = StoredFile(name=obj['filename'], sha256=obj['hash']['digest'], b2_path=path)
+    return sfile
 
 def import_game_vsns(mod):
     """Import game versions from a mod."""
