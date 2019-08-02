@@ -4,21 +4,26 @@
 $elem-pad: 4px 6px;
 $fborder-rad: $border-rad - 2;
 
-// Normalize input stuff
-button, input, .button {
+// General form field stuff
+%formfield {
+    padding: $elem-pad;
+    box-shadow: $shadow;
+
+    border-radius: $fborder-rad;
+    border: 1px solid;
+
+    color: $body-color;
+    border-color: $gray;
+    background-color: $lightgray;
+
     font-size: $font-size - 2;
 }
 
 // Text Boxes
 input, textarea {
-    padding: $elem-pad;
+    @extend %formfield;
 
-    border-radius: $fborder-rad;
-    border: 1px solid;
-    border-color: $gray;
     color: $body-color;
-    box-shadow: $shadow;
-
     background-color: #000;
     transition: background-color $fade-dur;
 
@@ -28,17 +33,11 @@ input, textarea {
     }
 }
 
+// Buttons
 button, input[type='button'], input[type='submit'], .button {
-    padding: $elem-pad;
+    @extend %formfield;
 
-    border-radius: $fborder-rad;
-    border: none;
-    box-shadow: $shadow;
-
-    color: $body-color;
-    background-color: $lightgray;
     transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
-
     // Remove chrome's ugly focus outline
     &:focus {
         outline: none;
@@ -67,6 +66,16 @@ button, input[type='button'], input[type='submit'], .button {
     &:active {
         background-color: $prim-dark;
         color: #fff;
+    }
+}
+
+// Select fields
+select {
+    @extend button;
+    & option {
+        background-color: $gray;
+
+        &:hover { background-color: $primary; }
     }
 }
 
