@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Success{% endblock %}
+{% block content %}
+
+<h1>User disabled</h1>
+
+<p>{{ user.name }} has successfully been disabled</p>
+
+<a class='button' href='{{ url_for('admin.user', name=user.name) }}'>Return to User Page</a>
+
+{% endblock %}
+

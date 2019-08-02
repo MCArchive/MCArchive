@@ -24,6 +24,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     role = db.Column(db.Enum(UserRole), nullable=False)
     last_seen = db.Column(db.DateTime)
+    disabled = db.Column(db.Boolean)
 
     def __init__(self, *args, password, passhash=None, **kwargs):
         """
@@ -64,6 +65,14 @@ class User(db.Model):
         self.reset_token = ResetToken()
         token = self.reset_token.token
         return str(token)
+
+    def disable(self):
+        for sess in self.sessions:
+            sess.disable()
+        self.disabled = True
+
+    def enable(self):
+        self.disabled = False
 
     def __repr__(self):
         return '<User %r>' % self.name

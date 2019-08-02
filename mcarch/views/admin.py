@@ -67,6 +67,17 @@ def reset_passwd(name):
         db.session.commit()
         return render_template('/admin/password-reset.html', user=user, token=token)
 
+@admin.route("/admin/disable-user/<name>", methods=['GET', 'POST'])
+@login_required(role=roles.admin)
+def disable_user(name):
+    user = User.query.filter_by(name=name).first_or_404()
+    if request.method == 'GET':
+        return render_template('/admin/confirm-disable-user.html', user=user)
+    elif request.method == 'POST':
+        user.disable()
+        db.session.commit()
+        return render_template('/admin/disable-user-success.html', user=user)
+
 
 class CreateUserForm(FlaskForm):
     name = StringField('name', validators=[DataRequired(),

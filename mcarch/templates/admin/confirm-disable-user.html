@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Disable User{% endblock %}
+{% block content %}
+
+<h1>Disable User</h1>
+
+<p>Are you sure you want to disable {{ user.name }}?</p>
+<p>This will prevent them from logging in until they are re-enabled.</p>
+
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="submit" value="Confirm">
+</form>
+<br>
+<a class='button' href='{{ url_for('admin.user', name=user.name) }}'>Return to User Page</a>
+
+{% endblock %}
+
