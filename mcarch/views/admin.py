@@ -73,7 +73,9 @@ class CreateUserForm(FlaskForm):
         Length(max=User.name.type.length)], render_kw={"placeholder": "Username"})
     email = EmailField('email', validators=[Email(), DataRequired(),
         Length(max=User.email.type.length)], render_kw={"placeholder": "Email"})
-    role = SelectField('role', choices=[(member.name, name.capitalize()) for name, member in UserRole.__members__.items()],
+    role = SelectField('role',
+            choices=[(member.name, name.capitalize()) for
+                        name, member in UserRole.__members__.items()],
         validators=[DataRequired()])
     submit = SubmitField('Submit')
 
@@ -90,7 +92,8 @@ def create_user():
             new_user.clear_password()
             token = new_user.gen_passwd_reset_token()
             db.session.commit()
-            return render_template('/admin/create-user-success.html', user=new_user, token=token)
+            return render_template('/admin/create-user-success.html',
+                    user=new_user, token=token)
         else:
             flash("Username and Email are required")
         
