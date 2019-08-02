@@ -24,7 +24,7 @@
             <td>{{ u.id }}</td>
             <td><a href="{{ url_for('admin.user', name=u.name) }}">{{ u.name }}</a></td>
             <td>{{ u.email }}</td>
-            <td>{{ u.role }}</td>
+            <td>{{ u.role.name.capitalize() }}</td>
             {% if len(u.sessions) > 0 %}
             <td>{{ u.sessions[0].login_ip }}</td>
             {% else %}
