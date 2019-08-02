@@ -13,6 +13,7 @@
         <ul>
             {% if has_role(_roles.admin) %}
             <li><a href="{{ url_for('admin.users') }}">Users</a></li>
+            <li><a href="{{ url_for('admin.create_user')}}">Create new User</li>
             {% endif %}
             {% if has_role(_roles.moderator) %}
             <li><a href="{{ url_for('admin.changes') }}">Recent Changes</a></li>

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Create a new user{% endblock %}
+
+{% block content %}
+
+<h1>Create a new user</h1>
+<form method="post">
+    {{ form.csrf_token }}
+    <p>{{ form.name }} {{ form.email }}</p>
+    <p>{{ form.role }}</p>
+    {{ form.submit }}
+</form>
+
+{% endblock %}

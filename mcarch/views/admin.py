@@ -1,9 +1,14 @@
 from flask import Blueprint, render_template, request, url_for, redirect, flash
+from flask_wtf import FlaskForm
 
 from mcarch.app import db
 from mcarch.login import login_required
 from mcarch.model.mod.logs import LogMod, slow_gen_diffs
-from mcarch.model.user import User, Session, roles
+from mcarch.model.user import User, Session, roles, UserRole
+
+from wtforms import StringField, SelectField, SubmitField
+from wtforms.validators import Length, DataRequired, Email, ValidationError
+from wtforms.fields.html5 import EmailField
 
 admin = Blueprint('admin', __name__, template_folder="templates")
 
@@ -62,3 +67,32 @@ def reset_passwd(name):
         db.session.commit()
         return render_template('/admin/password-reset.html', user=user, token=token)
 
+
+class CreateUserForm(FlaskForm):
+    name = StringField('name', validators=[DataRequired(),
+        Length(max=User.name.type.length)], render_kw={"placeholder": "Username"})
+    email = EmailField('email', validators=[Email(), DataRequired(),
+        Length(max=User.email.type.length)], render_kw={"placeholder": "Email"})
+    role = SelectField('role', choices=[(member.name, name.capitalize()) for name, member in UserRole.__members__.items()],
+        validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+@admin.route("/admin/create-user", methods=['GET', 'POST'])
+@login_required(role=roles.admin)
+def create_user():
+    form = CreateUserForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            new_user = User(name=form.name.data, email=form.email.data,
+                role=UserRole[form.role.data],
+                passhash="non-empty", password="non-empty")
+            db.session.add(new_user)
+            new_user.clear_password()
+            token = new_user.gen_passwd_reset_token()
+            db.session.commit()
+            return render_template('/admin/create-user-success.html', user=new_user, token=token)
+        else:
+            flash("Username and Email are required")
+        
+    return render_template('/admin/create-user.html', roles=UserRole, form=form)
+        
