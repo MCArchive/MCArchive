@@ -37,8 +37,8 @@ $footer-rule-color: #ccc;
 
 $page-width: 1200px; // maximum width of page content for readability
 
-$nav-height: 24px;
-$total-nav-height: 36px;
+$nav-height: 32px;
+$total-nav-height: $nav-height + 12px;
 
 $mobile: "screen and (max-width: 1200px)";
 $fullsize: "screen and (min-width: 1200px)";

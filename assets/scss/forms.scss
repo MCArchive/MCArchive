@@ -85,9 +85,17 @@ a.button {
 }
 
 .btngroup {
+    display: block;
     &>* { float: left; border-radius: 0px; }
     &>:first-child { border-radius: $fborder-rad 0px 0px $fborder-rad; }
     &>:last-child { border-radius: 0px $fborder-rad $fborder-rad 0px; }
     &>:first-child:last-child { border-radius: $fborder-rad; }
+
+    // Clear floats after the button group
+    &:not(.floating):after {
+        content: "";
+        clear: both;
+        display: table;
+    }
 }
 

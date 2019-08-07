@@ -2,6 +2,10 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 
+<img class="big-logo" src="/static/logo.svg" alt="MCArchive Logo"/>
+
+<h1>Minecraft Archive</h1>
+
 <p>Welcome to the the Minecraft Archive. Our goal is to make it easy to find old
 Minecraft mods. To that end, we archive mods, and keep them publicly accessible
 even after their creators no longer distribute them.</p>
@@ -9,7 +13,11 @@ even after their creators no longer distribute them.</p>
 <p>We provide downloads for mods which are no longer available for download from
 their original creator. Otherwise, we just link to the official download page.</p>
 
-{#<a class="btn" href="{{ url_for('mod_list') }}">Browse Mods</a>#}
+<div class="btngroup">
+    <a class="button affirm" href="{{ url_for('mods.browse') }}">Browse All Mods</a>
+    <a class="button" href="{{ url_for('mods.authors') }}">By Author</a>
+    <a class="button" href="{{ url_for('mods.gamevsns') }}">By Minecraft Version</a>
+</div>
 
 <p>Talk to us in the <a href="https://discord.gg/fbhZB94">#mc-archive channel on discord</a>.
 

@@ -22,7 +22,10 @@
 <body>
     <nav>
         <div class="container">
-            <a class="logo" href="{{ url_for("root.home") }}">Minecraft Archive</a>
+            <a class="logo" href="{{ url_for("root.home") }}">
+                <img src="/static/logo.svg" alt="">
+                <span class="text">Minecraft Archive</span>
+            </a>
             {#
             It's OK to use the insecure version here because we're just checking whether to show
             nav buttons. This saves us a database query on every single page load.

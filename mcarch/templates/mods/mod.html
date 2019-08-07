@@ -54,7 +54,7 @@
 {% endif %}
 
 {% if rev is not defined and insecure_cur_user() and has_role(_roles.archivist) %}
-<div class="btngroup right">
+<div class="btngroup right floating">
 <a class="button" href="{{ url_for('mods.mod_history', slug=mod.slug) }}">History</a>
 <a class="button" href="{{ url_for('mods.edit_mod', slug=mod.slug) }}">Edit</a>
 </div>

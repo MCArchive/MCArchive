@@ -14,7 +14,10 @@ module.exports = {
         }),
         new copy_plugin([
             { from: './assets/img/favicon.ico' },
-        ])
+        ]),
+        new copy_plugin([
+            { from: './assets/img/logo.svg' },
+        ]),
     ],
 
     entry: {

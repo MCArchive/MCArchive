@@ -5,6 +5,12 @@ $nav-bgcolor: $primary;
 $nav-hlcolor: rgba(255, 255, 255, 0.2);
 $nav-active:  rgba(0, 0, 0, 0.8);
 
+%nav-thumbnail {
+    width: $nav-height;
+    height: $nav-height;
+    vertical-align: text-top;
+    border-radius: 25%;
+}
 
 nav {
     border: none;
@@ -36,11 +42,11 @@ nav {
         border: none;
 
         color: $nav-color;
-        padding: 6px 8px;
-        display: block;
+        padding: 6px 10px;
+        display: inline-block;
         height: $nav-height;
-        line-height: 24px;
-        font-size: 12pt;
+        line-height: $nav-height;
+        font-size: 14pt;
 
         transition: color $fade-dur, box-shadow $fade-dur, background $fade-dur;
 
@@ -72,12 +78,7 @@ nav {
             }
 
             // Used for profile picture in the user dropdown.
-            & img {
-                width: $nav-height;
-                height: $nav-height;
-                vertical-align: top;
-                border-radius: 25%;
-            }
+            & img { @extend %nav-thumbnail; }
         }
 
         & .dropcontent {
@@ -135,6 +136,12 @@ nav {
         background: none;
         color: $primary;
         box-shadow: none;
+    }
+
+    & img { @extend %nav-thumbnail; }
+
+    @media only #{$mobile} {
+        .text { display: none; }
     }
 }
 

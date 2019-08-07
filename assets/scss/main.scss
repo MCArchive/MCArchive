@@ -100,3 +100,14 @@ footer {
     font-size: 42pt;
 }
 
+// Big logo on the home page.
+.big-logo {
+    box-shadow: $shadow;
+    border-radius: $border-rad;
+    float: right;
+    margin-left: 16px;
+    margin-top: 32px;
+    width: 128px;
+    height: 128px;
+}
+
