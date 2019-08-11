@@ -16,6 +16,7 @@
             <td>Role</td>
             <td>Last IP</td>
             <td>Last Seen</td>
+            <td>Disabled</td>
         </tr>
     </thead>
     <tbody>
@@ -35,6 +36,7 @@
             {% else %}
             <td><i>Logged out</i></td>
             {% endif %}
+            <td><i>{{ "Yes" if u.disabled else "No" }}</i></td>
         </tr>
         {% endfor %}
     </tbody>

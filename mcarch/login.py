@@ -68,7 +68,6 @@ def log_in(uname, passwd):
     user = User.query.filter_by(name=uname).first()
     if not user: return False
     if user.disabled:
-        flash("User disabled")
         return False
 
     if bcrypt.check_password_hash(user.password, passwd):
