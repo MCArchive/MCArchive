@@ -1,10 +1,18 @@
 {% extends "base.html" %}
 {% block title %}Success{% endblock %}
 {% block content %}
-
+{% if user.disabled %}
 <h1>User disabled</h1>
 
-<p>{{ user.name }} has successfully been disabled</p>
+<p>{{ user.name }} has been successfully disabled.</p>
+
+{% else %}
+
+<h1>User re-enabled</h1>
+
+<p>{{ user.name }} has been successfully re-enabled. They can now log in again.</p>
+
+{% endif %}
 
 <a class='button' href='{{ url_for('admin.user', name=user.name) }}'>Return to User Page</a>
 

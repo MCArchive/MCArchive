@@ -1,18 +1,24 @@
 {% extends "base.html" %}
-{% block title %}Disable User{% endblock %}
+{% block title %}{% if not user.disabled %}Disable{% else %}Enable{% endif %} User{% endblock %}
 {% block content %}
-
+{% if not user.disabled %}
 <h1>Disable User</h1>
 
 <p>Are you sure you want to disable {{ user.name }}?</p>
 <p>This will prevent them from logging in until they are re-enabled.</p>
+{% else %}
+<h1>Enable User</h1>
 
+<p>Are you sure you want to re-enable {{ user.name }}?</p>
+<p>This will allow them to log in once again.</p>
+
+{% endif %}
 <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <input type="submit" value="Confirm">
 </form>
 <br>
-<a class='button' href='{{ url_for('admin.user', name=user.name) }}'>Return to User Page</a>
+<a class='button' href="{{ url_for('admin.user', name=user.name) }}">Return to User Page</a>
 
 {% endblock %}
 

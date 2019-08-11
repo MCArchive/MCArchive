@@ -74,7 +74,15 @@ def disable_user(name):
     if request.method == 'GET':
         return render_template('/admin/confirm-disable-user.html', user=user)
     elif request.method == 'POST':
-        user.disable()
+        if user.has_role(UserRole.admin):
+            flash("You cannot disable an admin's login. How'd you get here?")
+            return redirect(url_for('admin.user', name=user.name))
+
+        if user.disabled:
+            user.enable()
+        else:
+            user.disable()
+
         db.session.commit()
         return render_template('/admin/disable-user-success.html', user=user)
 
