@@ -11,10 +11,10 @@
 <p>Role: {{ user.role.name.capitalize() }}</p>
 <p>Last Seen: {{ user.last_seen }}</p>
 <p>Login Disabled: {{ "Yes" if user.disabled else "No" }} 
-({% if not user.has_role(_roles.admin) %}
+({% if not user.has_role(_roles.admin) -%}
     <a href="{{ url_for('admin.disable_user', name=user.name)}}">
-    {{ "Enable" if user.disabled else "Disable"}}</a>
-{% endif %})
+    {{- "Enable" if user.disabled else "Disable"}}</a>
+{%- endif %})
 </p>
 
 <a href="{{ url_for('admin.reset_passwd', name=user.name) }}">Reset Password</a>
