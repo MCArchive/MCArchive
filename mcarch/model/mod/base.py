@@ -31,8 +31,8 @@ def mk_for_game_vsn_table(mod_vsn_table):
 class ModBase(CopyDiff):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
-    desc = db.Column(db.Text)
-    website = db.Column(db.String(120))
+    desc = db.Column(db.Text, nullable=False, default="")
+    website = db.Column(db.String(120), nullable=False, default="")
 
     def vsns_by_game_vsn(self):
         """
@@ -54,8 +54,8 @@ class ModVersionBase(CopyDiff):
     id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(db.String(40), nullable=False)
-    desc = db.Column(db.Text)
-    url = db.Column(db.String(120))
+    desc = db.Column(db.Text, nullable=False, default="")
+    url = db.Column(db.String(120), nullable=False, default="")
 
     def game_versions_str(self):
         """Returns a comma separated string listing the supported game versions for this mod."""
@@ -68,8 +68,8 @@ class ModVersionBase(CopyDiff):
 
 class ModFileBase(CopyDiff):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=True)
-    desc = db.Column(db.Text)
+    name = db.Column(db.String(80), nullable=False, default="")
+    desc = db.Column(db.Text, nullable=False, default="")
 
     @declared_attr
     def stored_id(cls):
@@ -80,11 +80,11 @@ class ModFileBase(CopyDiff):
         return db.relation('StoredFile')
 
     # Link to official web page with download links.
-    page_url = db.Column(db.String(120))
+    page_url = db.Column(db.String(120), nullable=False, default="")
     # Official download link through redirect such as adfly.
-    redirect_url = db.Column(db.String(120))
+    redirect_url = db.Column(db.String(120), nullable=False, default="")
     # Official direct file download link.
-    direct_url = db.Column(db.String(120))
+    direct_url = db.Column(db.String(120), nullable=False, default="")
 
     def copydiff_fields(self):
         return ['stored', 'page_url', 'redirect_url', 'direct_url']
@@ -94,15 +94,13 @@ class ModFileBase(CopyDiff):
 # These models are shared between Mod and LogMod.
 
 class ModAuthor(db.Model):
-    __versioned__ = {}
     __tablename__ = "author"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False, unique=True)
-    desc = db.Column(db.Text)
-    website = db.Column(db.String(120))
+    desc = db.Column(db.Text, nullable=False, default="")
+    website = db.Column(db.String(120), nullable=False, default="")
 
 class GameVersion(db.Model):
-    __versioned__ = {}
     __tablename__ = "game_version"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(40), nullable=False, unique=True)
