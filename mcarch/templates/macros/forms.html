@@ -1,0 +1,8 @@
+{% macro field_errors(errs) %}
+{% if errs %}
+<ul class="errors">
+    {% for err in errs %}<li>{{ err }}</li>{% endfor %}
+</ul>
+{% endif %}
+{% endmacro %}
+

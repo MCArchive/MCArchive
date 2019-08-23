@@ -41,7 +41,10 @@ class ModBase(CopyDiff):
         """
         vsns = OrderedDict()
         for v in self.mod_vsns:
-            vsns.setdefault(v.game_vsns[0].name, []).append(v)
+            if len(v.game_vsns) > 0:
+                vsns.setdefault(v.game_vsns[0].name, []).append(v)
+            else:
+                vsns.setdefault('Unknown', []).append(v)
         return vsns
 
     # Methods for CopyDiff
@@ -68,7 +71,6 @@ class ModVersionBase(CopyDiff):
 
 class ModFileBase(CopyDiff):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False, default="")
     desc = db.Column(db.Text, nullable=False, default="")
 
     @declared_attr

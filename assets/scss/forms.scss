@@ -4,6 +4,9 @@
 $elem-pad: 4px 6px;
 $fborder-rad: $border-rad - 2;
 
+// The JS-based <select> style is in a separate file because it's big.
+@import 'select.scss';
+
 // General form field stuff
 %formfield {
     padding: $elem-pad;
@@ -20,12 +23,13 @@ $fborder-rad: $border-rad - 2;
 }
 
 // Text Boxes
-input, textarea {
+input[type='text'], textarea {
     @extend %formfield;
 
     color: $body-color;
     background-color: #000;
     transition: background-color $fade-dur;
+	box-sizing: border-box;
 
     &:focus {
         outline: none;
@@ -45,7 +49,7 @@ button, input[type='button'], input[type='submit'], .button {
 
     &:hover {
         color: $body-color;
-        background-color: #78b;
+        background-color: $prim-light;
     }
     &:active, &.active {
         background-color: $gray;
@@ -69,6 +73,11 @@ button, input[type='button'], input[type='submit'], .button {
     }
 }
 
+// Make link buttons look like buttons.
+a.button {
+    text-decoration: none;
+}
+
 // Select fields
 select {
     @extend button;
@@ -79,10 +88,38 @@ select {
     }
 }
 
-// Make link buttons look like buttons.
-a.button {
-    text-decoration: none;
+
+// Form tables for aligning elements
+.form-table {
+	// The labels are first, so align them in the top right
+	& td.label {
+		vertical-align: top;
+		text-align: right;
+	}
+
+	// Make inputs in the table expand to fill the full width
+	& td > input[type="text"] {
+		width: 100%;
+	}
+
+	& td > textarea {
+		box-sizing: border-box;
+		width: 100%;
+		min-width: 400px;
+	}
 }
+
+
+// Small block in a form used to show information.
+// Used in the edit file page.
+.form-block {
+	@extend %formfield;
+	& p {
+		margin: 4px 2px;
+	}
+    background-color: #000;
+}
+
 
 .btngroup {
     display: block;

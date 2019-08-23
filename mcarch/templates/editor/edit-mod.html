@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title -%}
+{%- if editing -%}
+Edit {{ editing.name }}
+{%- else -%}
+Create a new mod
+{%- endif -%}
+{%- endblock %}
+
+{% import 'macros/forms.html' as d with context %}
+
+{# Load the select field JavaScript before the rest of the page so our select fields work #}
+{% block head %}
+<script type="text/javascript" src="/static/select.js"></script>
+{% endblock %}
+
+
+{% block content %}
+
+{% if editing %}
+<h1>Edit {{ editing.name }}</h1>
+{% else %}
+<h1>Create a new mod</h1>
+{% endif %}
+<form method="post">
+    {{ form.csrf_token }}
+    <table class="form-table">
+        <tbody>
+            <tr>
+                <td class="label">{{ form.slug.label }}</td>
+                <td>{{ form.slug }}</td>
+                <td>{{ d.field_errors(form.slug.errors) }}</td>
+            </tr>
+            <tr>
+                <td class="label">{{ form.name.label }}</td>
+                <td>{{ form.name }}</td>
+                <td>{{ d.field_errors(form.name.errors) }}</td>
+            </tr>
+            <tr>
+                <td class="label">{{ form.authors.label }}</td>
+                <td>{{ form.authors }}</td>
+                <td>{{ d.field_errors(form.authors.errors) }}</td>
+            </tr>
+            <tr>
+                <td class="label">{{ form.website.label }}</td>
+                <td>{{ form.website }}</td>
+                <td>{{ d.field_errors(form.website.errors) }}</td>
+            </tr>
+            <tr>
+                <td class="label">{{ form.desc.label }}</td>
+                <td>{{ form.desc }}</td>
+                <td>{{ d.field_errors(form.desc.errors) }}</td>
+            </tr>
+        </tbody>
+    </table>
+    {{ form.submit }}
+</form>
+
+{% endblock %}
+

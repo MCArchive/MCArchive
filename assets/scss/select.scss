@@ -1,0 +1,126 @@
+@import 'vars.scss';
+
+// These variables change the defaults in the choices CSS imported below.
+$choices-font-size-lg: 16px;
+$choices-font-size-md: 14px;
+$choices-font-size-sm: 12px;
+$choices-guttering: 0px;
+$choices-border-radius: $border-rad;
+$choices-border-radius-item: $border-rad;
+$choices-bg-color: #000;
+$choices-bg-color-disabled: $lightgray;
+$choices-bg-color-dropdown: $gray;
+$choices-text-color: #fff;
+$choices-keyline-color: $gray;
+$choices-primary-color: $primary;
+$choices-disabled-color: #eaeaea;
+$choices-highlight-color: $choices-primary-color;
+$choices-button-dimension: 8px;
+$choices-button-offset: 8px;
+$choices-height: 16px;
+
+@import '~choices.js/src/styles/choices.scss';
+
+// Normalize all the styles from forms.scss
+.choices {
+    & input { box-shadow: none; }
+}
+
+// Common styling
+.choices__inner {
+    padding: 0px !important;
+    min-height: $choices-height !important;
+    //height: $choices-height !important;
+    & input {
+        padding: $elem-pad;
+        margin: 0px !important;
+        background-color: transparent;
+        &:focus { background-color: transparent; }
+    }
+}
+
+.choices__item--selectable.is-highlighted {
+    background-color: $choices-primary-color !important;
+}
+
+.choices__list {
+    & .choices__item--choice, & input {
+        padding: 6px !important;
+    }
+}
+
+
+// Multiple select
+
+$sel_multiple: ".choices[data-type=\"select-multiple\"]";
+
+#{$sel_multiple} .choices__inner {
+    border: 1px solid $gray;
+    transition: background-color $fade-dur;
+
+    & .choices__input {
+        color: $choices-text-color;
+        background-color: transparent;
+		border: none;
+		box-shadow: none;
+    }
+
+    &:focus-within {
+        background-color: $gray;
+    }
+}
+
+.choices__list--multiple {
+    margin-top: 0px !important;
+    & .choices__item {
+        height: 100% !important;
+        margin: 0px !important;
+        margin-top: -1px !important;
+        padding: $elem-pad !important;
+        border-radius: 0px;
+
+        & .choices__button {
+            padding: 0px;
+            margin: 0px;
+            margin-left: 2px;
+            box-shadow: none;
+            border: none;
+            background-color: transparent;
+            &:hover, &:active, &:focus { background-color: transparent; }
+        }
+    }
+}
+
+// Single Select
+
+$sel_single: ".choices[data-type=\"select-one\"]";
+
+#{$sel_single} {
+    & input {
+        background-color: transparent !important;
+        &:hover, &:active, &:focus { background-color: transparent !important; }
+        border-bottom: 1px $gray;
+    }
+
+    & .choices__inner {
+        // Replicate the look of a button for single select.
+        color: $body-color;
+        border-color: $gray;
+        background-color: $lightgray;
+        transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+
+        &:hover {
+            color: $body-color;
+            background-color: $prim-light;
+        }
+        &:active {
+            background-color: $gray;
+            box-shadow: inset $shadow;
+        }
+    }
+}
+.is_open#{$sel_single} .choices__inner {
+    background-color: $gray;
+    box-shadow: inset $shadow;
+}
+

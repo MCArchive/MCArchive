@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title -%}
+{%- if editing -%}
+Edit mod file
+{%- else -%}
+Add a new file to version {{ vsn.name }} of {{ mod.name }}
+{%- endif -%}
+{%- endblock %}
+
+{% import 'macros/forms.html' as d with context %}
+
+{% block content %}
+
+<h1>{%- if editing -%}
+Edit mod file
+{%- else -%}
+Add a new file to version {{ vsn.name }} of {{ mod.name }}
+{%- endif -%}</h1>
+<form method="post" enctype="multipart/form-data">
+    {{ form.csrf_token }}
+    <table class="form-table">
+        <tbody>
+            <tr>
+                <td class="label">
+                    {% if curfile %}
+                    <label for="file">Replace File</label>
+                    {% else %}
+                    {{ form.file.label }}
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="form-block">
+                    {% if curfile %}
+                    <p>You may choose a file to replace {{ curfile.name }}</p>
+                    <p><span class="hash">sha256: {{ curfile.sha256 }}</span></p>
+                    {% endif %}
+                    {{ form.file }}
+                    </div>
+                </td>
+                <td>{{ d.field_errors(form.file.errors) }}</td>
+            </tr>
+            <tr>
+                <td class="label">{{ form.page_url.label }}</td>
+                <td>{{ form.page_url }}</td>
+                <td>{{ d.field_errors(form.page_url.errors) }}</td>
+            </tr>
+            <tr>
+                <td class="label">{{ form.direct_url.label }}</td>
+                <td>{{ form.direct_url }}</td>
+                <td>{{ d.field_errors(form.direct_url.errors) }}</td>
+            </tr>
+            <tr>
+                <td class="label">{{ form.redirect_url.label }}</td>
+                <td>{{ form.redirect_url }}</td>
+                <td>{{ d.field_errors(form.redirect_url.errors) }}</td>
+            </tr>
+            <tr>
+                <td class="label">{{ form.desc.label }}</td>
+                <td>{{ form.desc }}</td>
+                <td>{{ d.field_errors(form.desc.errors) }}</td>
+            </tr>
+        </tbody>
+    </table>
+    {{ form.submit }}
+</form>
+
+{% endblock %}
+
+

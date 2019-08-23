@@ -1,3 +1,4 @@
+const webpack = require("webpack");
 const path = require('path');
 const css_extract = require('mini-css-extract-plugin');
 const copy_plugin = require('copy-webpack-plugin');
@@ -18,11 +19,15 @@ module.exports = {
         new copy_plugin([
             { from: './assets/img/logo.svg' },
         ]),
+        //new webpack.ProvidePlugin({
+		//	$: 'jquery',
+		//	jQuery: 'jquery'
+		//}),
     ],
 
     entry: {
         main: './assets/js/main.js',
-        'edit-mod': './assets/js/edit-mod.jsx',
+        select: './assets/js/select.js',
     },
     output: {
         publicPath: '/static/',
@@ -52,7 +57,24 @@ module.exports = {
                         },
                     },
                     "css-loader",
-                    "sass-loader"
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            includePaths: [path.resolve(__dirname, 'node_modules')],
+                        },
+                    },
+                ],
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    {
+                        loader: css_extract.loader,
+                        options: {
+                            hmr: dev_mode,
+                        },
+                    },
+                    "css-loader"
                 ],
             },
             {

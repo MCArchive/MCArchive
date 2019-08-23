@@ -4,6 +4,14 @@
 
 {% macro vsnblock(vsn) %}
 <section class="block">
+    {% if rev is not defined and insecure_cur_user() and has_role(_roles.archivist) %}
+    <div class="btngroup right floating">
+        <a class="button"
+            href="{{ url_for('edit.edit_mod_version', slug=mod.slug, vid=vsn.id) }}">Edit</a>
+        <a class="button"
+            href="{{ url_for('edit.new_mod_file', slug=mod.slug, vid=vsn.id) }}">Add File</a>
+    </div>
+    {% endif %}
     <h1>{{ vsn.name }}</h1>
 
     {% if vsn.desc %}
@@ -14,6 +22,12 @@
 
     {% for file in vsn.files %}
     <section class="sub-block">
+        {% if rev is not defined and insecure_cur_user() and has_role(_roles.archivist) %}
+        <div class="btngroup right floating">
+            <a class="button" href="{{ url_for('edit.edit_mod_file', fid=file.id) }}">Edit</a>
+        </div>
+        {% endif %}
+
         <h2 class="file-name">{{ file.stored.name }}</h2>
         <p class="small"><span class="sha256 hash">{{ file.stored.sha256 }}</span></p>
         <ul class="urls">
@@ -56,7 +70,8 @@
 {% if rev is not defined and insecure_cur_user() and has_role(_roles.archivist) %}
 <div class="btngroup right floating">
 <a class="button" href="{{ url_for('mods.mod_history', slug=mod.slug) }}">History</a>
-<a class="button" href="{{ url_for('mods.edit_mod', slug=mod.slug) }}">Edit</a>
+<a class="button" href="{{ url_for('edit.edit_mod', slug=mod.slug) }}">Edit</a>
+<a class="button" href="{{ url_for('edit.new_mod_version', slug=mod.slug) }}">Add Version</a>
 </div>
 {% endif %}
 <h1>{{ mod.name }}</h1>

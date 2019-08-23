@@ -1,7 +1,7 @@
 import os
 import os.path
 from datetime import timedelta
-from flask import Flask
+from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_wtf import CSRFProtect
@@ -10,6 +10,7 @@ from flaskext.markdown import Markdown
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 csrf = CSRFProtect()
+b2api = None
 
 from mcarch import login
 from mcarch.util.filters import register_filters
@@ -21,6 +22,7 @@ class DefaultConfig(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     B2_KEY_ID = None
     B2_APP_KEY = None
+    B2_BUCKET_NAME = None
 
 class DevelopmentConfig(object):
     DEBUG = True
@@ -29,7 +31,6 @@ class DevelopmentConfig(object):
     SECRET_KEY = "notsecret"
     DATABASE = 'sqlite:////tmp/test.db'
     SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
-    MOD_STORE_DIR = os.path.abspath('mod_store/')
 
 
 def create_app(config_object):
@@ -45,6 +46,7 @@ def create_app(config_object):
     register_blueprints(app)
     register_filters(app)
     register_conprocs(app)
+    init_b2(app)
     return app
 
 def register_extensions(app):
@@ -72,6 +74,21 @@ def register_blueprints(app):
     app.register_blueprint(user)
     from mcarch.views.mods import modbp
     app.register_blueprint(modbp)
+    from mcarch.views.editor import edit
+    app.register_blueprint(edit)
     from mcarch.views.admin import admin
     app.register_blueprint(admin)
+
+def init_b2(app):
+    global b2api
+    from b2sdk.account_info.in_memory import InMemoryAccountInfo
+    from b2sdk.account_info.sqlite_account_info import SqliteAccountInfo
+    from b2sdk.api import B2Api
+    info = InMemoryAccountInfo()
+    b2api = B2Api(info)
+    b2api.authorize_account('production', app.config['B2_KEY_ID'], app.config['B2_APP_KEY'])
+
+def get_b2bucket():
+    """Gets a reference to the archive's B2 bucket from the B2 API"""
+    return b2api.get_bucket_by_name(current_app.config['B2_BUCKET_NAME'])
 

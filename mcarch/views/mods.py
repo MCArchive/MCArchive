@@ -60,35 +60,6 @@ def gamevsns():
     return render_template('mods/gamevsns.html', gamevsns=gamevsns)
 
 
-@modbp.route("/mods/<slug>/edit", methods=['GET', 'POST'])
-@login_required(role=roles.archivist, pass_user=True)
-def edit_mod(user, slug):
-    if request.method == 'POST':
-        json = request.get_json()
-        if json:
-            mod = Mod.query.filter_by(slug=slug).first_or_404()
-            mod_schema = ModSchema(instance=mod, session=db.session)
-            mod_schema.load(json)
-            mod.log_change(user=user)
-            db.session.commit()
-            return jsonify({
-                "result": "success",
-                "redirect": url_for('mods.mod_page', slug=slug)
-            })
-        else:
-            response = jsonify({"result": "error", "error": "No JSON data received."})
-            response.status_code = 400
-            return response
-    else:
-        mod = Mod.query.filter_by(slug=slug).first_or_404()
-        authors = ModAuthor.query.all()
-        game_vsns = GameVersion.query.all()
-
-        authorjson = [ModAuthorSchema().dump(a).data for a in authors]
-        gvsnjson = [GameVersionSchema().dump(g).data for g in game_vsns]
-        return render_template("mods/edit.html", mod=mod,
-                modjson=ModSchema().dump(mod).data, authorjson=authorjson, gvsnjson=gvsnjson)
-
 @modbp.route("/mods/<slug>/history")
 @login_required(role=roles.archivist)
 def mod_history(slug):
