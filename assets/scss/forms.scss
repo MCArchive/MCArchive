@@ -23,7 +23,7 @@ $fborder-rad: $border-rad - 2;
 }
 
 // Text Boxes
-input[type='text'], textarea {
+input[type='text'], input[type='email'], input[type='password'], textarea {
     @extend %formfield;
 
     color: $body-color;

@@ -117,4 +117,4 @@ def create_user():
             flash("Username and Email are required")
         
     return render_template('/admin/create-user.html', roles=UserRole, form=form)
-        
+

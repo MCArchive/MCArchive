@@ -27,7 +27,7 @@ class BetterSelect(Select):
         """
         super(BetterSelect, self).__init__(multiple=multiple)
         self.renderer = renderer
-        options.setdefault('removeItemButton', True)
+        options.setdefault('removeItemButton', multiple)
         self.options = options
 
     def __call__(self, field, **kwargs):
