@@ -42,11 +42,16 @@ def create_app(config_object):
         app.config.from_object(DevelopmentConfig)
         print('APP IS USING DEVELOPMENT CONFIG. DO NOT USE IN PRODUCTION')
     app.config.from_object(config_object)
+
     register_extensions(app)
     register_blueprints(app)
     register_filters(app)
     register_conprocs(app)
-    init_b2(app)
+
+    if 'B2_KEY_ID' in app.config and app.config['B2_KEY_ID']:
+        init_b2(app)
+    else:
+        print('B2_KEY_ID is not set! File uploads will not work properly unless backblaze is configured!')
     return app
 
 def register_extensions(app):
