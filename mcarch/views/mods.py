@@ -56,10 +56,20 @@ def authors():
     authors = ModAuthor.query.all()
     return render_template('mods/authors.html', authors=authors)
 
+@modbp.route("/authors.json")
+def authors_json():
+    authors = ModAuthor.query.all()
+    return jsonify([{"id": a.id, "name": a.name} for a in authors])
+
 @modbp.route("/gamevsns")
 def gamevsns():
     gamevsns = sorted(GameVersion.query.all(), key=lambda a: key_mc_version(a.name), reverse=True)
     return render_template('mods/gamevsns.html', gamevsns=gamevsns)
+
+@modbp.route("/gamevsns.json")
+def gamevsns_json():
+    gamevsns = sorted(GameVersion.query.all(), key=lambda a: key_mc_version(a.name), reverse=True)
+    return jsonify([{"id": g.id, "name": g.name} for g in gamevsns])
 
 
 @modbp.route("/mods/<slug>/history")

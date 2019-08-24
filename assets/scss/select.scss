@@ -118,6 +118,9 @@ $sel_single: ".choices[data-type=\"select-one\"]";
             box-shadow: inset $shadow;
         }
     }
+
+    &::after {
+    }
 }
 .is_open#{$sel_single} .choices__inner {
     background-color: $gray;

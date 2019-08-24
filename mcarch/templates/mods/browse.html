@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Browse Archive{% endblock %}
+
+{% import "macros/search.html" as s %}
+
 {% block content %}
 
 {% if len(filters) > 0 %}
@@ -13,6 +16,10 @@
 {% endif %}
 
 <h1>Browse Mods</h1>
+
+<div class="block">
+    {{ s.search_form() }}
+</div>
 
 <div id="mods">
     <div class="list">
@@ -30,5 +37,9 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="/static/select.js"></script>
 {% endblock %}
 
