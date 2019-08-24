@@ -48,7 +48,7 @@ def mod_page(slug):
 @modbp.route("/mods/<slug>.json")
 def mod_page_json(slug):
     mod = Mod.query.filter_by(slug=slug).first_or_404()
-    return jsonify(ModSchema().dump(mod).data)
+    return jsonify(ModSchema().dump(mod))
 
 
 @modbp.route("/authors")
