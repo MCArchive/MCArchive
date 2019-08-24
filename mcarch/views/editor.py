@@ -160,12 +160,12 @@ class EditFileForm(FlaskForm):
     redirect_url = StringField('Indirect Download', validators=[Length(max=Mod.website.type.length)])
     submit = SubmitField('Submit')
 
-def upload_file(file):
+def upload_file(file, user):
     """Uploads a file from a `FileField` to B2 and returns the StoredFile object."""
     with NamedTemporaryFile() as tfile:
         file.save(tfile)
         print(file.filename)
-        return upload_b2_file(tfile.name, file.filename)
+        return upload_b2_file(tfile.name, file.filename, user)
 
 @edit.route("/edit/mod-version/<vid>/new-file", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
@@ -177,7 +177,7 @@ def new_mod_file(user, vid):
     form.file.validators.append(FileRequired())
     if request.method == 'POST':
         if form.validate_on_submit():
-            stored = upload_file(form.file.data)
+            stored = upload_file(form.file.data, user)
             mfile = ModFile(
                 stored = stored,
                 desc = form.desc.data,
@@ -208,7 +208,7 @@ def edit_mod_file(user, fid):
     if request.method == 'POST':
         if form.validate_on_submit():
             if form.file.data:
-                stored = upload_file(form.file.data)
+                stored = upload_file(form.file.data, user)
                 mfile.stored = stored
             mfile.desc = form.desc.data
             mfile.page_url = form.page_url.data

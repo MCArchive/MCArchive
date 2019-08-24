@@ -14,6 +14,9 @@ class StoredFile(db.Model):
     name = db.Column(db.String(80), nullable=False)
     sha256 = db.Column(db.String(130), nullable=False)
 
+    upload_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    upload_by = db.relationship('User')
+
     # Path to this file within the B2 bucket. Null if file is not on B2.
     b2_path = db.Column(db.String(300), nullable=True)
 
@@ -37,13 +40,14 @@ def sha256_file(path):
     return h.hexdigest()
 
 
-def upload_b2_file(path, name):
+def upload_b2_file(path, name, user=None):
     """Uploads a local file to B2, adds it to the DB, and returns the StoredFile.
 
     This adds the StoredFile to the database and does a commit.
 
     @param path: path to the file on disk
     @param name: name of the file as it should be in B2
+    @param user: user to associate the stored file with. Can be None
     """
     bucket = get_b2bucket()
 
@@ -51,7 +55,7 @@ def upload_b2_file(path, name):
     b2path = gen_b2_path(name, fhash)
     bucket.upload_local_file(path, b2path)
 
-    stored = StoredFile(name=name, sha256=fhash, b2_path=b2path)
+    stored = StoredFile(name=name, sha256=fhash, b2_path=b2path, upload_by=user)
     db.session.add(stored)
     db.session.commit()
     return stored

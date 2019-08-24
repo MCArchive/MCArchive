@@ -5,6 +5,7 @@ from mcarch.app import db
 from mcarch.login import login_required
 from mcarch.model.mod.logs import LogMod, slow_gen_diffs
 from mcarch.model.user import User, Session, roles, UserRole
+from mcarch.model.file import StoredFile
 
 from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import Length, DataRequired, Email, ValidationError
@@ -26,6 +27,11 @@ def changes():
     changes = slow_gen_diffs(LogMod.query.order_by(LogMod.index.desc()).all())
     return render_template('/admin/changes.html', changes=changes)
 
+@admin.route("/admin/files")
+@login_required(role=roles.admin)
+def files():
+    files = StoredFile.query.all()
+    return render_template('/admin/files.html', files=files)
 
 @admin.route("/admin/users")
 @login_required(role=roles.admin)

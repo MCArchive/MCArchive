@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Stored Files{% endblock %}
+
+{% import "macros/diff.html" as d with context %}
+
+{% block content %}
+<h1>Stored Files</h1>
+
+<style>
+.trunc {
+    width: 600px;
+    overflow: elipsis;
+}
+</style>
+
+<table class='pretty'>
+    <thead>
+        <tr>
+            <td>ID</td>
+            <td>Filename</td>
+            <td>Uploaded By</td>
+            <td>sha256</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for f in files %}
+        <tr>
+            <td>{{ f.id }}</td>
+            <td>{{ f.name }}</td>
+            <td>
+                {% if f.upload_by %}
+                    {{ f.upload_by.name }}
+                {% else %}
+                    script
+                {% endif %}
+            </td>
+            <td><span class="hash trunc">{{ f.sha256 }}</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
