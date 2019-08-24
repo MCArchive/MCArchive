@@ -47,6 +47,11 @@ Create a new mod
                 <td>{{ d.field_errors(form.website.errors) }}</td>
             </tr>
             <tr>
+                <td class="label">{{ form.draft.label }}</td>
+                <td>{{ form.draft }}</td>
+                <td>{{ d.field_errors(form.draft.errors) }}</td>
+            </tr>
+            <tr>
                 <td class="label">{{ form.desc.label }}</td>
                 <td>{{ form.desc }}</td>
                 <td>{{ d.field_errors(form.desc.errors) }}</td>

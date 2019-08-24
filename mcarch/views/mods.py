@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, jsonify, request, url_for, redirect, flash, \
-        current_app as app
+        abort, current_app as app
 
 from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
 from mcarch.model.mod.logs import LogMod, gen_diffs
 from mcarch.model.user import roles
-from mcarch.login import login_required
+from mcarch.login import login_required, cur_user
 from mcarch.jsonschema import ModSchema, ModAuthorSchema, GameVersionSchema
 from mcarch.util.minecraft import key_mc_version
 from mcarch.app import db
@@ -14,7 +14,7 @@ modbp = Blueprint('mods', __name__, template_folder="templates")
 
 @modbp.route("/mods")
 def browse():
-    mod_query = Mod.query
+    mod_query = Mod.query.filter_by(draft=False)
     by_author = request.args.get('author')
     by_gvsn = request.args.get('gvsn')
     # list of filters to be listed on the page
@@ -35,8 +35,10 @@ def browse():
 @modbp.route("/mods/<slug>")
 def mod_page(slug):
     mod = Mod.query.filter_by(slug=slug).first_or_404()
-    vsns = mod.vsns_by_game_vsn()
+    if mod.draft and not cur_user().has_role(roles.archivist):
+        return abort(403)
 
+    vsns = mod.vsns_by_game_vsn()
     by_gvsn = request.args.get('gvsn')
     if by_gvsn:
         vsns = { by_gvsn: vsns.get(by_gvsn) }

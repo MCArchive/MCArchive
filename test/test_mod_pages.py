@@ -3,6 +3,7 @@ This module contains basic tests that make sure all the pages in the `mods` modu
 major problems.
 """
 
+from flask import url_for
 from helpers.login import login_as, log_out, check_allowed
 
 def test_browse(client, sample_mods):
@@ -40,6 +41,29 @@ def test_mod_hist(client, sample_users, sample_mods):
     login_as(client, sample_users['admin'])
     rv = client.get('/mods/{}/history'.format(sm.slug))
     assert b'Revision 0' in rv.data
+
+
+# Test that the draft flag actually hides mods
+def test_draft_mod_page_perm(client, sample_users, sample_mod, db_session):
+    mod = sample_mod
+    mod.draft = True
+    db_session.commit()
+    page = url_for('mods.mod_page', slug=mod.slug)
+    check_allowed(client, sample_users['admin'], page, expect=True)
+    check_allowed(client, sample_users['moderator'], page, expect=True)
+    check_allowed(client, sample_users['archivist'], page, expect=True)
+    check_allowed(client, sample_users['user'], page, expect=False)
+
+def test_draft_mod_list(client, sample_mods, db_session):
+    """Ensure mods marked as drafts don't show up in the browse list."""
+    mod = sample_mods[0]
+    mod.draft = True
+    db_session.commit()
+    rv = client.get(url_for('mods.browse'))
+    assert mod.name.encode("utf-8") not in rv.data, \
+            "Expected mod marked as draft not to show on browse page."
+
+# Test permissions
 
 def test_mod_hist_perm(client, sample_users, sample_mod):
     sm = sample_mod

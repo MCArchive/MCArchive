@@ -9,6 +9,7 @@ for_game_vsn_table = mk_for_game_vsn_table('mod_version')
 class Mod(ModBase, db.Model):
     __tablename__ = "mod"
     slug = db.Column(db.String(80), nullable=False, unique=True)
+    draft = db.Column(db.Boolean, nullable=False, default=False)
 
     authors = db.relationship(
         "ModAuthor",

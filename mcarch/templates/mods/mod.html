@@ -53,6 +53,13 @@
 
 {% block content %}
 
+{% if mod.draft %}
+<div class="alert">
+    This mod is marked as a draft. Only archivists can see it. To make it public, uncheck
+    the draft box <a href="{{ url_for('edit.edit_mod', slug=mod.slug) }}">here</a>.
+</div>
+{% endif %}
+
 {% if by_gvsn %}
 <div class="filter alert">
     Showing versions of this mod that support Minecraft {{ by_gvsn }}.

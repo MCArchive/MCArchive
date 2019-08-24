@@ -15,7 +15,8 @@ from mcarch.model.file import upload_b2_file
 from mcarch.model.user import roles
 from mcarch.util.wtforms import BetterSelect
 
-from wtforms import StringField, SelectField, SelectMultipleField, TextAreaField, SubmitField
+from wtforms import StringField, SelectField, SelectMultipleField, TextAreaField, BooleanField, \
+        SubmitField
 from wtforms.validators import Length, DataRequired, Email, ValidationError
 
 edit = Blueprint('edit', __name__, template_folder="templates")
@@ -23,6 +24,7 @@ edit = Blueprint('edit', __name__, template_folder="templates")
 class EditModForm(FlaskForm):
     slug = StringField('Slug', validators=[DataRequired(), Length(max=Mod.slug.type.length)])
     name = StringField('Name', validators=[DataRequired(), Length(max=Mod.name.type.length)])
+    draft = BooleanField('Draft')
     website = StringField('Website', validators=[Length(max=Mod.website.type.length)])
     authors = SelectMultipleField("Authors", coerce=int,
         widget=BetterSelect(multiple=True))
@@ -52,6 +54,7 @@ def new_mod(user):
             mod = Mod(
                 slug=form.slug.data,
                 name=form.name.data,
+                draft=True,
                 website=form.website.data,
                 desc=form.desc.data
             )
@@ -67,7 +70,7 @@ def new_mod(user):
 def edit_mod(user, slug):
     mod = Mod.query.filter_by(slug=slug).first_or_404()
     form = EditModForm(slug=slug, name=mod.name,
-        website=mod.website, desc=mod.desc,
+        website=mod.website, desc=mod.desc, draft=mod.draft,
         authors=list(map(lambda a: a.id, mod.authors)))
     authors = form.load_authors()
     if request.method == 'POST':
@@ -76,6 +79,7 @@ def edit_mod(user, slug):
             mod.name = form.name.data
             mod.website = form.website.data
             mod.desc = form.desc.data
+            mod.draft = form.draft.data
             mod.authors = form.get_selected_authors()
             db.session.commit()
             mod.log_change(user)
