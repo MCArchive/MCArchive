@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, jsonify, request, url_for, redirec
 from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
 from mcarch.model.mod.logs import LogMod, gen_diffs
 from mcarch.model.user import roles
-from mcarch.login import login_required, cur_user
+from mcarch.login import login_required, cur_user, insecure_cur_user
 from mcarch.jsonschema import ModSchema, ModAuthorSchema, GameVersionSchema
 from mcarch.util.minecraft import key_mc_version
 from mcarch.app import db
@@ -14,20 +14,29 @@ modbp = Blueprint('mods', __name__, template_folder="templates")
 
 @modbp.route("/mods")
 def browse():
-    mod_query = Mod.query.filter_by(draft=False)
+    requested_drafts = request.args.get('drafts', type=bool)
+    drafts_only = False
+    if requested_drafts:
+        user = cur_user()
+        if user:
+            drafts_only = user.has_role(roles.archivist)
+
+    mod_query = Mod.query.filter_by(draft=drafts_only)
     by_author = request.args.get('author')
     by_gvsn = request.args.get('gvsn')
+    
     # list of filters to be listed on the page
     filters = []
-
     if by_author:
         filters.append(('author', by_author))
         mod_query = mod_query.join(ModAuthor, Mod.authors).filter(ModAuthor.name == by_author)
     if by_gvsn:
         filters.append(('gvsn', by_gvsn))
         mod_query = mod_query.join(ModVersion) \
-                             .join(GameVersion, ModVersion.game_vsns) \
-                             .filter(GameVersion.name == by_gvsn)
+                            .join(GameVersion, ModVersion.game_vsns) \
+                            .filter(GameVersion.name == by_gvsn)
+    if drafts_only:
+        filters.append(('drafts', True))
 
     mods = mod_query.all()
     return render_template("mods/browse.html", mods=mods, filters=filters, gvsn=by_gvsn)
