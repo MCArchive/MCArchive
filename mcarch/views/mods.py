@@ -14,20 +14,24 @@ modbp = Blueprint('mods', __name__, template_folder="templates")
 
 @modbp.route("/mods")
 def browse():
-    mod_query = Mod.query.filter_by(draft=False)
+    drafts_only = request.args.get('drafts', type=bool) and cur_user().has_role(roles.archivist)
+
+    mod_query = Mod.query.filter_by(draft=drafts_only)
     by_author = request.args.get('author')
     by_gvsn = request.args.get('gvsn')
+    
     # list of filters to be listed on the page
     filters = []
-
     if by_author:
         filters.append(('author', by_author))
         mod_query = mod_query.join(ModAuthor, Mod.authors).filter(ModAuthor.name == by_author)
     if by_gvsn:
         filters.append(('gvsn', by_gvsn))
         mod_query = mod_query.join(ModVersion) \
-                             .join(GameVersion, ModVersion.game_vsns) \
-                             .filter(GameVersion.name == by_gvsn)
+                            .join(GameVersion, ModVersion.game_vsns) \
+                            .filter(GameVersion.name == by_gvsn)
+    if drafts_only:
+        filters.append(('drafts', True))
 
     mods = mod_query.all()
     return render_template("mods/browse.html", mods=mods, filters=filters, gvsn=by_gvsn)

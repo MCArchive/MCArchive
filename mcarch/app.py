@@ -83,6 +83,8 @@ def register_blueprints(app):
     app.register_blueprint(edit)
     from mcarch.views.admin import admin
     app.register_blueprint(admin)
+    from mcarch.views.archivist import arch
+    app.register_blueprint(arch)
 
 def init_b2(app):
     global b2api
