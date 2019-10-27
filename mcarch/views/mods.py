@@ -14,7 +14,12 @@ modbp = Blueprint('mods', __name__, template_folder="templates")
 
 @modbp.route("/mods")
 def browse():
-    drafts_only = bool(request.args.get('drafts', type=bool) and insecure_cur_user() and cur_user().has_role(roles.archivist))
+    requested_drafts = request.args.get('drafts', type=bool)
+    drafts_only = False
+    if requested_drafts:
+        user = cur_user()
+        if user:
+            drafts_only = user.has_role(roles.archivist)
 
     mod_query = Mod.query.filter_by(draft=drafts_only)
     by_author = request.args.get('author')
