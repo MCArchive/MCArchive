@@ -33,6 +33,8 @@
             <p class="moddesc">{{ mod.desc }}</p>
             {% endif %}
         </section>
+        {% else %}
+        <p> No mods matching the filters above found! </p>
         {% endfor %}
     </div>
 </div>
