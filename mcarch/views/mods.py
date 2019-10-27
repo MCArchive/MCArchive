@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, jsonify, request, url_for, redirec
 from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
 from mcarch.model.mod.logs import LogMod, gen_diffs
 from mcarch.model.user import roles
-from mcarch.login import login_required, cur_user
+from mcarch.login import login_required, cur_user, insecure_cur_user
 from mcarch.jsonschema import ModSchema, ModAuthorSchema, GameVersionSchema
 from mcarch.util.minecraft import key_mc_version
 from mcarch.app import db
@@ -14,7 +14,7 @@ modbp = Blueprint('mods', __name__, template_folder="templates")
 
 @modbp.route("/mods")
 def browse():
-    drafts_only = request.args.get('drafts', type=bool) and cur_user().has_role(roles.archivist)
+    drafts_only = bool(request.args.get('drafts', type=bool) and insecure_cur_user() and cur_user().has_role(roles.archivist))
 
     mod_query = Mod.query.filter_by(draft=drafts_only)
     by_author = request.args.get('author')
