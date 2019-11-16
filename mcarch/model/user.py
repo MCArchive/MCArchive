@@ -46,8 +46,11 @@ class User(db.Model):
 
     def avatar_url(self):
         """Returns the Gravatar URL for this user based on their email."""
-        md5 = hashlib.md5(self.email.encode('utf-8')).hexdigest()
-        return "https://gravatar.com/avatar/{}?d=identicon".format(md5)
+        # See https://en.gravatar.com/site/implement/hash/
+        # Trim whitespace, convert to lowercase, md5 hash
+        email = self.email.encode("utf-8")
+        gravatar_hash = hashlib.md5(email.strip().lower()).hexdigest()
+        return "https://gravatar.com/avatar/{}?d=identicon".format(gravatar_hash)
 
     def set_password(self, password):
         """Sets a new password. The given password will be hashed."""
