@@ -12,7 +12,7 @@ run: db
 db:
 	@[[ -f $(DATABASE_FILE) ]] && exit 0
 	echo "Importing Metadata..."
-	@MCARCH_CONFIG=dev_config.py python mkdb.py ~/Documents/metarepo/mods/ 2>&1 >/dev/null
+	@MCARCH_CONFIG=dev_config.py python mkdb.py $(METADATA_DIR) 2>&1 >/dev/null
 
 clean:
 	rm $(DATABASE_FILE)
