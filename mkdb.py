@@ -103,7 +103,7 @@ with app.app_context():
             print("Loading YAML {}".format(p))
             obj = None
             with open(p, 'r') as f:
-                modyaml[name] = yaml.load(f)
+                modyaml[name] = yaml.safe_load(f)
 
         for _, obj in modyaml.items():
             vsns = import_game_vsns(obj)
