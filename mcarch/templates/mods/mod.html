@@ -4,12 +4,12 @@
 
 {% macro vsnblock(vsn) %}
 <section class="block">
-    {% if rev is not defined and insecure_cur_user() and has_role(_roles.archivist) %}
+    {% if is_draft %}
     <div class="btngroup right floating">
         <a class="button"
-            href="{{ url_for('edit.edit_mod_version', slug=mod.slug, vid=vsn.id) }}">Edit</a>
+            href="{{ url_for('edit.edit_mod_version', id=vsn.id) }}">Edit</a>
         <a class="button"
-            href="{{ url_for('edit.new_mod_file', slug=mod.slug, vid=vsn.id) }}">Add File</a>
+            href="{{ url_for('edit.new_mod_file', id=vsn.id) }}">Add File</a>
     </div>
     {% endif %}
     <h1>{{ vsn.name }}</h1>
@@ -22,9 +22,9 @@
 
     {% for file in vsn.files %}
     <section class="sub-block">
-        {% if rev is not defined and insecure_cur_user() and has_role(_roles.archivist) %}
+        {% if is_draft %}
         <div class="btngroup right floating">
-            <a class="button" href="{{ url_for('edit.edit_mod_file', fid=file.id) }}">Edit</a>
+            <a class="button" href="{{ url_for('edit.edit_mod_file', id=file.id) }}">Edit</a>
         </div>
         {% endif %}
 
@@ -53,10 +53,15 @@
 
 {% block content %}
 
-{% if mod.draft %}
+{% if is_draft %}
 <div class="alert">
-    This mod is marked as a draft. Only archivists can see it. To make it public, uncheck
-    the draft box <a href="{{ url_for('edit.edit_mod', slug=mod.slug) }}">here</a>.
+    {% if mod.current %}
+        This is a draft of changes to the
+        <a href="{{ url_for('mods.mod_page', slug=mod.current.slug) }}">current page</a>.
+        It must be approved by a moderator before the changes become public.
+    {% else %}
+        This is a draft of a new mod. It must be approved by a moderator before it becomes public.
+    {% endif %}
 </div>
 {% endif %}
 
@@ -74,11 +79,19 @@
 </div>
 {% endif %}
 
+<form id="new_draft" method="POST" action="{{ url_for('edit.new_draft', slug=mod.slug) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+</form>
+
 {% if rev is not defined and insecure_cur_user() and has_role(_roles.archivist) %}
 <div class="btngroup right floating">
+{% if is_draft %}
+<a class="button" href="{{ url_for('edit.edit_mod', id=mod.id) }}">Edit</a>
+<a class="button" href="{{ url_for('edit.new_mod_version', id=mod.id) }}">Add Version</a>
+{% else %}
 <a class="button" href="{{ url_for('mods.mod_history', slug=mod.slug) }}">History</a>
-<a class="button" href="{{ url_for('edit.edit_mod', slug=mod.slug) }}">Edit</a>
-<a class="button" href="{{ url_for('edit.new_mod_version', slug=mod.slug) }}">Add Version</a>
+<button type="submit" form="new_draft">Draft Change</button>
+{% endif %}
 </div>
 {% endif %}
 <h1>{{ mod.name }}</h1>

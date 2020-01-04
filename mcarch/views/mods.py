@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, jsonify, request, url_for, redirec
         abort, current_app as app
 
 from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
+from mcarch.model.mod.draft import DraftMod
 from mcarch.model.mod.logs import LogMod, gen_diffs
 from mcarch.model.user import roles
 from mcarch.login import login_required, cur_user, insecure_cur_user
@@ -21,7 +22,10 @@ def browse():
         if user:
             drafts_only = user.has_role(roles.archivist)
 
-    mod_query = Mod.query.filter_by(draft=drafts_only)
+    if drafts_only:
+        mod_query = DraftMod.query
+    else:
+        mod_query = Mod.query
     by_author = request.args.get('author')
     by_gvsn = request.args.get('gvsn')
     
@@ -44,9 +48,6 @@ def browse():
 @modbp.route("/mods/<slug>")
 def mod_page(slug):
     mod = Mod.query.filter_by(slug=slug).first_or_404()
-    if mod.draft and not cur_user().has_role(roles.archivist):
-        return abort(403)
-
     vsns = mod.vsns_by_game_vsn()
     by_gvsn = request.args.get('gvsn')
     if by_gvsn:

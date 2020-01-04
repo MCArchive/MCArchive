@@ -28,12 +28,18 @@
     <div class="list">
         {% for mod in mods %}
         <section class="block">
+            {% if ('drafts', True) in filters %}
+            <h1 class="modname">
+                <a href="{{ url_for('edit.draft_page', id=mod.id, gvsn=gvsn) }}">{{ mod.name }}</a>
+            </h3>
+            {% else %}
             <h1 class="modname">
                 <a href="{{ url_for('mods.mod_page', slug=mod.slug, gvsn=gvsn) }}">{{ mod.name }}</a>
             </h3>
             <p class="gamevsn small">Supports Minecraft {{ mod.game_versions_str() }}</p>
+            {% endif %}
             {% if mod.desc %}
-            <p class="moddesc">{{ mod.desc }}</p>
+                <p class="moddesc">{{ mod.desc }}</p>
             {% endif %}
         </section>
         {% else %}

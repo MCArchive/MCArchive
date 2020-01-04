@@ -17,12 +17,12 @@
         </ul>
     </section>
     <section class='column block'>
-        <h1>Outstanding Drafts</h1>
+        <h1>Drafts</h1>
         {% if drafts %}
         <ul>
-            {% for mod in drafts %}
-            <li><a href="{{ url_for('mods.mod_page', slug=mod.slug) }}">
-                    {{ mod.name }}</a></li>
+            {% for draft in drafts %}
+            <li><a href="{{ url_for('edit.draft_page', id=draft.id) }}">
+                    {{ draft.name }} (draft {{ draft.id }})</a></li>
             {% endfor %}
         </ul>
         {% else %}

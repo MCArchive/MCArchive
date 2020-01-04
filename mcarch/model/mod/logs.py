@@ -70,20 +70,6 @@ class LogMod(ModBase, db.Model):
         secondary=authored_by_table)
     mod_vsns = db.relationship("LogModVersion", back_populates="mod")
 
-    def game_versions(self):
-        """Returns a list of game versions supported by all the versions of this mod."""
-        gvs = GameVersion.query \
-            .join(ModVersion, GameVersion.mod_vsns) \
-            .filter(ModVersion.mod_id == self.id).all()
-        gvsns = set()
-        for gv in gvs:
-            gvsns.add(gv.name)
-        return sorted(list(gvsns))
-
-    def game_versions_str(self):
-        """Returns a comma separated string listing the supported game versions for this mod."""
-        return ", ".join(map(lambda v: v, self.game_versions()))
-
     def blank(self, **kwargs): return LogMod(**kwargs)
     def blank_child(self, **kwargs): return LogModVersion(**kwargs)
     def copy_from(self, other):
@@ -117,8 +103,6 @@ class LogModFile(ModFileBase, db.Model):
 
     cur_id = db.Column(db.Integer, db.ForeignKey('mod_file.id'), nullable=True)
     current = db.relationship("ModFile")
-
-    redist = False
 
     def blank(self, **kwargs): return LogModFile(**kwargs)
     def copy_from(self, other):

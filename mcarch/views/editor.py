@@ -10,7 +10,9 @@ from sqlalchemy.orm.exc import NoResultFound
 from mcarch.app import db
 from mcarch.login import login_required
 from mcarch.model.mod import Mod, ModVersion, ModFile, ModAuthor, GameVersion
+from mcarch.model.mod.draft import DraftMod, DraftModVersion, DraftModFile
 from mcarch.model.mod.logs import LogMod, LogModVersion, LogModFile
+
 from mcarch.model.file import upload_b2_file
 from mcarch.model.user import roles
 from mcarch.util.wtforms import BetterSelect
@@ -21,10 +23,26 @@ from wtforms.validators import Length, DataRequired, Email, ValidationError
 
 edit = Blueprint('edit', __name__, template_folder="templates")
 
+
+@edit.route('/mods/<slug>/new-draft', methods=['POST'])
+@login_required(role=roles.archivist, pass_user=True)
+def new_draft(user, slug):
+    mod = Mod.query.filter_by(slug=slug).first_or_404()
+    draft = mod.make_draft(user)
+    db.session.add(draft)
+    db.session.commit()
+    return redirect(url_for('edit.draft_page', id=draft.id))
+
+@edit.route('/draft/<id>', methods=['GET'])
+@login_required(role=roles.archivist, pass_user=True)
+def draft_page(user, id):
+    draft = DraftMod.query.filter_by(id=id).first_or_404()
+    vsns = draft.vsns_by_game_vsn()
+    return render_template("mods/mod.html", mod=draft, vsns_grouped=vsns, is_draft=True)
+
+
 class EditModForm(FlaskForm):
-    slug = StringField('Slug', validators=[DataRequired(), Length(max=Mod.slug.type.length)])
     name = StringField('Name', validators=[DataRequired(), Length(max=Mod.name.type.length)])
-    draft = BooleanField('Draft')
     website = StringField('Website', validators=[Length(max=Mod.website.type.length)])
     authors = SelectMultipleField("Authors", coerce=int,
         widget=BetterSelect(multiple=True))
@@ -51,40 +69,32 @@ def new_mod(user):
     form.load_authors()
     if request.method == 'POST':
         if form.validate_on_submit():
-            mod = Mod(
-                slug=form.slug.data,
+            mod = DraftMod(
                 name=form.name.data,
-                draft=True,
                 website=form.website.data,
-                desc=form.desc.data
+                desc=form.desc.data,
+                user=user,
             )
             db.session.add(mod)
             db.session.commit()
-            mod.log_change(user)
-            db.session.commit()
-            return redirect(url_for('mods.mod_page', slug=mod.slug))
+            return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-mod.html', form=form)
 
-@edit.route("/edit/mods/<slug>", methods=['GET', 'POST'])
+@edit.route("/draft/<id>/edit", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
-def edit_mod(user, slug):
-    mod = Mod.query.filter_by(slug=slug).first_or_404()
-    form = EditModForm(slug=slug, name=mod.name,
-        website=mod.website, desc=mod.desc, draft=mod.draft,
+def edit_mod(user, id):
+    mod = DraftMod.query.filter_by(id=id).first_or_404()
+    form = EditModForm(name=mod.name, website=mod.website, desc=mod.desc,
         authors=list(map(lambda a: a.id, mod.authors)))
     authors = form.load_authors()
     if request.method == 'POST':
         if form.validate_on_submit():
-            mod.slug = form.slug.data
             mod.name = form.name.data
             mod.website = form.website.data
             mod.desc = form.desc.data
-            mod.draft = form.draft.data
             mod.authors = form.get_selected_authors()
             db.session.commit()
-            mod.log_change(user)
-            db.session.commit()
-            return redirect(url_for('mods.mod_page', slug=mod.slug))
+            return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-mod.html', form=form, editing=mod)
 
 
@@ -109,15 +119,15 @@ class EditVersionForm(FlaskForm):
         ids = self.gamevsns.data
         return GameVersion.query.filter(GameVersion.id.in_(ids)).all()
 
-@edit.route("/edit/mods/<slug>/new-version", methods=['GET', 'POST'])
+@edit.route("/draft/<id>/edit/new-version", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
-def new_mod_version(user, slug):
-    mod = Mod.query.filter_by(slug=slug).first_or_404()
+def new_mod_version(user, id):
+    mod = DraftMod.query.filter_by(id=id).first_or_404()
     form = EditVersionForm()
     form.load_gamevsns()
     if request.method == 'POST':
         if form.validate_on_submit():
-            vsn = ModVersion(
+            vsn = DraftModVersion(
                 name=form.name.data,
                 url=form.url.data,
                 desc=form.desc.data,
@@ -125,15 +135,13 @@ def new_mod_version(user, slug):
             )
             mod.mod_vsns.append(vsn)
             db.session.commit()
-            mod.log_change(user)
-            db.session.commit()
-            return redirect(url_for('mods.mod_page', slug=mod.slug))
+            return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-version.html', form=form, mod=mod)
 
-@edit.route("/edit/mod-version/<vid>", methods=['GET', 'POST'])
+@edit.route("/draft/edit/mod-version/<id>", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
-def edit_mod_version(user, vid):
-    vsn = ModVersion.query.filter_by(id=vid).first_or_404()
+def edit_mod_version(user, id):
+    vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
     mod = vsn.mod
 
     form = EditVersionForm(name=vsn.name, url=vsn.url, desc=vsn.desc,
@@ -146,9 +154,7 @@ def edit_mod_version(user, vid):
             vsn.desc = form.desc.data
             vsn.game_vsns = form.get_selected_gamevsns()
             db.session.commit()
-            mod.log_change(user)
-            db.session.commit()
-            return redirect(url_for('mods.mod_page', slug=mod.slug))
+            return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-version.html', form=form, mod=mod, editing=vsn)
 
 
@@ -167,10 +173,10 @@ def upload_file(file, user):
         print(file.filename)
         return upload_b2_file(tfile.name, file.filename, user)
 
-@edit.route("/edit/mod-version/<vid>/new-file", methods=['GET', 'POST'])
+@edit.route("/draft/<id>/new-file", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
-def new_mod_file(user, vid):
-    vsn = ModVersion.query.filter_by(id=vid).first_or_404()
+def new_mod_file(user, id):
+    vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
     mod = vsn.mod
 
     form = EditFileForm()
@@ -178,7 +184,7 @@ def new_mod_file(user, vid):
     if request.method == 'POST':
         if form.validate_on_submit():
             stored = upload_file(form.file.data, user)
-            mfile = ModFile(
+            mfile = DraftModFile(
                 stored = stored,
                 desc = form.desc.data,
                 page_url = form.page_url.data,
@@ -187,15 +193,13 @@ def new_mod_file(user, vid):
             )
             vsn.files.append(mfile)
             db.session.commit()
-            mod.log_change(user)
-            db.session.commit()
-            return redirect(url_for('mods.mod_page', slug=mod.slug))
+            return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-file.html', form=form, mod=mod, vsn=vsn)
 
-@edit.route("/edit/mod-file/<fid>", methods=['GET', 'POST'])
+@edit.route("/draft/edit/mod-file/<id>", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
-def edit_mod_file(user, fid):
-    mfile = ModFile.query.filter_by(id=fid).first_or_404()
+def edit_mod_file(user, id):
+    mfile = DraftModFile.query.filter_by(id=id).first_or_404()
     vsn = mfile.version
     mod = vsn.mod
 
@@ -215,9 +219,7 @@ def edit_mod_file(user, fid):
             mfile.redirect_url = form.redirect_url.data
             mfile.direct_url = form.direct_url.data
             db.session.commit()
-            mod.log_change(user)
-            db.session.commit()
-            return redirect(url_for('mods.mod_page', slug=mod.slug))
+            return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-file.html', form=form, mod=mod,
                 vsn=vsn, editing=mfile, curfile=mfile.stored)
 

@@ -1,5 +1,6 @@
 from .base import *
 from .logs import LogMod, LogModVersion, LogModFile
+from .draft import DraftMod, DraftModVersion, DraftModFile
 
 from mcarch.app import db
 
@@ -9,7 +10,6 @@ for_game_vsn_table = mk_for_game_vsn_table('mod_version')
 class Mod(ModBase, db.Model):
     __tablename__ = "mod"
     slug = db.Column(db.String(80), nullable=False, unique=True)
-    draft = db.Column(db.Boolean, nullable=False, default=False)
 
     authors = db.relationship(
         "ModAuthor",
@@ -31,6 +31,7 @@ class Mod(ModBase, db.Model):
         """Returns a comma separated string listing the supported game versions for this mod."""
         return ", ".join(map(lambda v: v, self.game_versions()))
 
+
     def blank(self, **kwargs): return Mod(**kwargs)
     def blank_child(self, **kwargs): return ModVersion(**kwargs)
 
@@ -39,6 +40,18 @@ class Mod(ModBase, db.Model):
         entry.copy_from(self)
         db.session.add(entry)
         return entry
+
+    @property
+    def latest_vsn(self):
+        # FIXME: This could probably be done faster with a DB query.
+        return self.logs[len(self.logs)-1]
+
+    def make_draft(self, user):
+        """Creates a DraftMod based on the latest version of this mod."""
+        latest = self.latest_vsn
+        draft = DraftMod(user=user)
+        draft.copy_from(latest)
+        return draft
 
     def revert_to(self, log):
         """
