@@ -68,10 +68,10 @@ def test_diff(sample_mod, db_session):
 
     diff = sm.logs[0].diff(log)
     print('Diff: {}'.format(diff))
-    assert diff['name']['old'] == sm.logs[0].name
-    assert diff['name']['new'] == log.name
-    assert diff['children']['changed'][0]['changes']['desc']['old'] == sm.logs[0].mod_vsns[0].desc
-    assert diff['children']['changed'][0]['changes']['desc']['new'] == log.mod_vsns[0].desc
+    assert diff.get('name').old == sm.logs[0].name
+    assert diff.get('name').new == log.name
+    assert diff.children.changed[0].get('desc').old == sm.logs[0].mod_vsns[0].desc
+    assert diff.children.changed[0].get('desc').new == log.mod_vsns[0].desc
 
 def test_log_add(sample_mod, db_session):
     sm = sample_mod
@@ -90,7 +90,7 @@ def test_log_add(sample_mod, db_session):
 
     diff = sm.logs[0].diff(log)
     print('Diff: {}'.format(diff))
-    assert diff['children']['added'][0] == log.mod_vsns[2]
+    assert diff.children.added[0] == log.mod_vsns[2]
 
 def test_diff_rm(sample_mod, db_session):
     sm = sample_mod
@@ -101,7 +101,7 @@ def test_diff_rm(sample_mod, db_session):
 
     diff = sm.logs[0].diff(log)
     print('Diff: {}'.format(diff))
-    assert diff['children']['removed'][0] == sm.logs[0].mod_vsns[0]
+    assert diff.children.removed[0] == sm.logs[0].mod_vsns[0]
 
 def test_diff_no_child_changes(sample_mod, db_session):
     sm = sample_mod
@@ -112,9 +112,9 @@ def test_diff_no_child_changes(sample_mod, db_session):
     db_session.add(log2)
     db_session.commit()
     print('Diff: {}'.format(diff))
-    assert diff['name']['old'] == log1.name
-    assert diff['name']['new'] == log2.name
-    assert 'children' not in diff
+    assert diff.get('name').old == log1.name
+    assert diff.get('name').new == log2.name
+    assert diff.children == None
 
 def test_revert_to(sample_mod, db_session):
     sm = sample_mod

@@ -6,43 +6,43 @@
 
 {% macro change_list(diff, childname) %}
 <ul>
-    {% for field, vals in diff.items() %}
+    {% for field in diff.changes %}
     {% if field == 'children' %}
-    {# do this later #}
-    {% elif field == 'authors' %}
-    <li>Change authors from "{{ author_list(vals['old']) }}" to
-        "{{ author_list(vals['new']) }}".</li>
+    {# these are listed below scalar fields #}
+    {% elif field.name == 'authors' %}
+    <li>Change authors from "{{ author_list(field.old) }}" to
+        "{{ author_list(field.new) }}".</li>
     {% else %}
-    <li>Change {{ field }} from "{{ vals['old'] }}" to "{{ vals['new'] }}".</li>
+    <li>Change {{ field.name }} from "{{ field.old }}" to "{{ field.new }}".</li>
     {% endif %}
     {% endfor %}
 
-    {% if 'children' in diff %}
-    {% if len(diff['children']['added']) > 0 %}
+    {% if diff.children %}
+    {% if len(diff.children.added) > 0 %}
     <li>Add {{ childname }}:
         <ul>
-            {% for ch in diff['children']['added'] %}
+            {% for ch in diff.children.added %}
             <li>{{ ch.name }}</li>
             {% endfor %}
         </ul>
     </li>
     {% endif %}
-    {% if len(diff['children']['removed']) > 0 %}
+    {% if len(diff.children.removed) > 0 %}
     <li>Remove {{ childname }}:
         <ul>
-            {% for ch in diff['children']['removed'] %}
+            {% for ch in diff.children.removed %}
             <li>{{ ch.name }}</li>
             {% endfor %}
         </ul>
     </li>
     {% endif %}
-    {% if len(diff['children']['changed']) > 0 %}
+    {% if len(diff.children.changed) > 0 %}
     <li>Change {{ childname }}:
         <ul>
-            {% for vsn in diff['children']['changed'] %}
-            <li>{{ vsn['new'].filename if childname == files else vsn['new'].name }}
-                ({{ vsn['old'].id }}):
-                {{ change_list(vsn['changes'], childname='files') }}
+            {% for vsn in diff.children.changed %}
+            <li>{{ vsn.new.filename if childname == files else vsn.new.name }}
+                ({{ vsn.old.id }}):
+                {{ change_list(vsn.changes, childname='files') }}
                 {% endfor %}
             </li>
         </ul>

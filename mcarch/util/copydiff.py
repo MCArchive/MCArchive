@@ -1,6 +1,46 @@
+class ObjDiff(object):
+    """Represents a difference between two `CopyDiff` objects.
+
+    Contains a list of `DiffField` objects that represent the changes to each
+    field in the object.
+
+    Also contains the `children` field which may be be a `ChildListField`.
+    """
+    def __init__(self, old, new, changes, children=None):
+        self.old = old
+        self.new = new
+        self.changes = changes
+        self.children = children
+
+    def get(self, name):
+        """Gets a scalar field with the given name."""
+        for field in self.changes:
+            if field.name == name: return field
+        return None
+
+class DiffField(object):
+    """Represents a generic field in a diff."""
+    def __init__(self, name):
+        self.name = name
+
+class ScalarField(DiffField):
+    """Represents a change to a scalar field (i.e., not a list or dict)"""
+    def __init__(self, name, old, new):
+        super().__init__(name)
+        self.new = new
+        self.old = old
+
+class ChildListField(DiffField):
+    """Represents a change to a list of child objects whose changes are also tracked."""
+    def __init__(self, name, added, removed, changed):
+        super().__init__(name)
+        self.added = added
+        self.removed = removed
+        self.changed = changed
+
+
 class CopyDiff(object):
     """Base class providing copy and diff functions"""
-
     def copy(self, **kwargs):
         copy = self.blank(**kwargs)
         copy.copy_from(self)
@@ -30,56 +70,49 @@ class CopyDiff(object):
         """
         Returns a dict representing the differences between this mod and `new`.
 
-        Output is in the following format:
-        {
-            // scalar for simple fields (all except children)
-            '<field name>': {'type': 'scalar', 'old': '<old value>', 'new': '<new value>'}
-            'children': {
-                'type': 'dict',
-                'added': [<refs to added objects>],
-                'removed': [<refs to removed objects>],
-                'changed': [{
-                    'old': <ref to old obj>,
-                    'new': <ref to new obj>,
-                    'changes': {<dict in this format for diff between old and new>}
-                }]
-            }
-        }
+        Return value is an `ObjDiff` representing the differences between the objects.
+
+        Note: At the moment tracked children are always represented by a field
+        called `children` and there can only be one. This can be fixed later,
+        but it's not really needed.
         """
-        diff = {}
+        changes = []
+
         for f in self.copydiff_fields():
-            a = getattr(self, f)
-            b = getattr(new, f)
-            if a != b:
-                diff[f] = {'type': 'scalar', 'old': a, 'new': b}
+            o = getattr(self, f)
+            n = getattr(new, f)
+            if o != n:
+                changes.append(ScalarField(f, old=o, new=n))
+
         # List removed children
-        diff['children'] = {'type': 'dict', 'added': [], 'removed': [], 'changed': []}
-        dchildren = diff['children']
+        added = []
+        removed = []
+        changed = []
+
+        # List removed children.
         for schild in self.get_children():
             if not any(map(lambda n: n.same_as(schild), new.get_children())):
-                diff['children']['removed'].append(schild)
+                removed.append(schild)
+
         # List added and changed children
         for nchild in new.get_children():
-            # Find a matching child in this object
-            schild = next(filter(lambda s: nchild.same_as(s), self.get_children()), None)
-            if schild:
-                chdiff = schild.diff(nchild)
-                print(chdiff)
-                if len(chdiff) > 0:
-                    diff['children']['changed'].append({
-                        'old': schild,
-                        'new': nchild,
-                        'changes': chdiff,
-                    })
+            # Find a matching child in the old object
+            ochild = next(filter(lambda s: nchild.same_as(s), self.get_children()), None)
+            if ochild:
+                chdiff = ochild.diff(nchild)
+                if len(chdiff.changes) > 0:
+                    changed.append(chdiff)
             else:
-                diff['children']['added'].append(nchild)
+                added.append(nchild)
 
-        # If no children changed, remove the children field from the result.
-        if len(dchildren['added']) == 0 and len(dchildren['removed']) == 0 and \
-                len(dchildren['changed']) == 0:
-            del diff['children']
+        # If children changed, add a `ChildListField` to the diff.
+        if len(added) > 0 or len(removed) > 0 or len(changed) > 0:
+            children = ChildListField('children', added, removed, changed)
+        else:
+            children = None
 
-        return diff
+        print(changes)
+        return ObjDiff(self, new, changes, children)
 
     def blank(self, **kwargs):
         """Creates an "empty" instance of this object"""
