@@ -78,6 +78,7 @@ def import_game_vsns(mod):
 
 app = create_app(DevelopmentConfig)
 with app.app_context():
+    db.drop_all()
     db.create_all()
 
     db.session.add(User(name="admin", password="a", email="test@example.com", role=UserRole.admin))
