@@ -20,11 +20,6 @@
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.6",
     "choices.js": "^7.0.0",
-    "copy-webpack-plugin": "^5.0.3",
-    "formik": "^1.5.7",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "react-tag-autocomplete": "^5.11.1",
-    "yup": "^0.27.0"
+    "copy-webpack-plugin": "^5.0.3"
   }
 }
