@@ -29,8 +29,12 @@ class DevelopmentConfig(object):
     SQLALCHEMY_ECHO = True
     ASSETS_DEBUG = True
     SECRET_KEY = "notsecret"
-    DATABASE = 'sqlite:////tmp/test.db'
-    SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
+    if 'DATABASE_URL' in os.environ:
+        DATABASE = os.environ['DATABASE_URL']
+        SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    else:
+        DATABASE = 'sqlite:////tmp/test.db'
+        SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
 
 
 def create_app(config_object):

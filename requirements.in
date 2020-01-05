@@ -17,3 +17,4 @@ pytest
 pytest-flask
 pytest-flask-sqlalchemy
 
+psycopg2

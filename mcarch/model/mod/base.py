@@ -82,11 +82,11 @@ class ModFileBase(CopyDiff):
         return db.relation('StoredFile')
 
     # Link to official web page with download links.
-    page_url = db.Column(db.String(120), nullable=False, default="")
+    page_url = db.Column(db.String(500), nullable=False, default="")
     # Official download link through redirect such as adfly.
-    redirect_url = db.Column(db.String(120), nullable=False, default="")
+    redirect_url = db.Column(db.String(500), nullable=False, default="")
     # Official direct file download link.
-    direct_url = db.Column(db.String(120), nullable=False, default="")
+    direct_url = db.Column(db.String(500), nullable=False, default="")
 
     def copydiff_fields(self):
         return ['stored', 'page_url', 'redirect_url', 'direct_url']
