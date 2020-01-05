@@ -42,9 +42,9 @@
             {% for vsn in diff.children.changed %}
             <li>{{ vsn.new.filename if childname == files else vsn.new.name }}
                 ({{ vsn.old.id }}):
-                {{ change_list(vsn.changes, childname='files') }}
-                {% endfor %}
+                {{ change_list(vsn, childname='files') }}
             </li>
+            {% endfor %}
         </ul>
     </li>
     {% endif %}

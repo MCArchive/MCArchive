@@ -36,6 +36,13 @@ class DraftMod(ModBase, db.Model):
         else:
             return None
 
+    def draft_diff(self):
+        """Returns a diff representing changes made in this draft versus its base version."""
+        if self.base_vsn:
+            return self.base_vsn.diff(self)
+        else:
+            return None
+
 class DraftModVersion(ModVersionBase, db.Model):
     __tablename__ = "draft_mod_version"
     mod_id = db.Column(db.Integer, db.ForeignKey('draft_mod.id'))

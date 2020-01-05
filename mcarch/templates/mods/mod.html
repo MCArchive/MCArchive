@@ -86,6 +86,7 @@
 {% if rev is not defined and insecure_cur_user() and has_role(_roles.archivist) %}
 <div class="btngroup right floating">
 {% if is_draft %}
+<a class="button" href="{{ url_for('edit.draft_diff', id=mod.id) }}">Review Changes</a>
 <a class="button" href="{{ url_for('edit.edit_mod', id=mod.id) }}">Edit</a>
 <a class="button" href="{{ url_for('edit.new_mod_version', id=mod.id) }}">Add Version</a>
 {% else %}

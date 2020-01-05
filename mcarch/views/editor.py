@@ -40,6 +40,13 @@ def draft_page(user, id):
     vsns = draft.vsns_by_game_vsn()
     return render_template("mods/mod.html", mod=draft, vsns_grouped=vsns, is_draft=True)
 
+@edit.route('/draft/<id>/diff', methods=['GET'])
+@login_required(role=roles.archivist, pass_user=True)
+def draft_diff(user, id):
+    draft = DraftMod.query.filter_by(id=id).first_or_404()
+    diff = draft.draft_diff()
+    return render_template("editor/draft_diff.html", mod=draft, diff=diff)
+
 
 class EditModForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=Mod.name.type.length)])

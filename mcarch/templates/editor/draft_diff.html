@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Review Changes{% endblock %}
+{% block content %}
+
+{% import 'macros/diff.html' as d with context %}
+
+<h1>Review Changes</h1>
+
+<p>These are the changes that were made in this draft.</p>
+
+{{ d.change_list(diff, childname='versions') }}
+
+{#
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="submit" value="Confirm Changes">
+</form>
+#}
+
+{% endblock %}
+
+
+
