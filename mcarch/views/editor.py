@@ -9,6 +9,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from mcarch.app import db
 from mcarch.login import login_required
+import mcarch.login as login
 from mcarch.model.mod import Mod, ModVersion, ModFile, ModAuthor, GameVersion
 from mcarch.model.mod.draft import DraftMod, DraftModVersion, DraftModFile
 from mcarch.model.mod.logs import LogMod, LogModVersion, LogModFile
@@ -19,7 +20,7 @@ from mcarch.util.wtforms import BetterSelect
 
 from wtforms import StringField, SelectField, SelectMultipleField, TextAreaField, BooleanField, \
         SubmitField
-from wtforms.validators import Length, DataRequired, Email, ValidationError
+from wtforms.validators import Length, DataRequired, Email, Regexp, ValidationError
 
 edit = Blueprint('edit', __name__, template_folder="templates")
 
@@ -40,12 +41,29 @@ def draft_page(user, id):
     vsns = draft.vsns_by_game_vsn()
     return render_template("mods/mod.html", mod=draft, vsns_grouped=vsns, is_draft=True)
 
-@edit.route('/draft/<id>/diff', methods=['GET'])
+
+class ReviewDraftForm(FlaskForm):
+    slug = StringField('Slug', validators=[
+        DataRequired(),
+        Length(max=Mod.slug.type.length),
+        Regexp(r'[a-zA-Z0-9-_]+')
+    ])
+
+@edit.route('/draft/<id>/diff', methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
 def draft_diff(user, id):
+    form = ReviewDraftForm()
     draft = DraftMod.query.filter_by(id=id).first_or_404()
     diff = draft.draft_diff()
-    return render_template("editor/draft_diff.html", mod=draft, diff=diff)
+    if request.method == 'POST':
+        if not login.has_role(roles.moderator): return abort(403)
+        if draft.current:
+            draft.merge()
+            return redirect(url_for('mods.mod_page', slug=draft.current.slug))
+        elif form.validate():
+            mod = draft.into_mod(form.slug.data)
+            return redirect(url_for('mods.mod_page', slug=mod.slug))
+    return render_template("editor/draft_diff.html", mod=draft, diff=diff, form=form)
 
 
 class EditModForm(FlaskForm):

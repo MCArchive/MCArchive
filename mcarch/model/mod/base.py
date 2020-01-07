@@ -1,5 +1,7 @@
+import uuid
 from collections import OrderedDict
 
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declared_attr
 
 from mcarch.app import db
@@ -34,6 +36,8 @@ class ModBase(CopyDiff):
     desc = db.Column(db.Text, nullable=False, default="")
     website = db.Column(db.String(120), nullable=False, default="")
 
+    uuid = db.Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
+
     def vsns_by_game_vsn(self):
         """
         Returns a dict mapping supported Minecraft versions to a list of
@@ -60,6 +64,8 @@ class ModVersionBase(CopyDiff):
     desc = db.Column(db.Text, nullable=False, default="")
     url = db.Column(db.String(120), nullable=False, default="")
 
+    uuid = db.Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
+
     def game_versions_str(self):
         """Returns a comma separated string listing the supported game versions for this mod."""
         return ", ".join(map(lambda v: v.name, self.game_vsns))
@@ -72,6 +78,8 @@ class ModVersionBase(CopyDiff):
 class ModFileBase(CopyDiff):
     id = db.Column(db.Integer, primary_key=True)
     desc = db.Column(db.Text, nullable=False, default="")
+
+    uuid = db.Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
 
     @declared_attr
     def stored_id(cls):

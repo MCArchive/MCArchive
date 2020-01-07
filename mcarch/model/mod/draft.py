@@ -7,6 +7,8 @@ class DraftMod(ModBase, db.Model):
     """Represents pending changes to a mod."""
     __tablename__ = "draft_mod"
 
+    archived = db.Column(db.Boolean, nullable=False, default=False)
+
     # The user that owns this draft
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref='drafts')
@@ -20,6 +22,43 @@ class DraftMod(ModBase, db.Model):
         "ModAuthor",
         secondary=authored_by_table)
     mod_vsns = db.relationship("DraftModVersion", back_populates="mod")
+
+    def merge(self):
+        """Merges this draft with the master listing and logs a change.
+
+        Note: If this is a draft of a new listing (i.e., `current` is None),
+        this will result in a `TypeError`. Check `current` first.
+        """
+        # Diff this against its history entry
+        diff = self.draft_diff()
+        mod = self.current
+        # Apply the diff to the current entry
+        # This will TypeError if this is a draft of a new mod.
+        mod.apply_diff(diff)
+        # Commit to DB and log a change
+        db.session.commit()
+        mod.log_change(self.user)
+        self.archive()
+        db.session.commit()
+
+    def into_mod(self, slug):
+        """Approves a draft of a new mod, turning it into a mod listing with the given slug
+
+        Note: If this draft is a change to an existing mod (i.e., `current` is
+        not None), this will raise a `TypeError`. Check `current` first.
+        """
+        from . import Mod
+        mod = Mod(slug=slug)
+        mod.copy_from(self)
+        db.session.commit()
+        mod.log_change(self.user)
+        self.archive()
+        db.session.commit()
+        return mod
+
+    def archive(self):
+        """Archives this draft once it has been approved."""
+        self.archived = True
 
     def blank(self, **kwargs): return DraftMod(**kwargs)
     def blank_child(self, **kwargs): return DraftModVersion(**kwargs)

@@ -47,6 +47,7 @@ class CopyDiff(object):
         return copy
 
     def copy_from(self, other):
+        if hasattr(self, 'uuid'): self.uuid = other.uuid
         """Copies changes from `other` to this object."""
         # Copy changes to this object
         for f in self.copydiff_fields():
@@ -111,7 +112,6 @@ class CopyDiff(object):
         else:
             children = None
 
-        print(changes)
         return ObjDiff(self, new, changes, children)
 
     def apply_diff(self, diff):
@@ -126,6 +126,7 @@ class CopyDiff(object):
             # Add added children
             for ch in diff.children.added:
                 newch = self.blank_child()
+                newch.copy_from(ch)
                 self.add_child(newch)
             # Remove removed children
             for ch in diff.children.removed:
@@ -147,13 +148,10 @@ class CopyDiff(object):
         """Returns a list of fields to be copied or diffed"""
         return []
     def same_as(self, other):
-        scur = hasattr(self, 'cur_id')
-        ocur = hasattr(other, 'cur_id')
-        if self.id == other.id: return True
-        if scur and ocur: return self.cur_id == other.cur_id
-        elif scur: return self.cur_id == other.id
-        elif ocur: return other.cur_id == self.id
-        else: return False
+        """Checks if this object is the "same" as another.
+
+        Objects are the "same" if one is a copy of the other made with `copy_from` or `copy`.  """
+        return self.uuid == other.uuid
     def get_children(self): raise NotImplementedError
     def add_child(self, ch): raise NotImplementedError
     def rm_child(self, ch): raise NotImplementedError

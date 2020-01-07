@@ -129,6 +129,7 @@ def test_revert_to(sample_mod, db_session):
             ModFile(stored=StoredFile(name='test-6.9-client.jar', sha256='fakeclient2')),
         ]
     ))
+    db_session.commit()
     sm.log_change(user=None)
     db_session.commit()
 
@@ -138,7 +139,8 @@ def test_revert_to(sample_mod, db_session):
     sm.revert_to(sm.logs[0])
 
     assert sm.name == sm.logs[0].name
-    assert sm.mod_vsns[0].name == sm.logs[0].mod_vsns[0].name
-    assert sm.mod_vsns[0].files[0].stored.name == sm.logs[0].mod_vsns[0].files[0].stored.name
+    logvsn = sm.logs[0].find_same_child(sm.mod_vsns[0])
+    assert sm.mod_vsns[0].name == logvsn.name
+    assert sm.mod_vsns[0].files[0].stored.name == logvsn.files[0].stored.name
     assert len(sm.mod_vsns) == len(sm.logs[0].mod_vsns)
 

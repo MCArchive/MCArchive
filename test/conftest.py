@@ -21,8 +21,11 @@ def _db(app):
 
 @pytest.fixture(scope='session')
 def app(tmp_path_factory):
-    tmp_path = tmp_path_factory.mktemp("db")
-    dburi = "sqlite:////{}".format(tmp_path / "db.sqlite")
+    if 'TEST_DATABASE_URL' in os.environ:
+        dburi = os.environ['TEST_DATABASE_URL']
+    else:
+        tmp_path = tmp_path_factory.mktemp("db")
+        dburi = "sqlite:////{}".format(tmp_path / "db.sqlite")
     class TestConfig:
         DATABASE = dburi
         SQLALCHEMY_DATABASE_URI = dburi

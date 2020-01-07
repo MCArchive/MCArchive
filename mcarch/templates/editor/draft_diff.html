@@ -2,6 +2,7 @@
 {% block title %}Review Changes{% endblock %}
 {% block content %}
 
+{% import 'macros/forms.html' as f with context %}
 {% import 'macros/diff.html' as d with context %}
 
 <h1>Review Changes</h1>
@@ -10,12 +11,18 @@
 
 {{ d.change_list(diff, childname='versions') }}
 
-{#
+
+{% if has_role(_roles.moderator) %}
 <form method="post">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    {{ form.csrf_token }}
+    {% if not mod.current %}
+    {{ form.slug.label }}: {{ form.slug }}
+    {% endif %}
+    {{ f.field_errors(form.slug.errors) }}
     <input type="submit" value="Confirm Changes">
 </form>
-#}
+{% endif %}
+
 
 {% endblock %}
 

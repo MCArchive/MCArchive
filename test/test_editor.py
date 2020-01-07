@@ -5,14 +5,14 @@ major problems.
 
 from flask import url_for
 
-from mcarch.model.mod import Mod, ModVersion, ModFile
+from mcarch.model.mod import Mod, ModVersion, ModFile, ModAuthor, GameVersion
 from mcarch.model.mod.draft import DraftMod, DraftModVersion, DraftModFile
 from mcarch.model.user import User
 from helpers.login import login_as, log_out, check_allowed
 
 # Makes a draft of the mod and returns the `DraftMod`.
-def mk_draft(db, mod):
-    user = User.query.first()
+def mk_draft(db, mod, user=None):
+    if not user: user = User.query.first()
     draft = mod.make_draft(user)
     db.add(draft)
     db.commit()
@@ -44,6 +44,81 @@ def test_mk_draft(client, sample_users, sample_mods):
     draft = DraftMod.query.filter_by(name=mod.name).first()
     assert draft != None, "Draft not found in DB"
 
+
+# Test draft merging
+
+def test_merge_draft(db_session, client, sample_users, sample_mods):
+    mod = sample_mods[0]
+
+    oldauthors = mod.authors
+
+    draft = mk_draft(db_session, mod, sample_users['admin'])
+    draft.name = "Changed 1"
+    draft.desc = "Changed 2"
+    draft.mod_vsns[0].desc = "Changed 3"
+    db_session.commit()
+
+    login_as(client, sample_users['admin'])
+    rv = client.post(url_for('edit.draft_diff', id=draft.id), follow_redirects=True)
+
+    assert mod.name == draft.name
+    assert mod.desc == draft.desc
+    assert mod.authors == oldauthors
+
+    mvsn = mod.find_same_child(draft.mod_vsns[0])
+    assert mvsn.desc == draft.mod_vsns[0].desc
+
+def test_merge_new_version_draft(db_session, client, sample_users, sample_mods):
+    mod = sample_mods[0]
+
+    oldauthors = mod.authors
+
+    draft = mk_draft(db_session, mod, sample_users['admin'])
+    draft.mod_vsns.append(DraftModVersion(
+        name='6.9',
+        desc='Testing',
+    ))
+    db_session.commit()
+
+    login_as(client, sample_users['admin'])
+    rv = client.post(url_for('edit.draft_diff', id=draft.id), follow_redirects=True)
+
+    mvsn = mod.find_same_child(draft.mod_vsns[0])
+    assert mvsn.name == draft.mod_vsns[0].name
+    assert mvsn.desc == draft.mod_vsns[0].desc
+
+def test_merge_new_mod_draft(db_session, client, sample_users, sample_mods):
+    draft = DraftMod(
+        name="New Mod", desc="This is a draft of a new mod",
+        authors=[ModAuthor(name="testing")],
+        user=sample_users['admin'],
+        mod_vsns=[
+            DraftModVersion(
+                name='6.9',
+                desc='Testing',
+                game_vsns=[GameVersion(name='1.7.10')]
+            )
+        ]
+    )
+    db_session.add(draft)
+    db_session.commit()
+
+    login_as(client, sample_users['admin'])
+    rv = client.post(url_for('edit.draft_diff', id=draft.id), follow_redirects=True, data=dict(
+        slug='added'
+    ))
+    print(rv.data)
+
+    mod = Mod.query.filter_by(slug='added').first()
+    assert mod.name == draft.name
+    assert mod.desc == draft.desc
+    assert mod.authors == draft.authors
+    assert mod.mod_vsns[0].name == draft.mod_vsns[0].name
+    assert mod.mod_vsns[0].desc == draft.mod_vsns[0].desc
+    assert mod.mod_vsns[0].game_vsns == draft.mod_vsns[0].game_vsns
+
+
+# Test editor UI
 
 def test_edit_mod(db_session, client, sample_users, sample_mods):
     mod = mk_draft(db_session, sample_mods[0])
