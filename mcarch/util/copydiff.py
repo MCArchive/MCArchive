@@ -47,8 +47,9 @@ class CopyDiff(object):
         return copy
 
     def copy_from(self, other):
-        if hasattr(self, 'uuid'): self.uuid = other.uuid
         """Copies changes from `other` to this object."""
+        # copy the UUID from other so that we'll know later that this object was a copy of it.
+        self.uuid = other.uuid
         # Copy changes to this object
         for f in self.copydiff_fields():
             setattr(self, f, getattr(other, f))

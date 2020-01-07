@@ -1,3 +1,4 @@
+import uuid
 import pytest
 
 from mcarch.util.copydiff import CopyDiff
@@ -8,17 +9,17 @@ class ParentObj(CopyDiff):
         self.a = a
         self.b = b
         self.c = c
+        self.uuid = None # UUIDs are ignored in this test and self.id is used instead.
         self.children = children
 
     def copydiff_fields(self): return ['a', 'b', 'c']
 
-    def blank(self, **kwargs): TestObj(**kwargs)
-    def blank_child(self, **kwargs): ChildObj(**kwargs)
+    def blank(self, **kwargs): return TestObj(**kwargs)
+    def blank_child(self, **kwargs): return ChildObj(**kwargs)
+    def same_as(self, other): return self.id == other.id
     def get_children(self): return self.children
     def add_child(self, ch): self.children.append(ch)
     def rm_child(self, ch): self.children.remove(ch)
-    def same_as(self, other):
-        return self.id == other.id
 
 class ChildObj(CopyDiff):
     def __init__(self, id=None, a=None, b=None, c=None):
@@ -26,13 +27,13 @@ class ChildObj(CopyDiff):
         self.a = a
         self.b = b
         self.c = c
+        self.uuid = None
 
     def copydiff_fields(self): return ['a', 'b']
 
-    def blank(self, **kwargs): ChildObj(**kwargs)
-    def blank_child(self, **kwargs): None
-    def same_as(self, other):
-        return self.id == other.id
+    def blank(self, **kwargs): return ChildObj(**kwargs)
+    def blank_child(self, **kwargs): return None
+    def same_as(self, other): return self.id == other.id
     def get_children(self): return []
 
 
