@@ -21,10 +21,11 @@ class ParentObj(CopyDiff):
         return self.id == other.id
 
 class ChildObj(CopyDiff):
-    def __init__(self, id, a, b):
-        self.id = id
+    def __init__(self, id=None, a=None, b=None, c=None):
+        self.id = id if id else 0
         self.a = a
         self.b = b
+        self.c = c
 
     def copydiff_fields(self): return ['a', 'b']
 
@@ -80,4 +81,73 @@ def test_diff_change_child():
     print('Diff: {}'.format(diff))
     assert diff.children.changed[0].get('a').old == 69
     assert diff.children.changed[0].get('a').new == 1337
+
+def test_apply_diff():
+    old = ParentObj(1, "foo", "bar", 42, [])
+    new = ParentObj(1, "foo", "baz", 42, [])
+    diff = old.diff(new)
+
+    appto = ParentObj(1, "foo", "bar", 69, [])
+    appto.apply_diff(diff)
+
+    # a didn't change from old to new, or in appto, so it's untouched
+    assert appto.a == "foo"
+    # b changed from old to new, so it was changed in appto when the diff was applied
+    assert appto.b == "baz"
+    # c didn't change from old to new, so the different value in appto wasn't changed
+    assert appto.c == 69
+
+def test_apply_diff_child():
+    old = ParentObj(1, "foo", "bar", 42, [
+        ChildObj(1, 69, 420, "lol")
+    ])
+    new = ParentObj(1, "foo", "bar", 42, [
+        ChildObj(1, 69, 1337, "lol")
+    ])
+    diff = old.diff(new)
+
+    appto = ParentObj(1, "foo", "bar", 42, [
+        ChildObj(1, 69, 420, "kek")
+    ])
+    appto.apply_diff(diff)
+
+    # same deal for the child as the test above
+    assert appto.children[0].a == 69
+    assert appto.children[0].b == 1337
+    assert appto.children[0].c == "kek"
+
+def test_apply_diff_add_child():
+    old = ParentObj(1, "foo", "bar", 42, [
+        ChildObj(1, 69, 420, "lol"),
+    ])
+    new = ParentObj(1, "foo", "bar", 42, [
+        ChildObj(1, 69, 420, "lol"),
+        ChildObj(2, 27, 42, "kek"),
+    ])
+    diff = old.diff(new)
+
+    appto = ParentObj(1, "foo", "bar", 42, [
+        ChildObj(1, 69, 420, "lol"),
+    ])
+    appto.apply_diff(diff)
+
+    assert len(appto.children) == 2
+
+def test_apply_diff_rm_child():
+    old = ParentObj(1, "foo", "bar", 42, [
+        ChildObj(1, 69, 420, "lol"),
+        ChildObj(2, 27, 42, "kek"),
+    ])
+    new = ParentObj(1, "foo", "bar", 42, [
+        ChildObj(1, 69, 420, "lol"),
+    ])
+    diff = old.diff(new)
+
+    appto = ParentObj(1, "foo", "bar", 42, [
+        ChildObj(1, 69, 420, "lol"),
+        ChildObj(2, 27, 42, "kek"),
+    ])
+    appto.apply_diff(diff)
+
+    assert len(appto.children) == 1
 

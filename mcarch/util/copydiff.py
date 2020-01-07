@@ -97,7 +97,7 @@ class CopyDiff(object):
         # List added and changed children
         for nchild in new.get_children():
             # Find a matching child in the old object
-            ochild = next(filter(lambda s: nchild.same_as(s), self.get_children()), None)
+            ochild = self.find_same_child(nchild)
             if ochild:
                 chdiff = ochild.diff(nchild)
                 if len(chdiff.changes) > 0:
@@ -113,6 +113,28 @@ class CopyDiff(object):
 
         print(changes)
         return ObjDiff(self, new, changes, children)
+
+    def apply_diff(self, diff):
+        """Applies the changes made in the given diff to this object and its children."""
+        # Apply field changes.
+        for field in self.copydiff_fields():
+            change = diff.get(field)
+            if change and isinstance(change, ScalarField):
+                setattr(self, field, change.new)
+        # Apply child changes
+        if diff.children:
+            # Add added children
+            for ch in diff.children.added:
+                newch = self.blank_child()
+                self.add_child(newch)
+            # Remove removed children
+            for ch in diff.children.removed:
+                schild = self.find_same_child(ch)
+                if schild: self.rm_child(schild)
+            # Change changed children
+            for ch in diff.children.changed:
+                schild = self.find_same_child(ch.new)
+                if schild: schild.apply_diff(ch)
 
     def blank(self, **kwargs):
         """Creates an "empty" instance of this object"""
@@ -135,4 +157,8 @@ class CopyDiff(object):
     def get_children(self): raise NotImplementedError
     def add_child(self, ch): raise NotImplementedError
     def rm_child(self, ch): raise NotImplementedError
+
+    def find_same_child(self, other):
+        """Finds the first child in self that is `same_as` `other`.`"""
+        return next(filter(lambda s: other.same_as(s), self.get_children()), None)
 
