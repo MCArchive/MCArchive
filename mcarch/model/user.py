@@ -2,6 +2,7 @@ import enum
 from datetime import datetime, timedelta
 import hashlib
 import uuid
+import pyotp
 from flask import Flask, request, current_app as app
 from flask_sqlalchemy import SQLAlchemy
 
@@ -22,6 +23,8 @@ class User(db.Model):
     name = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.Binary(60), nullable=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    totp_secret = db.Column(db.String(16))
+    totp_last_auth = db.Column(db.String(6)) # To avoid replay attacks
     role = db.Column(db.Enum(UserRole), nullable=False)
     last_seen = db.Column(db.DateTime)
     disabled = db.Column(db.Boolean)
@@ -36,7 +39,9 @@ class User(db.Model):
         pwd = None
         if passhash is not None: pwd = passhash
         else: pwd = bcrypt.generate_password_hash(password)
-        super(User, self).__init__(*args, password=pwd, **kwargs)
+        totp_secret = pyotp.random_base32()
+
+        super(User, self).__init__(*args, password=pwd, totp_secret=totp_secret, **kwargs)
 
     def has_role(self, role):
         """Returns True if the user's role is equal or greater than the given role.
@@ -68,6 +73,24 @@ class User(db.Model):
         self.reset_token = ResetToken()
         token = self.reset_token.token
         return str(token)
+
+    def totp_uri(self):
+        return pyotp.TOTP(self.totp_secret).provisioning_uri(self.email, "MCArchive")
+
+    def validate_otp(self, code):
+        totp = pyotp.TOPT(self.totp_secret)
+        valid = totp.verify(code, valid_window=1)
+
+        if valid:
+            if self.totp_last_auth and totp.verify(self.totp_last_auth, valid_window=1):
+                return False
+
+            else:
+                self.totp_last_auth = code
+                return True
+        else:
+            return False
+
 
     def disable(self):
         for sess in self.sessions:

@@ -34,6 +34,7 @@ pluggy==0.13.1            # via pytest
 psycopg2==2.8.4
 py==1.8.1                 # via pytest
 pycparser==2.19           # via cffi
+pyotp==2.3.0
 pyparsing==2.4.6          # via packaging
 pytest-flask-sqlalchemy==1.0.2
 pytest-flask==0.15.0

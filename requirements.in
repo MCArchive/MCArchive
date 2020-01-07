@@ -12,6 +12,7 @@ sqlalchemy-utils
 
 pyYaml
 b2sdk
+pyotp
 
 pytest
 pytest-flask
