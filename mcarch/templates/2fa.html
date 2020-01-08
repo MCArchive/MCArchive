@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}2 Factor Authentication{% endblock %}
+{% block content %}
+<h1>2 Factor Authentication</h1>
+<p>Please enter your current 2-factor authentication code.</p>
+<form method="POST">
+    {{ form.csrf_token }}
+    {{ form.code(placeholder="Code", autofocus=True, tabindex=1) }}
+    <input type="submit" value="Submit" tabindex="3">
+</form>
+{% endblock %}
+

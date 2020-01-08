@@ -39,9 +39,8 @@ class User(db.Model):
         pwd = None
         if passhash is not None: pwd = passhash
         else: pwd = bcrypt.generate_password_hash(password)
-        totp_secret = pyotp.random_base32()
 
-        super(User, self).__init__(*args, password=pwd, totp_secret=totp_secret, **kwargs)
+        super(User, self).__init__(*args, password=pwd, **kwargs)
 
     def has_role(self, role):
         """Returns True if the user's role is equal or greater than the given role.
@@ -78,19 +77,15 @@ class User(db.Model):
         return pyotp.TOTP(self.totp_secret).provisioning_uri(self.email, "MCArchive")
 
     def validate_otp(self, code):
-        totp = pyotp.TOPT(self.totp_secret)
-        valid = totp.verify(code, valid_window=1)
-
-        if valid:
-            if self.totp_last_auth and totp.verify(self.totp_last_auth, valid_window=1):
-                return False
-
-            else:
+        if self.totp_last_auth == code:
+            # Reject repeated codes to prevent a replay attack.
+            return False
+        else:
+            totp = pyotp.TOTP(self.totp_secret)
+            if totp.verify(code, valid_window=1):
                 self.totp_last_auth = code
                 return True
-        else:
-            return False
-
+            else: return False
 
     def disable(self):
         for sess in self.sessions:
@@ -104,7 +99,10 @@ class User(db.Model):
         return '<User %r>' % self.name
 
 class Session(db.Model):
-    """Represents a user's login session."""
+    """Represents a user's login session.
+
+    A session may not be considered fully authenticated if `authed_2fa` is false.
+    """
     id = db.Column(db.Integer, primary_key=True)
     # Session ID stored in the user's browser cookies.
     sess_id = db.Column(GUID(), nullable=False, unique=True)
@@ -118,6 +116,7 @@ class Session(db.Model):
     user = db.relationship('User',
             backref=db.backref('sessions', lazy=True, order_by=last_seen.desc()))
 
+    authed_2fa = db.Column(db.Boolean, nullable=False, default=False)
     active = db.Column(db.Boolean, nullable=False, default=True)
 
     def __init__(self, *args, sess_id=None, **kwargs):
@@ -128,6 +127,21 @@ class Session(db.Model):
     def expired(self):
         return not self.active or \
                 self.last_seen < datetime.utcnow() - app.config['SERV_SESSION_EXPIRE_TIME']
+
+    def auth_2fa(self, code):
+        """Authenticates the user's second factor with the given code.
+
+        Returns true on success, false on failure. If successful, this session
+        will be marked as fully authenticated.
+
+        If the user's 2 factor is disabled, this has no effect.
+        """
+        if self.user.totp_secret and self.user.validate_otp(code):
+            self.authed_2fa = True
+            db.session.commit()
+            return True
+        else:
+            return False
 
     def disable(self):
         self.active = False

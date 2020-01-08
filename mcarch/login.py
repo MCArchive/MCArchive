@@ -25,13 +25,18 @@ def login_required(func=None, role=None, pass_user=False):
     if not func: return functools.partial(login_required, role=role, pass_user=pass_user)
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
-        user = cur_user()
-        if user:
-            if user.has_role(role):
-                if pass_user: kwargs['user'] = user
-                return func(*args, **kwargs)
+        sess = cur_session(only_fully_authed=False)
+        if sess:
+            if sess.authed_2fa:
+                user = sess.user
+                if user.has_role(role):
+                    if pass_user: kwargs['user'] = user
+                    return func(*args, **kwargs)
+                else:
+                    return abort(403)
             else:
-                return abort(403)
+                flash('You must complete 2-factor authentication.')
+                return redirect(url_for('user.prompt_2fa', next=request.url))
         else:
             flash('You must log in to access that page.')
             return redirect(url_for('user.login', next=request.url))
@@ -59,6 +64,17 @@ def log_out():
         db.session.commit()
     clear_session()
 
+def set_clientside_sess():
+    """Sets "insecure" session data which is stored entirely clientside for `insecure_cur_user`"""
+    user = cur_user()
+    if user:
+        session['user'] = dict(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            avatar=user.avatar_url(),
+        )
+
 def clear_session():
     session['sessid'] = None
     session['user'] = None
@@ -78,29 +94,33 @@ def log_in(uname, passwd):
 
 def create_sess(user):
     """Creates a new session for the given user and stores the session ID in the flask session
-    object"""
+    object.
+
+    If the user has 2 factor authentication enabled, this will create a session
+    that isn't fully authenticated yet.
+    """
     dbsess = Session(
         user_id = user.id,
         login_ip = request.remote_addr,
+        authed_2fa=not user.totp_secret,
     )
     db.session.add(dbsess)
     db.session.commit()
 
     # Add the session ID to the flask session cookie.
     session['sessid'] = str(dbsess.sess_id)
-    # Also add the user object for insecure_cur_user
-    session['user'] = dict(
-        id=user.id,
-        name=user.name,
-        email=user.email,
-        avatar=user.avatar_url(),
-    )
+    # If we're fully authed, go ahead and set the clientside session info.
+    if dbsess.authed_2fa:
+        set_clientside_sess()
 
-def cur_session():
+def cur_session(only_fully_authed=True):
     """
     Gets the current login session from the database.
     
     Returns None if there is no session.
+
+    If `only_fully_authed` is true, only returns sessions where the user either
+    has no 2FA set up, or the user has authenticated with their 2nd factor.
     """
     if 'sessid' not in session: return None
     sess = Session.query.filter_by(sess_id=session['sessid'], active=True).first()
@@ -119,18 +139,22 @@ def cur_session():
             clear_session()
             db.session.commit()
             return None
+        elif only_fully_authed and not sess.authed_2fa:
+            return None
         # Update `last_seen` and `last_ip`.
         sess.touch()
         db.session.commit()
     return sess
 
-def cur_user():
+def cur_user(only_fully_authed=True):
     """
     Gets the currently logged in user from the database.
     
     Returns None if the user is not logged in.
+
+    See `cur_session` for info on `only_fully_authed`
     """
-    sess = cur_session()
+    sess = cur_session(only_fully_authed)
     if not sess: return None
     return sess.user
 

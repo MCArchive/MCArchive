@@ -82,6 +82,9 @@ with app.app_context():
     db.create_all()
 
     db.session.add(User(name="admin", password="a", email="test@example.com", role=UserRole.admin))
+    db.session.add(User(name="2fa", password="a", email="2fa@example.com", role=UserRole.admin,
+            totp_secret='REEEEEEEEEEEEEEE'
+        ))
     db.session.add(User(name="mod", password="a", email="a@example.com", role=UserRole.moderator))
     db.session.add(User(name="arch", password="a", email="b@example.com", role=UserRole.archivist))
     db.session.add(User(name="user", password="a", email="c@example.com", role=UserRole.user))
