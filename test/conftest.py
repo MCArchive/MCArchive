@@ -100,12 +100,13 @@ def mk_sample_mods():
 def sample_passwds():
     """Pre-generates password hashes for `sample_users`. This drastically speeds up any tests
     relying on sample users, as bcrypt is intentionally very slow."""
-    pwds = dict(
-        admin='a',
-        mod='b',
-        arch='c',
-        user='d',
-    )
+    pwds = {
+        'admin': 'a',
+        'mod': 'b',
+        'arch': 'c',
+        'user': 'd',
+        '2fa': 'e',
+    }
     for k, pwd in pwds.items():
         pwds[k] = dict(password=pwd, passhash=bcrypt.generate_password_hash(pwd))
     return pwds
@@ -121,12 +122,14 @@ def sample_users(db_session, sample_passwds):
         # Add the `plainpasswd` field so tests can log in as these users.
         setattr(u, 'plainpasswd', sample_passwds[name]['password'])
         return u
-    users = dict(
-        admin = mk_user(name="admin", email="test@example.com", role=roles.admin),
-        moderator = mk_user(name="mod", email="a@example.com", role=roles.moderator),
-        archivist = mk_user(name="arch", email="b@example.com", role=roles.archivist),
-        user = mk_user(name="user", email="c@example.com", role=roles.user),
-    )
+    users = {
+        "admin": mk_user(name="admin", email="test@example.com", role=roles.admin),
+        "moderator": mk_user(name="mod", email="a@example.com", role=roles.moderator),
+        "archivist": mk_user(name="arch", email="b@example.com", role=roles.archivist),
+        "user": mk_user(name="user", email="c@example.com", role=roles.user),
+        "2fa": mk_user(name="2fa", email="2fa@example.com", role=roles.admin,
+            totp_secret='REEEEEEEEEEEEEEE'),
+    }
     for _, u in users.items(): db_session.add(u)
     db_session.commit()
     return users
