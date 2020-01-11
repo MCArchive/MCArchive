@@ -63,13 +63,28 @@ class User(db.Model):
     def clear_password(self):
         """Clears this user's password, preventing them from logging in anymore.
         Also clears all of the user's sessions, logging them out."""
+        self.clear_sessions()
+        self.password = None
+
+    def reset_2fa_secret(self):
+        """Generates a new TOTP secret for this user."""
+        self.clear_sessions()
+        self.totp_secret = pyotp.random_base32()
+
+    def clear_sessions(self):
+        """Logs this user out by clearing all of their login sessions."""
         for sess in self.sessions:
             sess.disable()
-        self.password = None
 
     def gen_passwd_reset_token(self):
         """Creates a reset token for this user and returns the string token."""
-        self.reset_token = ResetToken()
+        self.reset_token = ResetToken(kind=reset_type.password)
+        token = self.reset_token.token
+        return str(token)
+
+    def gen_2fa_reset_token(self):
+        """Creates a reset token for this user's 2-factor authentication secret."""
+        self.reset_token = ResetToken(kind=reset_type.otp)
         token = self.reset_token.token
         return str(token)
 
@@ -125,8 +140,12 @@ class Session(db.Model):
         super(Session, self).__init__(*args, sess_id=sess_id, **kwargs)
 
     def expired(self):
-        return not self.active or \
-                self.last_seen < datetime.utcnow() - app.config['SERV_SESSION_EXPIRE_TIME']
+        if not self.active: return False
+        if self.authed_2fa:
+            return self.last_seen < datetime.utcnow() - app.config['SERV_SESSION_EXPIRE_TIME']
+        else:
+            return self.last_seen < datetime.utcnow() - \
+                    app.config['SERV_PARTIAL_SESSION_EXPIRE_TIME']
 
     def auth_2fa(self, code):
         """Authenticates the user's second factor with the given code.
@@ -152,12 +171,21 @@ class Session(db.Model):
         self.last_seen = now
         self.user.last_seen = now
 
+
+
+class ResetType(enum.IntEnum):
+    password = 1
+    otp = 2
+
+reset_type = ResetType
+
 class ResetToken(db.Model):
     """Represents a one time use key that allows a user to reset (or set) their password."""
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(GUID(), nullable=False, unique=True)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     active = db.Column(db.Boolean, nullable=False, default=True)
+    kind = db.Column(db.Enum(ResetType), nullable=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('reset_token', uselist=False,

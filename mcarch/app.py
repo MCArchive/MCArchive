@@ -18,8 +18,11 @@ from mcarch.util.filters import register_filters
 class DefaultConfig(object):
     # Time until sessions in the database expire
     SERV_SESSION_EXPIRE_TIME = timedelta(days=5)
+    # Expire time for sessions that haven't completed 2FA
+    SERV_PARTIAL_SESSION_EXPIRE_TIME = timedelta(hours=1)
     PASSWD_RESET_EXPIRE_TIME = timedelta(hours=1)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    REQUIRE_2FA = True
     B2_KEY_ID = None
     B2_APP_KEY = None
     B2_BUCKET_NAME = None
@@ -29,6 +32,7 @@ class DevelopmentConfig(object):
     SQLALCHEMY_ECHO = True
     ASSETS_DEBUG = True
     SECRET_KEY = "notsecret"
+    REQUIRE_2FA = True
     if 'DATABASE_URL' in os.environ:
         DATABASE = os.environ['DATABASE_URL']
         SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']

@@ -19,15 +19,12 @@ module.exports = {
         new copy_plugin([
             { from: './assets/img/logo.svg' },
         ]),
-        //new webpack.ProvidePlugin({
-		//	$: 'jquery',
-		//	jQuery: 'jquery'
-		//}),
     ],
 
     entry: {
         main: './assets/js/main.js',
         select: './assets/js/select.js',
+        qr: './assets/js/qr.js',
     },
     output: {
         publicPath: '/static/',

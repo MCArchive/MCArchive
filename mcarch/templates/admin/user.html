@@ -17,6 +17,7 @@
 </p>
 
 <a href="{{ url_for('admin.reset_passwd', name=user.name) }}">Reset Password</a>
+<a href="{{ url_for('admin.reset_2fa', name=user.name) }}">Reset 2-factor Auth</a>
 
 <section class='sessions'>
     <h1>Sessions</h1>
@@ -39,6 +40,8 @@
                 <td>{{ s.last_seen }}</td>
                 {% if s.expired() %}
                 <td>No</td>
+                {% elif not s.authed_2fa %}
+                <td>2FA not done</td>
                 {% else %}
                 <td>Yes &ndash;<a href="{{ url_for('admin.disable_sess', sessid=s.id) }}">
                     Disable Session

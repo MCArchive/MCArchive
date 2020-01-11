@@ -1,11 +1,12 @@
-from flask import Blueprint, render_template, url_for, redirect, abort, flash, request
+from flask import Blueprint, render_template, url_for, redirect, abort, flash, request, \
+    current_app as app
 
 from flask_wtf import FlaskForm
 from wtforms.fields import StringField, PasswordField
 from wtforms.validators import DataRequired, Length, EqualTo
 
 from mcarch.app import db
-from mcarch.model.user import User, ResetToken
+from mcarch.model.user import User, ResetToken, reset_type
 from mcarch.login import login_required, logout_required, log_in, log_out, \
     cur_user, insecure_cur_user, cur_session, set_clientside_sess
 from mcarch.util.security import is_safe_url
@@ -84,16 +85,55 @@ class PassResetForm(FlaskForm):
     confirm = PasswordField('Confirm Password',
             validators=[DataRequired(), Length(max=MAX_PASSWORD_LEN)])
 
-@user.route("/reset-password/<token>", methods=['GET', 'POST'])
+@user.route("/reset/password/<token>", methods=['GET', 'POST'])
 def reset_password(token):
-    token = ResetToken.query.filter_by(token=token).first_or_404()
+    token = ResetToken.query.filter_by(token=token, kind=reset_type.password).first_or_404()
+    if token.expired():
+        db.session.delete(token)
+        db.session.commit()
+        flash('Your password reset link has expired. Please contact an administrator.')
+        return redirect(url_for('root.home'))
+
     form = PassResetForm()
-    if request.method == 'POST':
-        if form.validate():
-            token.user.set_password(form.data['password'])
-            db.session.delete(token)
+    if form.validate_on_submit():
+        token.user.set_password(form.data['password'])
+        db.session.delete(token)
+        db.session.commit()
+        if app.config['REQUIRE_2FA'] and not token.user.totp_secret:
+            flash('Your password has been changed. Please set up 2-factor authentication now.')
+            token.user.reset_2fa_secret()
+            newtok = token.user.gen_2fa_reset_token()
             db.session.commit()
+            return redirect(url_for('user.reset_2fa', token=newtok))
+        else:
             flash('Your password has been changed. Please log in with your new password.')
             return redirect(url_for('user.login'))
     return render_template("reset-password.html", form=form)
+
+
+class OtpSetupForm(FlaskForm):
+    code = StringField('Authenticator Code',
+            validators=[DataRequired(), Length(max=6, min=6)])
+
+@user.route('/reset/2fa/<token>', methods=['GET', 'POST'])
+def reset_2fa(token):
+    token = ResetToken.query.filter_by(token=token, kind=reset_type.otp).first_or_404()
+    if token.expired():
+        db.session.delete(token)
+        db.session.commit()
+        flash('Your 2-factor reset link has expired. Please contact an administrator.')
+        return redirect(url_for('root.home'))
+
+    form = OtpSetupForm()
+    if form.validate_on_submit():
+        if token.user.validate_otp(form.code.data):
+            db.session.delete(token)
+            db.session.commit()
+            flash("2-factor authentication set up successfully. For security reasons, "
+                  "you must wait for the next code before you log in.")
+            return redirect(url_for('user.login'))
+        else:
+            flash('Incorrect code. Are you sure you typed it correctly?')
+    uri = token.user.totp_uri()
+    return render_template("reset-2fa.html", form=form, totp_uri=uri)
 

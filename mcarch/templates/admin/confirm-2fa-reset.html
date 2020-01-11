@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Confirm 2-factor Reset{% endblock %}
+{% block content %}
+
+    <h1>Confirm 2-factor Reset</h1>
+
+<p>Are you sure you want to reset {{ user.name }}'s 2-factor authentication
+key. This will log out all their sessions and generate a one-time-use link you
+can send to them where they will be allowed to add the new key to their 2-factor
+application.</p>
+
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="submit" value="Confirm">
+</form>
+
+{% endblock %}
+
+

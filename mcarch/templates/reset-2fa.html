@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}2-factor Authentication Setup{% endblock %}
+{% block content %}
+<h1>2-factor Authentication Setup</h1>
+
+<p>Please scan the QR code below into your 2-factor authentication app of choice.</p>
+<canvas id="qr"></canvas>
+
+<p>If you can't scan the QR code, enter the following URL manually:</p>
+<p class='mono'>{{ totp_uri }}</p>
+
+
+<p>Once you have scanned the QR code, please enter your current authentication
+code below to test it.</p>
+
+<form method="POST">
+    <ul class="errors">
+        {% for fname, field_errors in form.errors|dictsort if field_errors %}
+            {% for error in field_errors %}
+                <li>{{ form[fname].label }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+    {{ form.csrf_token }}
+    {{ form.code(placeholder="Code", tabindex=1, autofocus=True) }}
+    <input type="submit" value="Submit" tabindex="3">
+</form>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="/static/qr.js"></script>
+<script>
+    (function() {
+        var qr = new QRious({
+            element: document.getElementById('qr'),
+            value: '{{ totp_uri }}',
+            size: 420,
+        });
+    })();
+</script>
+{% endblock %}
+

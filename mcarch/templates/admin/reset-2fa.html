@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}2-factor Authentication Reset{% endblock %}
+{% block content %}
+
+<h1>2-factor Authentication Reset</h1>
+
+<p>{{ user.name }}'s 2-factor authentication secret has been reset.</p>
+<p>Send them this URL so they can register the new secret with their authenticator app.</p>
+<p class='mono'>{{ url_for('user.reset_2fa', token=token, _external=True) }}</p>
+
+<a class='button' href='{{ url_for('admin.user', name=user.name) }}'>Return to User Page</a>
+
+{% endblock %}
+

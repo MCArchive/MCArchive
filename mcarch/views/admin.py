@@ -61,17 +61,29 @@ def disable_sess(sessid):
         flash('Session {} for user {} has been disabled.'.format(sess.id, sess.user.name))
         return redirect(url_for('admin.user', name=sess.user.name))
 
-@admin.route("/admin/reset-password/<name>", methods=['GET', 'POST'])
+@admin.route("/admin/reset/password/<name>", methods=['GET', 'POST'])
 @login_required(role=roles.admin)
 def reset_passwd(name):
     user = User.query.filter_by(name=name).first_or_404()
     if request.method == 'GET':
-        return render_template('/admin/confirm-password-reset.html', user=user)
+        return render_template('/admin/confirm-password-reset.html', user=user, kind='password')
     elif request.method == 'POST':
         user.clear_password()
         token = user.gen_passwd_reset_token()
         db.session.commit()
-        return render_template('/admin/password-reset.html', user=user, token=token)
+        return render_template('/admin/reset-password.html', user=user, token=token)
+
+@admin.route("/admin/reset/2fa/<name>", methods=['GET', 'POST'])
+@login_required(role=roles.admin)
+def reset_2fa(name):
+    user = User.query.filter_by(name=name).first_or_404()
+    if request.method == 'GET':
+        return render_template('/admin/confirm-2fa-reset.html', user=user, kind='2fa')
+    elif request.method == 'POST':
+        user.reset_2fa_secret()
+        token = user.gen_2fa_reset_token()
+        db.session.commit()
+        return render_template('/admin/reset-2fa.html', user=user, token=token, kind='2fa')
 
 @admin.route("/admin/disable-user/<name>", methods=['GET', 'POST'])
 @login_required(role=roles.admin)
