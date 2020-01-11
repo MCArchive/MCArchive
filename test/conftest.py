@@ -33,6 +33,7 @@ def app(tmp_path_factory):
         SECRET_KEY = "secret!"
         TESTING = True
         WTF_CSRF_ENABLED = False # disable CSRF protection so we can test forms
+        RATELIMIT_ENABLED = False # the test suite exceeds the rate-limits, so disable them
     app = create_app(TestConfig)
     return app
 

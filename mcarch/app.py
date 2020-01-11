@@ -5,11 +5,14 @@ from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_wtf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flaskext.markdown import Markdown
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 csrf = CSRFProtect()
+limiter = Limiter(key_func=get_remote_address)
 b2api = None
 
 from mcarch import login
@@ -39,6 +42,12 @@ class DevelopmentConfig(object):
     else:
         DATABASE = 'sqlite:////tmp/test.db'
         SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
+    if 'REDIS_URL' in os.environ:
+        REDIS_URL = os.environ['REDIS_URL']
+        RATELIMIT_STORAGE_URL = os.environ['REDIS_URL']
+    else:
+        REDIS_URL = 'redis://localhost:6379'
+        RATELIMIT_STORAGE_URL = 'redis://localhost:6379'
 
 
 def create_app(config_object):
@@ -67,6 +76,7 @@ def register_extensions(app):
     db.init_app(app)
     bcrypt.init_app(app)
     csrf.init_app(app)
+    limiter.init_app(app)
 
 def register_conprocs(app):
     login.register_conproc(app)

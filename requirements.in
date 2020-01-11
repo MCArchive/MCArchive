@@ -1,8 +1,10 @@
 flask
 flask-sqlalchemy
+flask-redis
 flask-markdown
 flask-wtf
 flask-session
+flask-limiter
 flask-bcrypt
 flask-marshmallow
 

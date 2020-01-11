@@ -5,7 +5,7 @@ from flask_wtf import FlaskForm
 from wtforms.fields import StringField, PasswordField
 from wtforms.validators import DataRequired, Length, EqualTo
 
-from mcarch.app import db
+from mcarch.app import db, limiter
 from mcarch.model.user import User, ResetToken, reset_type
 from mcarch.login import login_required, logout_required, log_in, log_out, \
     cur_user, insecure_cur_user, cur_session, set_clientside_sess
@@ -16,6 +16,9 @@ user = Blueprint('user', __name__, template_folder="templates")
 # Bcrypt can't handle passwords longer than 72 characters
 MAX_PASSWORD_LEN = 72
 
+AUTH_RATELIMIT='10 per 5 minutes;30 per hour'
+AUTH_RATELIMIT_ERRMSG='Too many attempts. Try again later.'
+
 class LoginForm(FlaskForm):
     username = StringField('Username',
             validators=[DataRequired(), Length(max=User.name.type.length)])
@@ -23,6 +26,7 @@ class LoginForm(FlaskForm):
             validators=[DataRequired(), Length(max=MAX_PASSWORD_LEN)])
 
 @user.route("/login", methods=['GET', 'POST'])
+@limiter.limit(AUTH_RATELIMIT, methods=['POST'], error_message=AUTH_RATELIMIT_ERRMSG)
 @logout_required
 def login():
     form = LoginForm()
@@ -54,6 +58,7 @@ class OtpForm(FlaskForm):
     code = StringField('Code', validators=[DataRequired(), Length(max=6, min=6)])
 
 @user.route("/2fa", methods=['GET', 'POST'])
+@limiter.limit(AUTH_RATELIMIT, methods=['POST'], error_message=AUTH_RATELIMIT_ERRMSG)
 def prompt_2fa():
     nextpage = request.args.get('next')
     if nextpage:
@@ -86,6 +91,7 @@ class PassResetForm(FlaskForm):
             validators=[DataRequired(), Length(max=MAX_PASSWORD_LEN)])
 
 @user.route("/reset/password/<token>", methods=['GET', 'POST'])
+@limiter.limit(AUTH_RATELIMIT, error_message=AUTH_RATELIMIT_ERRMSG)
 def reset_password(token):
     token = ResetToken.query.filter_by(token=token, kind=reset_type.password).first_or_404()
     if token.expired():
@@ -116,6 +122,7 @@ class OtpSetupForm(FlaskForm):
             validators=[DataRequired(), Length(max=6, min=6)])
 
 @user.route('/reset/2fa/<token>', methods=['GET', 'POST'])
+@limiter.limit(AUTH_RATELIMIT, error_message=AUTH_RATELIMIT_ERRMSG)
 def reset_2fa(token):
     token = ResetToken.query.filter_by(token=token, kind=reset_type.otp).first_or_404()
     if token.expired():
