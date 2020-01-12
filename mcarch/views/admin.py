@@ -136,3 +136,56 @@ def create_user():
         
     return render_template('/admin/create-user.html', roles=UserRole, form=form)
 
+class EditUserForm(FlaskForm):
+    name = StringField('name', validators=[Length(max=User.name.type.length)])
+    email = EmailField('email', validators=[Email(), Length(max=User.email.type.length)])
+    role = SelectField('role',
+            choices=[(member.name, name.capitalize()) for
+                        name, member in UserRole.__members__.items()])
+    submit = SubmitField('Submit')
+
+@admin.route("/admin/edit-user/<name>", methods=['GET', 'POST'])
+@login_required(role=roles.admin)
+def edit_user(name):
+    user = User.query.filter_by(name=name).first_or_404()
+    form = EditUserForm()
+
+    if request.method == 'POST':
+        if request.form.get("confirm_edit") == "Confirm" and form.validate():
+            user.name = form.name.data
+            user.email = form.email.data
+            user.role = UserRole[form.role.data]
+            db.session.commit()
+
+            flash("Successfully changed")
+            return redirect(url_for('.user', name=form.name.data))
+        elif form.validate_on_submit():
+            changes = diff_user_details(user, form)
+            if changes == {}:
+                flash("At least one detail has to be changed")
+                return redirect(url_for('.edit_user', name=name))
+
+            return render_template('/admin/confirm-edit-user.html', user=user,
+                changes=changes, oldform=form)
+
+        else:
+            flash("Something went wrong")
+
+    form.name.default = user.name
+    form.email.default = user.email
+    form.role.default = user.role.name
+    form.process()
+
+    return render_template('/admin/edit-user.html', form=form, user=user)
+
+def diff_user_details(user, form):
+    changes = {}
+
+    if form.data['name'] != user.name:
+        changes['Name'] = (user.name, form.name.data)
+    if form.data['email'] != user.email:
+        changes['Email'] = (user.email, form.email.data)
+    if UserRole[form.data['role']] != user.role:
+        changes['Role'] = (user.role.name.capitalize(), form.role.data.capitalize())
+
+    return changes

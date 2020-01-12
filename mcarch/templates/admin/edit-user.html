@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Change user details{% endblock %}
+
+{% block content %}
+
+<h1>Change details of user {{ user.name }}</h1>
+<form method="post" autocomplete="off">
+    {{ form.csrf_token }}
+    <p>Username: {{ form.name }}</p>
+    <p>Email: {{ form.email }}</p>
+    <p>Role: {{ form.role }}</p>
+    {{ form.submit }}
+</form>
+
+{% endblock %}

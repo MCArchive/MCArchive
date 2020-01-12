@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Confirm change of user details{% endblock %}
+
+{% block content %}
+
+<h1>Confirm change of user details</h1>
+
+<p>The following will be changed:<p>
+
+<table class="pretty">
+    <thead>
+        <tr>
+            <td></td>
+            <td>Before</td>
+            <td>After</td>
+        </tr>
+    </thead>
+    <tbody>
+    {% for (detail, (before, after)) in changes.items() %}
+        <tr>
+            <td>{{ detail }}</td>
+            <td>{{ before }}</td>
+            <td>{{ after }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<br>
+
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="submit" name="confirm_edit" value="Confirm">
+    <input type="hidden" name="name" value="{{ oldform.name.data }}"/>
+    <input type="hidden" name="email" value="{{ oldform.email.data }}"/>
+    <input type="hidden" name="role" value="{{ oldform.role.data }}"/>
+</form>
+
+{% endblock %}
+
