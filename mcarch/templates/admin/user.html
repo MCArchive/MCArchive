@@ -16,8 +16,11 @@
 {%- endif %}
 </p>
 
-<a href="{{ url_for('admin.reset_passwd', name=user.name) }}">Reset Password</a>
-<a href="{{ url_for('admin.reset_2fa', name=user.name) }}">Reset 2-factor Auth</a>
+<p>
+    <a href="{{ url_for('admin.edit_user', name=user.name) }}">Edit User</a></br>
+    <a href="{{ url_for('admin.reset_passwd', name=user.name) }}">Reset Password</a></br>
+    <a href="{{ url_for('admin.reset_2fa', name=user.name) }}">Reset 2-factor Auth</a>
+</p>
 
 <section class='sessions'>
     <h1>Sessions</h1>
