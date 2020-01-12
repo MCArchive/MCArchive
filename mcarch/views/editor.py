@@ -58,8 +58,11 @@ def draft_diff(user, id):
     if request.method == 'POST':
         if not login.has_role(roles.moderator): return abort(403)
         if draft.current:
-            draft.merge()
-            return redirect(url_for('mods.mod_page', slug=draft.current.slug))
+            if not draft.draft_diff().is_empty():
+                draft.merge()
+                return redirect(url_for('mods.mod_page', slug=draft.current.slug))
+            else:
+                flash("Can't merge a draft with no changes.")
         elif form.validate():
             mod = draft.into_mod(form.slug.data)
             return redirect(url_for('mods.mod_page', slug=mod.slug))

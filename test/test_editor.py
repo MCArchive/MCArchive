@@ -44,6 +44,15 @@ def test_mk_draft(client, sample_users, sample_mods):
     draft = DraftMod.query.filter_by(name=mod.name).first()
     assert draft != None, "Draft not found in DB"
 
+def test_empty_draft(db_session, client, sample_users, sample_mods):
+    """Ensures that drafts with no changes can't be merged."""
+    mod = sample_mods[0]
+    draft = mk_draft(db_session, mod, sample_users['admin'])
+
+    login_as(client, sample_users['admin'])
+    rv = client.post(url_for('edit.draft_diff', id=draft.id), follow_redirects=True)
+    assert b'no changes' in rv.data
+
 
 # Test draft merging
 

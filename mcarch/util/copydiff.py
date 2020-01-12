@@ -18,6 +18,11 @@ class ObjDiff(object):
             if field.name == name: return field
         return None
 
+    def is_empty(self):
+        """Returns true if this diff contains no changes."""
+        return len(self.changes) == 0 and \
+            (not self.children or self.children.is_empty())
+
 class DiffField(object):
     """Represents a generic field in a diff."""
     def __init__(self, name):
@@ -37,6 +42,9 @@ class ChildListField(DiffField):
         self.added = added
         self.removed = removed
         self.changed = changed
+
+    def is_empty(self):
+        return len(self.changed) == 0 and len(self.added) == 0 and len(self.removed) == 0
 
 
 class CopyDiff(object):
