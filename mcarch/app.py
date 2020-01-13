@@ -3,6 +3,7 @@ import os.path
 from datetime import timedelta
 from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_wtf import CSRFProtect
 from flask_limiter import Limiter
@@ -10,6 +11,7 @@ from flask_limiter.util import get_remote_address
 from flaskext.markdown import Markdown
 
 db = SQLAlchemy()
+migrate = Migrate()
 bcrypt = Bcrypt()
 csrf = CSRFProtect()
 limiter = Limiter(key_func=get_remote_address)
@@ -73,7 +75,12 @@ def create_app(config_object):
 
 def register_extensions(app):
     Markdown(app)
+    # import db tables before we init the DB
+    import mcarch.model.mod
+    import mcarch.model.file
+    import mcarch.model.user
     db.init_app(app)
+    migrate.init_app(app, db)
     bcrypt.init_app(app)
     csrf.init_app(app)
     limiter.init_app(app)

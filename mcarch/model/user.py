@@ -6,9 +6,8 @@ import pyotp
 from flask import Flask, request, current_app as app
 from flask_sqlalchemy import SQLAlchemy
 
-from util.sqla_uuid import GUID
-
 from mcarch.app import db, bcrypt
+from mcarch.util.sqla_uuid import GUID
 
 class UserRole(enum.IntEnum):
     user = 1

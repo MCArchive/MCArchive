@@ -1,12 +1,12 @@
 import uuid
 from collections import OrderedDict
 
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declared_attr
 
 from mcarch.app import db
 from mcarch.util.copydiff import CopyDiff
 from mcarch.model.file import StoredFile
+from mcarch.util.sqla_uuid import GUID
 
 def mk_authored_by_table(mod_table):
     """Generates an association table between mods and the author table"""
@@ -36,7 +36,7 @@ class ModBase(CopyDiff):
     desc = db.Column(db.Text, nullable=False, default="")
     website = db.Column(db.String(120), nullable=False, default="")
 
-    uuid = db.Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
+    uuid = db.Column(GUID(), nullable=False, default=uuid.uuid4)
 
     def vsns_by_game_vsn(self):
         """
@@ -64,7 +64,7 @@ class ModVersionBase(CopyDiff):
     desc = db.Column(db.Text, nullable=False, default="")
     url = db.Column(db.String(120), nullable=False, default="")
 
-    uuid = db.Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
+    uuid = db.Column(GUID(), nullable=False, default=uuid.uuid4)
 
     def game_versions_str(self):
         """Returns a comma separated string listing the supported game versions for this mod."""
@@ -79,7 +79,7 @@ class ModFileBase(CopyDiff):
     id = db.Column(db.Integer, primary_key=True)
     desc = db.Column(db.Text, nullable=False, default="")
 
-    uuid = db.Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
+    uuid = db.Column(GUID(), nullable=False, default=uuid.uuid4)
 
     @declared_attr
     def stored_id(cls):
