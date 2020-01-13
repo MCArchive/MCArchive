@@ -18,22 +18,6 @@ def mk_draft(db, mod, user=None):
     db.commit()
     return draft
 
-def test_new_mod(client, sample_users, sample_mods):
-    data = dict(
-        name='New Test Mod', website='', authors=['1'],
-        desc='This is a test',
-    )
-    login_as(client, sample_users['admin'])
-    rv = client.post(url_for('edit.new_mod'), data=data, follow_redirects=True)
-    assert data['name'].encode('utf-8') in rv.data
-
-    # Check the DB
-    mod = DraftMod.query.filter_by(name=data['name']).first()
-    assert mod != None, "Added mod not found in DB"
-    assert mod.name == data['name']
-    assert mod.website == data['website']
-    assert mod.desc == data['desc']
-
 def test_mk_draft(client, sample_users, sample_mods):
     mod = sample_mods[0]
     login_as(client, sample_users['admin'])
@@ -128,6 +112,29 @@ def test_merge_new_mod_draft(db_session, client, sample_users, sample_mods):
 
 
 # Test editor UI
+
+def test_new_mod(client, sample_users, sample_mods):
+    author = ModAuthor.query.filter_by(name='tester').first()
+    data = dict(
+        name='New Test Mod', website='', authors=','.join([author.name, 'newauthor']),
+        desc='This is a test',
+    )
+
+    author2 = ModAuthor.query.filter_by(name='newauthor').first()
+    assert author2 == None
+
+    login_as(client, sample_users['admin'])
+    rv = client.post(url_for('edit.new_mod'), data=data, follow_redirects=True)
+    assert data['name'].encode('utf-8') in rv.data
+
+    # Check the DB
+    mod = DraftMod.query.filter_by(name=data['name']).first()
+    author2 = ModAuthor.query.filter_by(name='newauthor').first()
+    assert mod != None, "Added mod not found in DB"
+    assert mod.name == data['name']
+    assert mod.website == data['website']
+    assert mod.desc == data['desc']
+    assert mod.authors == [author, author2]
 
 def test_edit_mod(db_session, client, sample_users, sample_mods):
     mod = mk_draft(db_session, sample_mods[0])

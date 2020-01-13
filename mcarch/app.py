@@ -32,7 +32,7 @@ class DefaultConfig(object):
 
 class DevelopmentConfig(object):
     DEBUG = True
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = False
     ASSETS_DEBUG = True
     SECRET_KEY = "notsecret"
     REQUIRE_2FA = True

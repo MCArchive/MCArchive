@@ -16,7 +16,7 @@ from mcarch.model.mod.logs import LogMod, LogModVersion, LogModFile
 
 from mcarch.model.file import upload_b2_file
 from mcarch.model.user import roles
-from mcarch.util.wtforms import BetterSelect
+from mcarch.util.wtforms import BetterSelect, TagInput
 
 from wtforms import StringField, SelectField, SelectMultipleField, TextAreaField, BooleanField, \
         SubmitField
@@ -72,35 +72,34 @@ def draft_diff(user, id):
 class EditModForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=Mod.name.type.length)])
     website = StringField('Website', validators=[Length(max=Mod.website.type.length)])
-    authors = SelectMultipleField("Authors", coerce=int,
-        widget=BetterSelect(multiple=True))
+    authors = StringField("Authors", widget=TagInput())
     desc = TextAreaField("Description")
     submit = SubmitField('Submit')
 
-    def load_authors(self):
-        """Loads the authors select choices from the database
-
-        This must be called before the form is used.
-        """
-        authors = ModAuthor.query.all()
-        self.authors.choices = list(map(lambda a: (a.id, a.name), authors))
-
     def get_selected_authors(self):
-        """Get a list of authors from the database according to what is selected."""
-        ids = self.authors.data
-        return ModAuthor.query.filter(ModAuthor.id.in_(ids)).all()
+        """
+        Generates list of authors selected in this form. Author names that don't
+        exist in the DB will be added.
+        """
+        names = [s.strip() for s in self.authors.data.split(',')]
+        for name in names:
+            author = ModAuthor.query.filter_by(name=name).first()
+            if not author:
+                author = ModAuthor(name=name)
+            yield author
 
 @edit.route('/edit/new-mod', methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
 def new_mod(user):
     form = EditModForm()
-    form.load_authors()
     if request.method == 'POST':
         if form.validate_on_submit():
+            authors = list(form.get_selected_authors())
             mod = DraftMod(
                 name=form.name.data,
                 website=form.website.data,
                 desc=form.desc.data,
+                authors=authors,
                 user=user,
             )
             db.session.add(mod)
@@ -113,14 +112,13 @@ def new_mod(user):
 def edit_mod(user, id):
     mod = DraftMod.query.filter_by(id=id).first_or_404()
     form = EditModForm(name=mod.name, website=mod.website, desc=mod.desc,
-        authors=list(map(lambda a: a.id, mod.authors)))
-    authors = form.load_authors()
+        authors=','.join([a.name for a in mod.authors]))
     if request.method == 'POST':
         if form.validate_on_submit():
             mod.name = form.name.data
             mod.website = form.website.data
             mod.desc = form.desc.data
-            mod.authors = form.get_selected_authors()
+            mod.authors = list(form.get_selected_authors())
             db.session.commit()
             return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-mod.html', form=form, editing=mod)

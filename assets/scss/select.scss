@@ -52,9 +52,10 @@ $choices-height: 16px;
 
 // Multiple select
 
+$sel_textmul: ".choices[data-type=\"text\"]";
 $sel_multiple: ".choices[data-type=\"select-multiple\"]";
 
-#{$sel_multiple} .choices__inner {
+#{$sel_multiple} .choices__inner, #{$sel_textmul} .choices__inner {
     border: 1px solid $gray;
     transition: background-color $fade-dur;
 
