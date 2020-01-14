@@ -21,6 +21,8 @@ from mcarch import login
 from mcarch.util.filters import register_filters
 
 class DefaultConfig(object):
+    # Whether we're running the test suite
+    TESTING = False
     # Time until sessions in the database expire
     SERV_SESSION_EXPIRE_TIME = timedelta(days=5)
     # Expire time for sessions that haven't completed 2FA
@@ -52,6 +54,9 @@ def create_app(config_object):
         print('APP IS USING DEVELOPMENT CONFIG. DO NOT USE IN PRODUCTION')
 
     app.config.from_object(config_object)
+
+    if app.config['TESTING']:
+        app.config['SQLALCHEMY_DATABASE_URI'] = app.config['TEST_DATABASE_URI']
 
     register_extensions(app)
     register_blueprints(app)
