@@ -28,7 +28,7 @@ class User(db.Model):
     last_seen = db.Column(db.DateTime)
     disabled = db.Column(db.Boolean)
 
-    def __init__(self, *args, password, passhash=None, **kwargs):
+    def __init__(self, *args, password=None, passhash=None, **kwargs):
         """
         Creates a new `User` object. The given password will be hashed automatically.
 
@@ -36,8 +36,8 @@ class User(db.Model):
         be used to speed up tests, as bcrypt is intentionally slow.
         """
         pwd = None
-        if passhash is not None: pwd = passhash
-        else: pwd = bcrypt.generate_password_hash(password)
+        if passhash: pwd = passhash
+        elif password: pwd = bcrypt.generate_password_hash(password)
 
         super(User, self).__init__(*args, password=pwd, **kwargs)
 

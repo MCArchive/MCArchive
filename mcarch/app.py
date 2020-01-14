@@ -34,32 +34,23 @@ class DefaultConfig(object):
 
 class DevelopmentConfig(object):
     DEBUG = True
-    SQLALCHEMY_ECHO = False
     ASSETS_DEBUG = True
     SECRET_KEY = "notsecret"
     REQUIRE_2FA = True
-    if 'DATABASE_URL' in os.environ:
-        DATABASE = os.environ['DATABASE_URL']
-        SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-    else:
-        DATABASE = 'sqlite:////tmp/test.db'
-        SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
-    if 'REDIS_URL' in os.environ:
-        REDIS_URL = os.environ['REDIS_URL']
-        RATELIMIT_STORAGE_URL = os.environ['REDIS_URL']
-    else:
-        REDIS_URL = 'redis://localhost:6379'
-        RATELIMIT_STORAGE_URL = 'redis://localhost:6379'
-
 
 def create_app(config_object):
     app = Flask(__name__)
     app.config.from_object(DefaultConfig)
+
     if 'MCARCH_CONFIG' in os.environ:
         app.config.from_envvar('MCARCH_CONFIG')
+    else:
+        print("Warning: no `MCARCH_CONFIG` set. Read README.md")
+
     if app.env == 'development':
         app.config.from_object(DevelopmentConfig)
         print('APP IS USING DEVELOPMENT CONFIG. DO NOT USE IN PRODUCTION')
+
     app.config.from_object(config_object)
 
     register_extensions(app)
@@ -110,6 +101,8 @@ def register_blueprints(app):
     app.register_blueprint(admin)
     from mcarch.views.archivist import arch
     app.register_blueprint(arch)
+    from mcarch.cli import bp as cli
+    app.register_blueprint(cli)
 
 def init_b2(app):
     global b2api

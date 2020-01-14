@@ -1,15 +1,82 @@
-# This file creates an empty SQLite database for development.
-
+from flask import Blueprint, url_for
+import click
+from getpass import getpass
+import yaml
 import sys
 import os
 
-from mcarch.app import create_app, db
-import mcarch.model
-
-from mcarch.app import DevelopmentConfig
+from mcarch.app import db, current_app as app
 from mcarch.model.user import *
 from mcarch.model.mod import *
 from mcarch.model.file import *
+
+bp = Blueprint('commands', __name__, cli_group=None)
+
+def role_from_str(s):
+    strs = dict(
+        user=roles.user,
+        archivist=roles.archivist,
+        moderator=roles.moderator,
+        admin=roles.admin
+    )
+    if s in strs: return strs[s]
+    else: return None
+
+@bp.cli.command('adduser')
+@click.argument('name')
+@click.argument('email')
+@click.argument('role')
+def add_user(name, email, role):
+    role = role_from_str(role)
+    if not role:
+        print("Error: no such role {}".format(role))
+        return
+
+    while True:
+        password = getpass("Password for {}: ".format(name))
+        if password != getpass("Repeat password: "):
+            print("Passwords didn't match")
+            continue
+        else: break
+
+    user = User(name=name, email=email, role=role, password=password)
+    db.session.add(user)
+    db.session.commit()
+
+    print('User {} created'.format(name))
+
+
+@bp.cli.command('import')
+@click.argument('path')
+def import_old_format(path):
+    from os import listdir
+    from os.path import isdir, isfile, join, splitext
+
+    print("Importing old archive format from {}", path)
+
+    modyaml = {}
+    for name in [f for f in listdir(path) if isfile(join(path, f))]:
+        p = join(path, name)
+        print("Loading YAML {}".format(p))
+        obj = None
+        with open(p, 'r') as f:
+            modyaml[name] = yaml.safe_load(f)
+
+    for _, obj in modyaml.items():
+        vsns = import_game_vsns(obj)
+        for v in vsns: db.session.add(v)
+        db.session.commit()
+
+    for name, obj in modyaml.items():
+        mod = import_mod(obj, splitext(name)[0])
+        db.session.add(mod)
+        db.session.commit()
+        mod.log_change(user=None)
+        db.session.commit()
+
+    db.session.commit()
+    print("Import complete")
+
 
 def import_mod(obj, slug):
     mod = Mod(slug=slug, name=obj['name'])
@@ -74,52 +141,4 @@ def import_game_vsns(mod):
                 added.add(name)
                 gvsns.append(GameVersion(name=name))
     return gvsns
-
-
-app = create_app(DevelopmentConfig)
-with app.app_context():
-    db.drop_all()
-    db.create_all()
-
-    db.session.add(User(name="admin", password="a", email="test@example.com", role=UserRole.admin))
-    db.session.add(User(name="2fa", password="a", email="2fa@example.com", role=UserRole.admin,
-            totp_secret='REEEEEEEEEEEEEEE'
-        ))
-    db.session.add(User(name="mod", password="a", email="a@example.com", role=UserRole.moderator))
-    db.session.add(User(name="arch", password="a", email="b@example.com", role=UserRole.archivist))
-    db.session.add(User(name="user", password="a", email="c@example.com", role=UserRole.user))
-    db.session.commit()
-
-    if len(sys.argv) > 1:
-        from os import listdir
-        from os.path import isdir, isfile, join, splitext
-        import yaml
-
-        path = sys.argv[1]
-        if not isdir(path):
-            print("Expected metarepo directory to import as first argument")
-            exit()
-        print("Importing old archive files from {}".format(path))
-        
-        modyaml = {}
-        for name in [f for f in listdir(path) if isfile(join(path, f))]:
-            p = join(path, name)
-            print("Loading YAML {}".format(p))
-            obj = None
-            with open(p, 'r') as f:
-                modyaml[name] = yaml.safe_load(f)
-
-        for _, obj in modyaml.items():
-            vsns = import_game_vsns(obj)
-            for v in vsns: db.session.add(v)
-            db.session.commit()
-
-        for name, obj in modyaml.items():
-            mod = import_mod(obj, splitext(name)[0])
-            db.session.add(mod)
-            db.session.commit()
-            mod.log_change(user=None)
-            db.session.commit()
-
-    db.session.commit()
 
