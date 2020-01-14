@@ -1,0 +1,32 @@
+# Example docker-compose file. You'll need to modify this for your deployment.
+version: '3'
+services:
+  web:
+    restart: always
+    build: .
+    links:
+      - postgres
+      - redis
+    ports:
+      - 5000:5000
+    environment:
+      # CHANGE THIS IN YOUR DEPLOYMENT!!!!
+      # This is needed for CSRF and signing cookies.
+      SECRET_KEY: b'\xe3\xe7\xf8\xd3\x7f\xa4eEQ{\xe0\xa6oS\x0f\xdf.\xf0 \x81\x86\xa5\xf6\x95'
+      #B2_KEY_ID: 'AAAAAAAAAAAAAAAAAAAAAAAAAA'
+      #B2_APP_KEY: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+  postgres:
+    restart: always
+    image: postgres:alpine
+    environment:
+      POSTGRES_DB: mcarch
+      POSTGRES_USER: root
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  redis:
+    restart: always
+    image: redis:alpine
+
+volumes:
+  db-data:
+

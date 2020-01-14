@@ -1,0 +1,8 @@
+node_modules/
+venv/
+
+Dockerfile
+docker-compose.yml
+.dockerignore
+dev_config.py
+
