@@ -23,6 +23,25 @@ class ObjDiff(object):
         return len(self.changes) == 0 and \
             (not self.children or self.children.is_empty())
 
+    def pretty(self, indent=0):
+        """Turns this diff into a pretty printed string for debugging."""
+        indentstr = "\t" * indent
+        out = "{}Changes from {} to {}: ".format(indentstr, self.old, self.new)
+
+        for ch in self.changes:
+            if isinstance(ch, ScalarField):
+                out += "\n{}{}: {} -> {}".format(indentstr, ch.name, ch.old, ch.new)
+
+        if self.children:
+            out += "\n{}Added Children: {}".format(indentstr, self.children.added)
+            out += "\n{}Removed Children: {}".format(indentstr, self.children.added)
+            out += "\n{}Changed Children:".format(indentstr)
+            for ch in self.children.changed:
+                out += "\n{}".format(ch.pretty(indent=indent+1))
+
+        return out
+
+
 class DiffField(object):
     """Represents a generic field in a diff."""
     def __init__(self, name):
@@ -84,7 +103,7 @@ class CopyDiff(object):
 
         Note: At the moment tracked children are always represented by a field
         called `children` and there can only be one. This can be fixed later,
-        but it's not really needed.
+        but it's not really needed at the moment.
         """
         changes = []
 
@@ -110,7 +129,7 @@ class CopyDiff(object):
             ochild = self.find_same_child(nchild)
             if ochild:
                 chdiff = ochild.diff(nchild)
-                if len(chdiff.changes) > 0:
+                if not chdiff.is_empty():
                     changed.append(chdiff)
             else:
                 added.append(nchild)
