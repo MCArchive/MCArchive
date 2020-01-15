@@ -151,20 +151,30 @@ def new_mod_version(user, id):
     mod = DraftMod.query.filter_by(id=id).first_or_404()
     form = EditVersionForm()
     form.load_gamevsns()
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            vsn = DraftModVersion(
-                name=form.name.data,
-                url=form.url.data,
-                desc=form.desc.data,
-                game_vsns=form.get_selected_gamevsns(),
-            )
-            mod.mod_vsns.append(vsn)
-            db.session.commit()
-            return redirect(url_for('edit.draft_page', id=mod.id))
+    if form.validate_on_submit():
+        vsn = DraftModVersion(
+            name=form.name.data,
+            url=form.url.data,
+            desc=form.desc.data,
+            game_vsns=form.get_selected_gamevsns(),
+        )
+        mod.mod_vsns.append(vsn)
+        db.session.commit()
+        return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-version.html', form=form, mod=mod)
 
-@edit.route("/draft/<id>/edit/mod-version/", methods=['GET', 'POST'])
+@edit.route("/draft/edit/mod-version/<id>/rm", methods=['GET', 'POST'])
+@login_required(role=roles.archivist, pass_user=True)
+def rm_mod_version(user, id):
+    vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
+    mod = vsn.mod
+    if request.method == 'POST':
+        db.session.delete(vsn)
+        db.session.commit()
+        return redirect(url_for('edit.draft_page', id=mod.id))
+    return render_template('editor/confirm-rm-version.html', vsn=vsn)
+
+@edit.route("/draft/edit/mod-version/<id>", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
 def edit_mod_version(user, id):
     vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
@@ -173,14 +183,13 @@ def edit_mod_version(user, id):
     form = EditVersionForm(name=vsn.name, url=vsn.url, desc=vsn.desc,
             gamevsns=list(map(lambda v: v.id, vsn.game_vsns)))
     form.load_gamevsns()
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            vsn.name = form.name.data
-            vsn.url = form.url.data
-            vsn.desc = form.desc.data
-            vsn.game_vsns = form.get_selected_gamevsns()
-            db.session.commit()
-            return redirect(url_for('edit.draft_page', id=mod.id))
+    if form.validate_on_submit():
+        vsn.name = form.name.data
+        vsn.url = form.url.data
+        vsn.desc = form.desc.data
+        vsn.game_vsns = form.get_selected_gamevsns()
+        db.session.commit()
+        return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-version.html', form=form, mod=mod, editing=vsn)
 
 
@@ -207,19 +216,18 @@ def new_mod_file(user, id):
 
     form = EditFileForm()
     form.file.validators.append(FileRequired())
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            stored = upload_file(form.file.data, user)
-            mfile = DraftModFile(
-                stored = stored,
-                desc = form.desc.data,
-                page_url = form.page_url.data,
-                redirect_url = form.redirect_url.data,
-                direct_url = form.direct_url.data,
-            )
-            vsn.files.append(mfile)
-            db.session.commit()
-            return redirect(url_for('edit.draft_page', id=mod.id))
+    if form.validate_on_submit():
+        stored = upload_file(form.file.data, user)
+        mfile = DraftModFile(
+            stored = stored,
+            desc = form.desc.data,
+            page_url = form.page_url.data,
+            redirect_url = form.redirect_url.data,
+            direct_url = form.direct_url.data,
+        )
+        vsn.files.append(mfile)
+        db.session.commit()
+        return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-file.html', form=form, mod=mod, vsn=vsn)
 
 @edit.route("/draft/edit/mod-file/<id>", methods=['GET', 'POST'])
@@ -235,17 +243,27 @@ def edit_mod_file(user, id):
         redirect_url=mfile.redirect_url,
         direct_url=mfile.direct_url,
     )
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            if form.file.data:
-                stored = upload_file(form.file.data, user)
-                mfile.stored = stored
-            mfile.desc = form.desc.data
-            mfile.page_url = form.page_url.data
-            mfile.redirect_url = form.redirect_url.data
-            mfile.direct_url = form.direct_url.data
-            db.session.commit()
-            return redirect(url_for('edit.draft_page', id=mod.id))
+    if form.validate_on_submit():
+        if form.file.data:
+            stored = upload_file(form.file.data, user)
+            mfile.stored = stored
+        mfile.desc = form.desc.data
+        mfile.page_url = form.page_url.data
+        mfile.redirect_url = form.redirect_url.data
+        mfile.direct_url = form.direct_url.data
+        db.session.commit()
+        return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-file.html', form=form, mod=mod,
                 vsn=vsn, editing=mfile, curfile=mfile.stored)
+
+@edit.route("/draft/edit/mod-file/<id>/rm", methods=['GET', 'POST'])
+@login_required(role=roles.archivist, pass_user=True)
+def rm_mod_file(user, id):
+    mfile = DraftModFile.query.filter_by(id=id).first_or_404()
+    mod = mfile.version.mod
+    if request.method == 'POST':
+        db.session.delete(mfile)
+        db.session.commit()
+        return redirect(url_for('edit.draft_page', id=mod.id))
+    return render_template('editor/confirm-rm-file.html', file=mfile)
 

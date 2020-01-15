@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Confirm Remove File{% endblock %}
+
+{% block content %}
+<h1>Confirm Remove File</h1>
+
+<p>Are you sure you want to remove the file {{ file.stored.name }} from this mod?</p>
+<p>This can't be undone without starting a new draft.</p>
+
+
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="submit" value="Confirm">
+</form>
+{% endblock %}
+

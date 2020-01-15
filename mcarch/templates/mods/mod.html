@@ -7,7 +7,9 @@
     {% if is_draft %}
     <div class="btngroup right floating">
         <a class="button"
-            href="{{ url_for('edit.edit_mod_version', id=vsn.id) }}">Edit</a>
+            href="{{ url_for('edit.edit_mod_version', id=vsn.id) }}">Edit Version</a>
+        <a class="button"
+            href="{{ url_for('edit.rm_mod_version', id=vsn.id) }}">Remove Version</a>
         <a class="button"
             href="{{ url_for('edit.new_mod_file', id=vsn.id) }}">Add File</a>
     </div>
@@ -24,7 +26,8 @@
     <section class="sub-block">
         {% if is_draft %}
         <div class="btngroup right floating">
-            <a class="button" href="{{ url_for('edit.edit_mod_file', id=file.id) }}">Edit</a>
+            <a class="button" href="{{ url_for('edit.rm_mod_file', id=file.id) }}">Remove File</a>
+            <a class="button" href="{{ url_for('edit.edit_mod_file', id=file.id) }}">Edit File</a>
         </div>
         {% endif %}
 
