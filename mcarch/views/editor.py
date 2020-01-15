@@ -164,7 +164,7 @@ def new_mod_version(user, id):
             return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-version.html', form=form, mod=mod)
 
-@edit.route("/draft/edit/mod-version/<id>", methods=['GET', 'POST'])
+@edit.route("/draft/<id>/edit/mod-version/", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
 def edit_mod_version(user, id):
     vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
@@ -199,7 +199,7 @@ def upload_file(file, user):
         print(file.filename)
         return upload_b2_file(tfile.name, file.filename, user)
 
-@edit.route("/draft/<id>/new-file", methods=['GET', 'POST'])
+@edit.route("/draft/<id>/edit/new-file", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
 def new_mod_file(user, id):
     vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
