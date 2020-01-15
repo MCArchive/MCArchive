@@ -11,7 +11,7 @@ arch = Blueprint('archivist', __name__, template_folder="templates")
 @arch.route("/panel")
 @login_required(role=roles.archivist)
 def main():
-    changes = slow_gen_diffs(LogMod.query.order_by(LogMod.index.desc()).limit(3).all())
+    changes = slow_gen_diffs(LogMod.query.order_by(LogMod.date.desc()).limit(3).all())
     drafts = DraftMod.query.filter_by(archived=False).limit(4).all()
     return render_template("/archivist/main.html", changes=changes, drafts=drafts)
 
