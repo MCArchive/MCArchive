@@ -17,14 +17,14 @@ admin = Blueprint('admin', __name__, template_folder="templates")
 @login_required(role=roles.moderator, pass_user=True)
 def main(user):
     users = User.query.order_by(User.last_seen.desc()).limit(5).all()
-    changes = slow_gen_diffs(LogMod.query.order_by(LogMod.index.desc()).limit(3).all())
+    changes = slow_gen_diffs(LogMod.query.order_by(LogMod.date.desc()).limit(3).all())
     return render_template('/admin/main.html', user=user, changes=changes, users=users)
 
 
 @admin.route("/admin/changes")
 @login_required(role=roles.moderator)
 def changes():
-    changes = slow_gen_diffs(LogMod.query.order_by(LogMod.index.desc()).all())
+    changes = slow_gen_diffs(LogMod.query.order_by(LogMod.date.desc()).all())
     return render_template('/admin/changes.html', changes=changes)
 
 @admin.route("/admin/files")

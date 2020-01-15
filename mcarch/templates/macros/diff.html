@@ -53,7 +53,7 @@
 {% endmacro %}
 
 {% macro diff_list(changes, class='block') %}
-{% for change in changes|reverse %}
+{% for change in changes %}
 {% set mod = change['obj'].current %}
 <section class="{{ class }}">
     <a class="right button" href="{{ url_for('mods.mod_history', slug=mod.slug) }}">
