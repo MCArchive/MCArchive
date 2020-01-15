@@ -33,6 +33,10 @@ class DefaultConfig(object):
     B2_KEY_ID = None
     B2_APP_KEY = None
     B2_BUCKET_NAME = None
+    # Number of X-Forwarded-For addresses to trust. This should be equal to the
+    # number of reverse proxies in front of the app that add to the
+    # X-Forwarded-For header.
+    TRUST_LEN_X_FORWARDED_FOR = 0
 
 class DevelopmentConfig(object):
     DEBUG = True
@@ -67,6 +71,10 @@ def create_app(config_object={}):
         init_b2(app)
     else:
         print('B2_KEY_ID is not set! File uploads will not work properly unless backblaze is configured!')
+
+    if app.config['TRUST_LEN_X_FORWARDED_FOR'] > 0:
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=app.config['TRUST_LEN_X_FORWARDED_FOR'])
     return app
 
 def register_extensions(app):
