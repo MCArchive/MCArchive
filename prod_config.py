@@ -13,5 +13,8 @@ B2_APP_KEY=os.environ['B2_APP_KEY'] if 'B2_APP_KEY' in os.environ else None
 B2_PUBLIC_URL='https://b2.mcarchive.net/file/mcarchive/'
 B2_BUCKET_NAME='mcarchive'
 
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = "Lax"
+
 SQLALCHEMY_ECHO=False
 
