@@ -118,7 +118,7 @@ class CreateUserForm(FlaskForm):
 
 @admin.route("/admin/new-user", methods=['GET', 'POST'])
 @login_required(role=roles.admin)
-def create_user():
+def new_user():
     form = CreateUserForm()
     if request.method == 'POST':
         if form.validate_on_submit():
