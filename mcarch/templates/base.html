@@ -33,14 +33,6 @@
             {% set iuser = insecure_cur_user() %}
 
             {{ nav_btn(url_for("mods.browse"), "Browse") }}
-            <div class="dropdown">
-                <a href="javascript:void();" class="dropbtn">Browse By</a>
-				<div class="dropcontent">
-                    {{ nav_btn(url_for("mods.gamevsns"), "Game Version") }}
-                    {{ nav_btn(url_for("mods.authors"), "Author") }}
-                    {{ nav_btn(url_for("mods.browse", drafts='true'), "Drafts") if iuser and has_role(_roles.archivist)}}
-				</div>
-            </div>
 
             {% if iuser and has_role(_roles.archivist) %}
             {{ nav_btn(url_for("archivist.main"), "Panel") }}
