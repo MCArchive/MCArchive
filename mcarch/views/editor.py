@@ -24,6 +24,20 @@ from wtforms.validators import Length, DataRequired, Email, Regexp, ValidationEr
 
 edit = Blueprint('edit', __name__, template_folder="templates")
 
+@edit.route('/drafts')
+@login_required(role=roles.archivist)
+def draft_list():
+    archived = request.args.get('archived', False, type=bool)
+    drafts = DraftMod.query.filter_by(archived=archived)
+    return render_template("editor/draft-list.html", drafts=drafts)
+
+@edit.route('/drafts/<id>')
+@login_required(role=roles.archivist, pass_user=True)
+def draft_page(user, id):
+    draft = DraftMod.query.filter_by(id=id).first_or_404()
+    vsns = draft.vsns_by_game_vsn()
+    return render_template("mods/mod.html", mod=draft, vsns_grouped=vsns, is_draft=True)
+
 
 @edit.route('/mods/<slug>/new-draft', methods=['POST'])
 @login_required(role=roles.archivist, pass_user=True)
@@ -34,13 +48,6 @@ def new_draft(user, slug):
     db.session.commit()
     return redirect(url_for('edit.draft_page', id=draft.id))
 
-@edit.route('/draft/<id>', methods=['GET'])
-@login_required(role=roles.archivist, pass_user=True)
-def draft_page(user, id):
-    draft = DraftMod.query.filter_by(id=id).first_or_404()
-    vsns = draft.vsns_by_game_vsn()
-    return render_template("mods/mod.html", mod=draft, vsns_grouped=vsns, is_draft=True)
-
 
 class ReviewDraftForm(FlaskForm):
     slug = StringField('Slug', validators=[
@@ -49,11 +56,14 @@ class ReviewDraftForm(FlaskForm):
         Regexp(r'[a-zA-Z0-9-_]+')
     ])
 
-@edit.route('/draft/<id>/diff', methods=['GET', 'POST'])
+@edit.route('/drafts/<id>/diff', methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
 def draft_diff(user, id):
     form = ReviewDraftForm()
     draft = DraftMod.query.filter_by(id=id).first_or_404()
+    if draft.archived:
+        flash('This draft is archived. It cannot be merged.')
+        return redirect(url_for('edit.draft_page', id=draft.id))
     diff = draft.draft_diff()
     if request.method == 'POST':
         if not login.has_role(roles.moderator): return abort(403)
@@ -107,7 +117,7 @@ def new_mod(user):
             return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-mod.html', form=form)
 
-@edit.route("/draft/<id>/edit", methods=['GET', 'POST'])
+@edit.route("/drafts/<id>/edit", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
 def edit_mod(user, id):
     mod = DraftMod.query.filter_by(id=id).first_or_404()
@@ -145,7 +155,7 @@ class EditVersionForm(FlaskForm):
         ids = self.gamevsns.data
         return GameVersion.query.filter(GameVersion.id.in_(ids)).all()
 
-@edit.route("/draft/<id>/edit/new-version", methods=['GET', 'POST'])
+@edit.route("/drafts/<id>/edit/new-version", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
 def new_mod_version(user, id):
     mod = DraftMod.query.filter_by(id=id).first_or_404()
@@ -163,7 +173,7 @@ def new_mod_version(user, id):
         return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-version.html', form=form, mod=mod)
 
-@edit.route("/draft/edit/mod-version/<id>/rm", methods=['GET', 'POST'])
+@edit.route("/drafts/edit/mod-version/<id>/rm", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
 def rm_mod_version(user, id):
     vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
@@ -174,7 +184,7 @@ def rm_mod_version(user, id):
         return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/confirm-rm-version.html', vsn=vsn)
 
-@edit.route("/draft/edit/mod-version/<id>", methods=['GET', 'POST'])
+@edit.route("/drafts/edit/mod-version/<id>", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
 def edit_mod_version(user, id):
     vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
@@ -208,7 +218,7 @@ def upload_file(file, user):
         print(file.filename)
         return upload_b2_file(tfile.name, file.filename, user)
 
-@edit.route("/draft/<id>/edit/new-file", methods=['GET', 'POST'])
+@edit.route("/drafts/<id>/edit/new-file", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
 def new_mod_file(user, id):
     vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
@@ -230,7 +240,7 @@ def new_mod_file(user, id):
         return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-file.html', form=form, mod=mod, vsn=vsn)
 
-@edit.route("/draft/edit/mod-file/<id>", methods=['GET', 'POST'])
+@edit.route("/drafts/edit/mod-file/<id>", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
 def edit_mod_file(user, id):
     mfile = DraftModFile.query.filter_by(id=id).first_or_404()
@@ -256,7 +266,7 @@ def edit_mod_file(user, id):
     return render_template('editor/edit-file.html', form=form, mod=mod,
                 vsn=vsn, editing=mfile, curfile=mfile.stored)
 
-@edit.route("/draft/edit/mod-file/<id>/rm", methods=['GET', 'POST'])
+@edit.route("/drafts/edit/mod-file/<id>/rm", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
 def rm_mod_file(user, id):
     mfile = DraftModFile.query.filter_by(id=id).first_or_404()

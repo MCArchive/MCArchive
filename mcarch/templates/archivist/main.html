@@ -17,7 +17,7 @@
         </ul>
     </section>
     <section class='column block'>
-        <h1>Drafts</h1>
+        <h1><a href="{{ url_for('edit.draft_list') }}">Drafts</a></h1>
         {% if drafts %}
         <ul>
             {% for draft in drafts %}

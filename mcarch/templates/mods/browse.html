@@ -10,7 +10,6 @@
 {%- for (f, x) in filters %}
 {%- if f == 'author' %} by {{ x }}{% endif %}
 {%- if f == 'gvsn' %} for Minecraft {{ x }}{% endif %}
-{%- if f == 'drafts' %} that are drafts{% endif %}
 {%- endfor %}.
 <a href="{{ url_for('mods.browse') }}">Show all</a>
 </div>
@@ -18,26 +17,18 @@
 
 <h1>Browse Mods</h1>
 
-{% if not ('drafts', True) in filters %}
 <div class="block">
     {{ s.search_form() }}
 </div>
-{% endif %}
 
 <div id="mods">
     <div class="list">
         {% for mod in mods %}
         <section class="block">
-            {% if ('drafts', True) in filters %}
-            <h1 class="modname">
-                <a href="{{ url_for('edit.draft_page', id=mod.id, gvsn=gvsn) }}">{{ mod.name }}</a>
-            </h3>
-            {% else %}
             <h1 class="modname">
                 <a href="{{ url_for('mods.mod_page', slug=mod.slug, gvsn=gvsn) }}">{{ mod.name }}</a>
-            </h3>
+            </h1>
             <p class="gamevsn small">Supports Minecraft {{ mod.game_versions_str() }}</p>
-            {% endif %}
             {% if mod.desc %}
                 <p class="moddesc">{{ mod.desc }}</p>
             {% endif %}
