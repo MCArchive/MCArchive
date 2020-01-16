@@ -139,7 +139,7 @@ class Session(db.Model):
         super(Session, self).__init__(*args, sess_id=sess_id, **kwargs)
 
     def expired(self):
-        if not self.active: return False
+        if not self.active: return True
         if self.authed_2fa:
             return self.last_seen < datetime.utcnow() - app.config['SERV_SESSION_EXPIRE_TIME']
         else:
