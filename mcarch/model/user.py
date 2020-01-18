@@ -1,10 +1,12 @@
 import enum
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import hashlib
 import uuid
 import pyotp
 from flask import Flask, request, current_app as app
 from flask_sqlalchemy import SQLAlchemy
+
+from sqlalchemy_utc import UtcDateTime, utcnow
 
 from mcarch.app import db, bcrypt
 from mcarch.util.sqla_uuid import GUID
@@ -25,7 +27,7 @@ class User(db.Model):
     totp_secret = db.Column(db.String(16))
     totp_last_auth = db.Column(db.String(6)) # To avoid replay attacks
     role = db.Column(db.Enum(UserRole), nullable=False)
-    last_seen = db.Column(db.DateTime)
+    last_seen = db.Column(UtcDateTime)
     disabled = db.Column(db.Boolean)
 
     def __init__(self, *args, password=None, passhash=None, **kwargs):
@@ -122,8 +124,8 @@ class Session(db.Model):
     sess_id = db.Column(GUID(), nullable=False, unique=True)
 
     login_ip = db.Column(db.String(128), nullable=False)
-    login_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    last_seen = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    login_date = db.Column(UtcDateTime, nullable=False, default=datetime.now(timezone.utc))
+    last_seen = db.Column(UtcDateTime, nullable=False, default=datetime.now(timezone.utc))
 
     # User this session is logged in as.
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -136,14 +138,15 @@ class Session(db.Model):
     def __init__(self, *args, sess_id=None, **kwargs):
         if not sess_id:
             sess_id = uuid.uuid4()
+        
         super(Session, self).__init__(*args, sess_id=sess_id, **kwargs)
 
     def expired(self):
         if not self.active: return True
         if self.authed_2fa:
-            return self.last_seen < datetime.utcnow() - app.config['SERV_SESSION_EXPIRE_TIME']
+            return self.last_seen < datetime.now(timezone.utc) - app.config['SERV_SESSION_EXPIRE_TIME']
         else:
-            return self.last_seen < datetime.utcnow() - \
+            return self.last_seen < datetime.now(timezone.utc) - \
                     app.config['SERV_PARTIAL_SESSION_EXPIRE_TIME']
 
     def auth_2fa(self, code):
@@ -166,7 +169,7 @@ class Session(db.Model):
 
     def touch(self):
         """Updates this session's last seen date."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         self.last_seen = now
         self.user.last_seen = now
 
@@ -182,7 +185,7 @@ class ResetToken(db.Model):
     """Represents a one time use key that allows a user to reset (or set) their password."""
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(GUID(), nullable=False, unique=True)
-    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created = db.Column(UtcDateTime, nullable=False, server_default=utcnow())
     active = db.Column(db.Boolean, nullable=False, default=True)
     kind = db.Column(db.Enum(ResetType), nullable=False)
 
@@ -197,5 +200,5 @@ class ResetToken(db.Model):
 
     def expired(self):
         return not self.active or \
-                self.created < datetime.utcnow() - app.config['PASSWD_RESET_EXPIRE_TIME']
+                self.created < datetime.now(timezone.utc) - app.config['PASSWD_RESET_EXPIRE_TIME']
 
