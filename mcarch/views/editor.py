@@ -121,6 +121,9 @@ def new_mod(user):
 @login_required(role=roles.archivist, pass_user=True)
 def edit_mod(user, id):
     mod = DraftMod.query.filter_by(id=id).first_or_404()
+    if mod.archived:
+        flash('This draft is archived. It cannot be edited.')
+        return redirect(url_for('edit.draft_page', id=draft.id))
     form = EditModForm(name=mod.name, website=mod.website, desc=mod.desc,
         authors=','.join([a.name for a in mod.authors]))
     if request.method == 'POST':
@@ -159,6 +162,10 @@ class EditVersionForm(FlaskForm):
 @login_required(role=roles.archivist, pass_user=True)
 def new_mod_version(user, id):
     mod = DraftMod.query.filter_by(id=id).first_or_404()
+    if mod.archived:
+        flash('This draft is archived. It cannot be edited.')
+        return redirect(url_for('edit.draft_page', id=draft.id))
+
     form = EditVersionForm()
     form.load_gamevsns()
     if form.validate_on_submit():
@@ -178,6 +185,10 @@ def new_mod_version(user, id):
 def rm_mod_version(user, id):
     vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
     mod = vsn.mod
+    if mod.archived:
+        flash('This draft is archived. It cannot be edited.')
+        return redirect(url_for('edit.draft_page', id=draft.id))
+
     if request.method == 'POST':
         db.session.delete(vsn)
         db.session.commit()
@@ -189,6 +200,9 @@ def rm_mod_version(user, id):
 def edit_mod_version(user, id):
     vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
     mod = vsn.mod
+    if mod.archived:
+        flash('This draft is archived. It cannot be edited.')
+        return redirect(url_for('edit.draft_page', id=draft.id))
 
     form = EditVersionForm(name=vsn.name, url=vsn.url, desc=vsn.desc,
             gamevsns=list(map(lambda v: v.id, vsn.game_vsns)))
@@ -223,6 +237,9 @@ def upload_file(file, user):
 def new_mod_file(user, id):
     vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
     mod = vsn.mod
+    if mod.archived:
+        flash('This draft is archived. It cannot be edited.')
+        return redirect(url_for('edit.draft_page', id=draft.id))
 
     form = EditFileForm()
     form.file.validators.append(FileRequired())
