@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Confirm Archive Draft{% endblock %}
+
+{% block content %}
+<h1>Confirm Archive Draft</h1>
+
+{% if archiving %}
+<p>Are you sure you want to archive this draft of {{ draft.name }}?</p>
+<p>This will remove the draft from the list of active drafts and prevent it
+from being merged or edited.</p>
+{% else %}
+<p>Are you sure you want to un-archive this draft of {{ draft.name }}?</p>
+<p>This will add it back to the list of active drafts and allow it to be merged
+or edited.</p>
+{% endif %}
+
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    {% if archiving %}
+    <input type="submit" value="Archive Draft">
+    {% else %}
+    <input type="submit" value="Un-archive Draft">
+    {% endif %}
+</form>
+{% endblock %}
+
+

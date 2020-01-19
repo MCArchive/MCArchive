@@ -4,7 +4,7 @@
 
 {% macro vsnblock(vsn) %}
 <section class="block">
-    {% if is_draft %}
+    {% if is_draft and mod.editable %}
     <div class="btngroup right floating">
         <a class="button"
             href="{{ url_for('edit.edit_mod_version', id=vsn.id) }}">Edit Version</a>
@@ -24,7 +24,7 @@
 
     {% for file in vsn.files %}
     <section class="sub-block">
-        {% if is_draft %}
+        {% if is_draft and mod.editable %}
         <div class="btngroup right floating">
             <a class="button" href="{{ url_for('edit.rm_mod_file', id=file.id) }}">Remove File</a>
             <a class="button" href="{{ url_for('edit.edit_mod_file', id=file.id) }}">Edit File</a>
@@ -61,7 +61,13 @@
     {% if mod.current %}
         This is a draft of changes to the
         <a href="{{ url_for('mods.mod_page', slug=mod.current.slug) }}">current page</a>.
+        {% if mod.merged %}
+        It has been merged already.
+        {% elif mod.archived %}
+        It has been archived, and not merged into the main listing.
+        {% else %}
         It must be approved by a moderator before the changes become public.
+        {% endif %}
     {% else %}
         This is a draft of a new mod. It must be approved by a moderator before it becomes public.
     {% endif %}
@@ -89,9 +95,16 @@
 {% if rev is not defined and insecure_cur_user() and has_role(_roles.archivist) %}
 <div class="btngroup right floating">
 {% if is_draft %}
+
+{% if mod.editable %}
 <a class="button" href="{{ url_for('edit.draft_diff', id=mod.id) }}">Review Changes</a>
+<a class="button" href="{{ url_for('edit.archive_draft', id=mod.id) }}">Archive Draft</a>
 <a class="button" href="{{ url_for('edit.edit_mod', id=mod.id) }}">Edit</a>
 <a class="button" href="{{ url_for('edit.new_mod_version', id=mod.id) }}">Add Version</a>
+{% elif mod.archived and not mod.merged %}
+<a class="button" href="{{ url_for('edit.unarchive_draft', id=mod.id) }}">Un-archive Draft</a>
+{% endif %}
+
 {% else %}
 <a class="button" href="{{ url_for('mods.mod_history', slug=mod.slug) }}">History</a>
 <button type="submit" form="new_draft">Draft Change</button>

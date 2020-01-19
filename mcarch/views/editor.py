@@ -28,7 +28,11 @@ edit = Blueprint('edit', __name__, template_folder="templates")
 @login_required(role=roles.archivist)
 def draft_list():
     archived = request.args.get('archived', False, type=bool)
-    drafts = DraftMod.query.filter_by(archived=archived)
+    if archived:
+        query = DraftMod.archived_time.isnot(None)
+    else:
+        query = DraftMod.archived_time.is_(None)
+    drafts = DraftMod.query.filter(query)
     return render_template("editor/draft-list.html", drafts=drafts)
 
 @edit.route('/drafts/<id>')
@@ -47,6 +51,38 @@ def new_draft(user, slug):
     db.session.add(draft)
     db.session.commit()
     return redirect(url_for('edit.draft_page', id=draft.id))
+
+
+@edit.route('/drafts/<id>/archive', methods=['GET', 'POST'])
+@login_required(role=roles.moderator)
+def archive_draft(id):
+    draft = DraftMod.query.filter_by(id=id).first_or_404()
+    if draft.archived:
+        flash('This draft is already archived.')
+        return redirect(url_for('edit.draft_page', id=draft.id))
+
+    if request.method == 'POST':
+        draft.archived = True
+        db.session.commit()
+        return redirect(url_for('edit.draft_page', id=draft.id))
+    return render_template('editor/confirm-archive.html', draft=draft, archiving=True)
+
+@edit.route('/drafts/<id>/unarchive', methods=['GET', 'POST'])
+@login_required(role=roles.moderator)
+def unarchive_draft(id):
+    draft = DraftMod.query.filter_by(id=id).first_or_404()
+    if draft.merged:
+        flash("This draft was merged and can't be un-archived.")
+        return redirect(url_for('edit.draft_page', id=draft.id))
+    if not draft.archived:
+        flash('This draft is not archived.')
+        return redirect(url_for('edit.draft_page', id=draft.id))
+
+    if request.method == 'POST':
+        draft.archived = False
+        db.session.commit()
+        return redirect(url_for('edit.draft_page', id=draft.id))
+    return render_template('editor/confirm-archive.html', draft=draft, archiving=False)
 
 
 class ReviewDraftForm(FlaskForm):
@@ -121,9 +157,9 @@ def new_mod(user):
 @login_required(role=roles.archivist, pass_user=True)
 def edit_mod(user, id):
     mod = DraftMod.query.filter_by(id=id).first_or_404()
-    if mod.archived:
+    if not mod.editable:
         flash('This draft is archived. It cannot be edited.')
-        return redirect(url_for('edit.draft_page', id=draft.id))
+        return redirect(url_for('edit.draft_page', id=mod.id))
     form = EditModForm(name=mod.name, website=mod.website, desc=mod.desc,
         authors=','.join([a.name for a in mod.authors]))
     if request.method == 'POST':
@@ -162,9 +198,9 @@ class EditVersionForm(FlaskForm):
 @login_required(role=roles.archivist, pass_user=True)
 def new_mod_version(user, id):
     mod = DraftMod.query.filter_by(id=id).first_or_404()
-    if mod.archived:
+    if not mod.editable:
         flash('This draft is archived. It cannot be edited.')
-        return redirect(url_for('edit.draft_page', id=draft.id))
+        return redirect(url_for('edit.draft_page', id=mod.id))
 
     form = EditVersionForm()
     form.load_gamevsns()
@@ -185,9 +221,9 @@ def new_mod_version(user, id):
 def rm_mod_version(user, id):
     vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
     mod = vsn.mod
-    if mod.archived:
+    if not mod.editable:
         flash('This draft is archived. It cannot be edited.')
-        return redirect(url_for('edit.draft_page', id=draft.id))
+        return redirect(url_for('edit.draft_page', id=mod.id))
 
     if request.method == 'POST':
         db.session.delete(vsn)
@@ -200,9 +236,9 @@ def rm_mod_version(user, id):
 def edit_mod_version(user, id):
     vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
     mod = vsn.mod
-    if mod.archived:
+    if not mod.editable:
         flash('This draft is archived. It cannot be edited.')
-        return redirect(url_for('edit.draft_page', id=draft.id))
+        return redirect(url_for('edit.draft_page', id=mod.id))
 
     form = EditVersionForm(name=vsn.name, url=vsn.url, desc=vsn.desc,
             gamevsns=list(map(lambda v: v.id, vsn.game_vsns)))
@@ -237,9 +273,9 @@ def upload_file(file, user):
 def new_mod_file(user, id):
     vsn = DraftModVersion.query.filter_by(id=id).first_or_404()
     mod = vsn.mod
-    if mod.archived:
+    if not mod.editable:
         flash('This draft is archived. It cannot be edited.')
-        return redirect(url_for('edit.draft_page', id=draft.id))
+        return redirect(url_for('edit.draft_page', id=mod.id))
 
     form = EditFileForm()
     form.file.validators.append(FileRequired())

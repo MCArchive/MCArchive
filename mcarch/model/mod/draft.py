@@ -1,4 +1,7 @@
+from datetime import datetime, timezone
 from .base import *
+
+from sqlalchemy_utc import UtcDateTime
 
 authored_by_table = mk_authored_by_table('draft_mod')
 for_game_vsn_table = mk_for_game_vsn_table('draft_mod_version')
@@ -7,7 +10,9 @@ class DraftMod(ModBase, db.Model):
     """Represents pending changes to a mod."""
     __tablename__ = "draft_mod"
 
-    archived = db.Column(db.Boolean, nullable=False, default=False)
+    # Time this was merged if it was merged. Merged drafts can't be un-archived.
+    merged_time = db.Column(UtcDateTime, nullable=True)
+    archived_time = db.Column(UtcDateTime, nullable=True)
 
     # The user that owns this draft
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -38,7 +43,7 @@ class DraftMod(ModBase, db.Model):
         # Commit to DB and log a change
         db.session.commit()
         mod.log_change(self.user)
-        self.archive()
+        self.merged = True
         db.session.commit()
 
     def into_mod(self, slug):
@@ -52,13 +57,40 @@ class DraftMod(ModBase, db.Model):
         mod.copy_from(self)
         db.session.commit()
         mod.log_change(self.user)
-        self.archive()
+        self.merged = True
         db.session.commit()
         return mod
 
-    def archive(self):
-        """Archives this draft once it has been approved."""
-        self.archived = True
+    @property
+    def editable(self):
+        """Checks if this draft should be editable by users."""
+        return not self.archived and not self.merged
+
+    @property
+    def archived(self):
+        return self.archived_time != None
+    @archived.setter
+    def archived(self, archived):
+        if archived:
+            self.archived_time = datetime.now(timezone.utc)
+        else:
+            self.archived_time = None
+
+    @property
+    def merged(self):
+        return self.merged_time != None
+    @merged.setter
+    def merged(self, merged):
+        """
+        Sets whether the draft has been merged.
+
+        Setting this true also archives the draft, but setting it to false does not un-archive it.
+        """
+        if merged:
+            self.archived_time = datetime.now(timezone.utc)
+            self.merged_time = datetime.now(timezone.utc)
+        else:
+            self.merged_time = None
 
     def blank(self, **kwargs): return DraftMod(**kwargs)
     def blank_child(self, **kwargs): return DraftModVersion(**kwargs)
