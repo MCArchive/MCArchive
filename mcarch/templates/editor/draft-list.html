@@ -12,7 +12,10 @@
               <a href="{{ url_for('edit.draft_page', id=draft.id, gvsn=gvsn) }}">
                 {{ draft.name }}
             </a></h1>
-            <p>Drafted by {{ draft.user.name }}</a>
+            <p class="small">Drafted by {{ draft.user.name }} {{ draft.time_created|timesince }}</p>
+            {% if draft.time_changed  %}
+                <p class="small">Last changed {{ draft.time_changed|timesince }}</p>
+            {% endif %}
             {% if draft.desc %}
                 <p class="moddesc">{{ draft.desc }}</p>
             {% endif %}
