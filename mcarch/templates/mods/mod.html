@@ -44,7 +44,7 @@
                 {% if file.page_url %}
                 <a class="button" href="{{ file.page_url }}">Download Page</a>
                 {% endif %}
-                {% if file.stored and file.stored.b2_download_url() %}
+                {% if file.stored and file.stored.b2_download_url() and file.should_redist %}
                 <a class="button" href="{{ file.stored.b2_download_url() }}">Archive Download</a>
                 {% endif %}
             </li>

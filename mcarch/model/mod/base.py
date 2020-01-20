@@ -99,6 +99,13 @@ class ModFileBase(CopyDiff):
     # Official direct file download link.
     direct_url = db.Column(db.String(500), nullable=False, default="")
 
+    @property
+    def should_redist(self):
+        if self.direct_url != "" or self.redirect_url != "":
+            return False
+        else:
+            return True
+
     def copydiff_fields(self):
         return ['stored', 'page_url', 'redirect_url', 'direct_url']
     def get_children(self): return []

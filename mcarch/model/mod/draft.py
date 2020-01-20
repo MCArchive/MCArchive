@@ -154,6 +154,10 @@ class DraftModFile(ModFileBase, db.Model):
     base_id = db.Column(db.Integer, db.ForeignKey('log_mod_file.id'), nullable=True)
     base_vsn = db.relationship("LogModFile")
 
+    @property
+    def should_redist(self):
+        return True
+
     def blank(self, **kwargs): return DraftModFile(**kwargs)
     def copy_from(self, other):
         assert hasattr(other, 'cur_id'), "Draft mod must copy from a log entry."
