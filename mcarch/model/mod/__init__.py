@@ -35,8 +35,14 @@ class Mod(ModBase, db.Model):
     def blank(self, **kwargs): return Mod(**kwargs)
     def blank_child(self, **kwargs): return ModVersion(**kwargs)
 
-    def log_change(self, user):
-        entry = LogMod(user=user, cur_id=self.id, index=len(self.logs))
+    def log_change(self, user, approved_by=None):
+        """
+        Logs a new change for this mod.
+
+        Assigns the change to `user`, and if `approved_by` is not `None`,
+        assigns them as the user who approved it.
+        """
+        entry = LogMod(user=user, approved_by=approved_by, cur_id=self.id, index=len(self.logs))
         entry.copy_from(self)
         db.session.add(entry)
         return entry

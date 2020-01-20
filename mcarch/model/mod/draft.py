@@ -29,8 +29,10 @@ class DraftMod(ModBase, db.Model):
         secondary=authored_by_table)
     mod_vsns = db.relationship("DraftModVersion", back_populates="mod")
 
-    def merge(self):
+    def merge(self, user):
         """Merges this draft with the master listing and logs a change.
+
+        User should be the user that merged this draft.
 
         Note: If this is a draft of a new listing (i.e., `current` is None),
         this will result in a `TypeError`. Check `current` first.
@@ -43,12 +45,14 @@ class DraftMod(ModBase, db.Model):
         mod.apply_diff(diff)
         # Commit to DB and log a change
         db.session.commit()
-        mod.log_change(self.user)
+        mod.log_change(self.user, approved_by=user)
         self.merged = True
         db.session.commit()
 
-    def into_mod(self, slug):
+    def into_mod(self, slug, user):
         """Approves a draft of a new mod, turning it into a mod listing with the given slug
+
+        User should be the user that merged this draft.
 
         Note: If this draft is a change to an existing mod (i.e., `current` is
         not None), this will raise a `TypeError`. Check `current` first.
@@ -57,7 +61,7 @@ class DraftMod(ModBase, db.Model):
         mod = Mod(slug=slug)
         mod.copy_from(self)
         db.session.commit()
-        mod.log_change(self.user)
+        mod.log_change(self.user, approved_by=user)
         self.merged = True
         db.session.commit()
         return mod

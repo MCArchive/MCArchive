@@ -61,6 +61,7 @@
     <h1><a href="{{ url_for('mods.mod_revision', slug=mod.slug, index=change['obj'].index) }}">
             Revision {{ change['obj'].index }} for {{ mod.name }}</a></h1>
     <p class='small'>By {{ change['user'].name if change['user'] else 'script' }}
+    {% if change['approved_by'] %}(approved by {{ change['approved_by'].name }}){% endif %}
     {{ change['date']|timesince }} ({{ change['date'] }})</p>
     {{ change_list(change['diff'], childname='versions') }}
 </section>

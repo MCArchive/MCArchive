@@ -23,6 +23,7 @@ def gen_diffs(mod):
         yield {
             'obj': log,
             'user': log.user,
+            'approved_by': log.approved_by,
             'date': log.date,
             'diff': diff,
         }
@@ -40,6 +41,7 @@ def slow_gen_diffs(logs):
         yield {
             'obj': log,
             'user': log.user,
+            'approved_by': log.approved_by,
             'date': log.date,
             'diff': diff,
         }
@@ -54,7 +56,11 @@ class LogMod(ModBase, db.Model):
 
     # The user that made this change.
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    user = db.relationship('User', backref='changes')
+    user = db.relationship('User', foreign_keys=[user_id], backref='changes')
+
+    # The moderator that approved this draft
+    approved_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    approved_by = db.relationship('User', foreign_keys=[approved_by_id])
 
     # Date this change was made.
     date = db.Column(db.DateTime, default=datetime.utcnow)
