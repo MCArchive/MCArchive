@@ -7,7 +7,6 @@ Create Date: 2020-01-18 18:56:38.641654
 """
 from alembic import op
 import sqlalchemy as sa
-import sqlalchemy_utc
 
 # revision identifiers, used by Alembic.
 revision = '0856e735a1a4'
@@ -17,12 +16,12 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('draft_mod', sa.Column('time_changed', sqlalchemy_utc.UtcDateTime(timezone=True), nullable=True))
-    op.add_column('draft_mod', sa.Column('time_created', sqlalchemy_utc.UtcDateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False))
-    op.add_column('log_mod', sa.Column('time_changed', sqlalchemy_utc.UtcDateTime(timezone=True), nullable=True))
-    op.add_column('log_mod', sa.Column('time_created', sqlalchemy_utc.UtcDateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False))
-    op.add_column('mod', sa.Column('time_changed', sqlalchemy_utc.UtcDateTime(timezone=True), nullable=True))
-    op.add_column('mod', sa.Column('time_created', sqlalchemy_utc.UtcDateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False))
+    op.add_column('draft_mod', sa.Column('time_changed', sa.DateTime(timezone=True), nullable=True))
+    op.add_column('draft_mod', sa.Column('time_created', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False))
+    op.add_column('log_mod', sa.Column('time_changed', sa.DateTime(timezone=True), nullable=True))
+    op.add_column('log_mod', sa.Column('time_created', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False))
+    op.add_column('mod', sa.Column('time_changed', sa.DateTime(timezone=True), nullable=True))
+    op.add_column('mod', sa.Column('time_created', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False))
 
 
 def downgrade():

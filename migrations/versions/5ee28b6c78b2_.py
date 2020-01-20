@@ -18,10 +18,11 @@ depends_on = None
 
 def upgrade():
     op.add_column('log_mod', sa.Column('approved_by_id', sa.Integer(), nullable=True))
-    op.create_foreign_key(None, 'log_mod', 'user', ['approved_by_id'], ['id'])
+    op.create_foreign_key('log_mod_approved_by_id_fkey', 'log_mod', 'user',
+            ['approved_by_id'], ['id'])
 
 
 def downgrade():
-    op.drop_constraint(None, 'log_mod', type_='foreignkey')
+    op.drop_constraint('log_mod_approved_by_id_fkey', 'log_mod', type_='foreignkey')
     op.drop_column('log_mod', 'approved_by_id')
 

@@ -7,8 +7,6 @@ Create Date: 2020-01-19 14:19:24.085140
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy_utc import UtcDateTime
-
 
 # revision identifiers, used by Alembic.
 revision = 'adbaf888ae31'
@@ -18,8 +16,8 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('draft_mod', sa.Column('archived_time', UtcDateTime, nullable=True))
-    op.add_column('draft_mod', sa.Column('merged_time', UtcDateTime, nullable=True))
+    op.add_column('draft_mod', sa.Column('archived_time', sa.DateTime(timezone=True), nullable=True))
+    op.add_column('draft_mod', sa.Column('merged_time', sa.DateTime(timezone=True), nullable=True))
     op.execute("UPDATE draft_mod "
                "SET archived_time = (now() at time zone 'utc'), "
                "merged_time = (now() at time zone 'utc') "
