@@ -1,7 +1,7 @@
 <img src="https://avatars3.githubusercontent.com/u/26308620" alt="MCArchive logo"
      width="128" height="128" align="right" />
 
-# Minecraft Archive
+# MCArchive
 
 This is a website where old (and new) Minecraft mods can be hosted and
 preserved for future generations.
