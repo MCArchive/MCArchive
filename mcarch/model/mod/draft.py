@@ -1,7 +1,5 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from .base import *
-
-from sqlalchemy_utc import UtcDateTime
 
 authored_by_table = mk_authored_by_table('draft_mod')
 for_game_vsn_table = mk_for_game_vsn_table('draft_mod_version')
@@ -11,8 +9,11 @@ class DraftMod(ModBase, db.Model):
     __tablename__ = "draft_mod"
 
     # Time this was merged if it was merged. Merged drafts can't be un-archived.
-    merged_time = db.Column(UtcDateTime, nullable=True)
-    archived_time = db.Column(UtcDateTime, nullable=True)
+    merged_time = db.Column(db.DateTime, nullable=True)
+    archived_time = db.Column(db.DateTime, nullable=True)
+
+    time_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    time_changed = db.Column(db.DateTime)
 
     # The user that owns this draft
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -72,7 +73,7 @@ class DraftMod(ModBase, db.Model):
     @archived.setter
     def archived(self, archived):
         if archived:
-            self.archived_time = datetime.now(timezone.utc)
+            self.archived_time = datetime.utcnow()
         else:
             self.archived_time = None
 
@@ -87,8 +88,8 @@ class DraftMod(ModBase, db.Model):
         Setting this true also archives the draft, but setting it to false does not un-archive it.
         """
         if merged:
-            self.archived_time = datetime.now(timezone.utc)
-            self.merged_time = datetime.now(timezone.utc)
+            self.archived_time = datetime.utcnow()
+            self.merged_time = datetime.utcnow()
         else:
             self.merged_time = None
 

@@ -1,8 +1,8 @@
 import uuid
+from datetime import datetime, timezone
 from collections import OrderedDict
 
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy_utc import UtcDateTime, utcnow
 
 from mcarch.app import db
 from mcarch.util.copydiff import CopyDiff
@@ -38,9 +38,6 @@ class ModBase(CopyDiff):
     website = db.Column(db.String(120), nullable=False, default="")
 
     uuid = db.Column(GUID(), nullable=False, default=uuid.uuid4)
-
-    time_created = db.Column(UtcDateTime, server_default=utcnow(), nullable=False)
-    time_changed = db.Column(UtcDateTime, onupdate=utcnow())
 
     def vsns_by_game_vsn(self):
         """

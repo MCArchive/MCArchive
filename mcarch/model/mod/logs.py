@@ -2,10 +2,9 @@
 This module contains models for "logs" which are change submissions for mods.
 """
 
-import datetime
+from datetime import datetime
 from collections import OrderedDict
 from sqlalchemy.orm import backref
-from sqlalchemy_utc import UtcDateTime, utcnow
 
 from .base import *
 
@@ -58,7 +57,7 @@ class LogMod(ModBase, db.Model):
     user = db.relationship('User', backref='changes')
 
     # Date this change was made.
-    date = db.Column(UtcDateTime, server_default=utcnow())
+    date = db.Column(db.DateTime, default=datetime.utcnow)
 
     cur_id = db.Column(db.Integer, db.ForeignKey('mod.id'), nullable=True)
     current = db.relationship("Mod", backref=backref("logs", order_by='LogMod.date'))

@@ -12,7 +12,6 @@ flask-marshmallow
 marshmallow
 marshmallow_sqlalchemy
 sqlalchemy-utils
-sqlalchemy-utc
 
 pyYaml
 b2sdk

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 def register_filters(app):
     app.template_filter('timesince')(timesince)
@@ -11,7 +11,7 @@ def timesince(dt, default="just now", none='never'):
     """
     if dt is None: return none
 
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
     diff = now - dt
     
     periods = (
