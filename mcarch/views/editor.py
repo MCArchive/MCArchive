@@ -162,14 +162,14 @@ def edit_mod(user, id):
         return redirect(url_for('edit.draft_page', id=mod.id))
     form = EditModForm(name=mod.name, website=mod.website, desc=mod.desc,
         authors=','.join([a.name for a in mod.authors]))
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            mod.name = form.name.data
-            mod.website = form.website.data
-            mod.desc = form.desc.data
-            mod.authors = list(form.get_selected_authors())
-            db.session.commit()
-            return redirect(url_for('edit.draft_page', id=mod.id))
+    if form.validate_on_submit():
+        mod.touch()
+        mod.name = form.name.data
+        mod.website = form.website.data
+        mod.desc = form.desc.data
+        mod.authors = list(form.get_selected_authors())
+        db.session.commit()
+        return redirect(url_for('edit.draft_page', id=mod.id))
     return render_template('editor/edit-mod.html', form=form, editing=mod)
 
 
@@ -205,6 +205,7 @@ def new_mod_version(user, id):
     form = EditVersionForm()
     form.load_gamevsns()
     if form.validate_on_submit():
+        mod.touch()
         vsn = DraftModVersion(
             name=form.name.data,
             url=form.url.data,
@@ -226,6 +227,7 @@ def rm_mod_version(user, id):
         return redirect(url_for('edit.draft_page', id=mod.id))
 
     if request.method == 'POST':
+        mod.touch()
         db.session.delete(vsn)
         db.session.commit()
         return redirect(url_for('edit.draft_page', id=mod.id))
@@ -244,6 +246,7 @@ def edit_mod_version(user, id):
             gamevsns=list(map(lambda v: v.id, vsn.game_vsns)))
     form.load_gamevsns()
     if form.validate_on_submit():
+        mod.touch()
         vsn.name = form.name.data
         vsn.url = form.url.data
         vsn.desc = form.desc.data
@@ -280,6 +283,7 @@ def new_mod_file(user, id):
     form = EditFileForm()
     form.file.validators.append(FileRequired())
     if form.validate_on_submit():
+        mod.touch()
         stored = upload_file(form.file.data, user)
         mfile = DraftModFile(
             stored = stored,
@@ -307,6 +311,7 @@ def edit_mod_file(user, id):
         direct_url=mfile.direct_url,
     )
     if form.validate_on_submit():
+        mod.touch()
         if form.file.data:
             stored = upload_file(form.file.data, user)
             mfile.stored = stored
@@ -325,6 +330,7 @@ def rm_mod_file(user, id):
     mfile = DraftModFile.query.filter_by(id=id).first_or_404()
     mod = mfile.version.mod
     if request.method == 'POST':
+        mod.touch()
         db.session.delete(mfile)
         db.session.commit()
         return redirect(url_for('edit.draft_page', id=mod.id))

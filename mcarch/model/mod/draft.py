@@ -62,6 +62,10 @@ class DraftMod(ModBase, db.Model):
         db.session.commit()
         return mod
 
+    def touch(self):
+        """Update the `time_changed` timestamp."""
+        self.time_changed = datetime.utcnow()
+
     @property
     def editable(self):
         """Checks if this draft should be editable by users."""
