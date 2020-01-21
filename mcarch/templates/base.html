@@ -43,7 +43,7 @@
             {% if user %}
             <div class="dropdown right">
                 <a href="javascript:void();" class="dropbtn">
-                    <img src="{{ user.avatar }}" alt="">
+                    <img src="{{ user.avatar_url() }}" alt="">
                     {{ user.name }}</a>
                 <div class="dropcontent">
                     {{ nav_btn(url_for("user.logout"), "Log Out") }}
