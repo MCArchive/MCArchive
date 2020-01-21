@@ -36,7 +36,7 @@ class ModBase(CopyDiff):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     desc = db.Column(db.Text, nullable=False, default="")
-    website = db.Column(db.String(120), nullable=False, default="")
+    website = db.Column(db.String(2048), nullable=False, default="")
 
     uuid = db.Column(GUID(), nullable=False, default=uuid.uuid4)
 
@@ -65,7 +65,7 @@ class ModVersionBase(CopyDiff):
 
     name = db.Column(db.String(40), nullable=False)
     desc = db.Column(db.Text, nullable=False, default="")
-    url = db.Column(db.String(120), nullable=False, default="")
+    url = db.Column(db.String(2048), nullable=False, default="")
 
     uuid = db.Column(GUID(), nullable=False, default=uuid.uuid4)
 
@@ -93,11 +93,11 @@ class ModFileBase(CopyDiff):
         return db.relation('StoredFile')
 
     # Link to official web page with download links.
-    page_url = db.Column(db.String(500), nullable=False, default="")
+    page_url = db.Column(db.String(2048), nullable=False, default="")
     # Official download link through redirect such as adfly.
-    redirect_url = db.Column(db.String(500), nullable=False, default="")
+    redirect_url = db.Column(db.String(2048), nullable=False, default="")
     # Official direct file download link.
-    direct_url = db.Column(db.String(500), nullable=False, default="")
+    direct_url = db.Column(db.String(2048), nullable=False, default="")
 
     @property
     def should_redist(self):
@@ -118,7 +118,7 @@ class ModAuthor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False, unique=True)
     desc = db.Column(db.Text, nullable=False, default="")
-    website = db.Column(db.String(120), nullable=False, default="")
+    website = db.Column(db.String(2048), nullable=False, default="")
 
 class GameVersion(db.Model):
     __tablename__ = "game_version"
