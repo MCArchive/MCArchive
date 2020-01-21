@@ -85,6 +85,45 @@ def unarchive_draft(id):
     return render_template('editor/confirm-archive.html', draft=draft, archiving=False)
 
 
+@edit.route('/drafts/<id>/ready', methods=['GET', 'POST'])
+@login_required(role=roles.moderator)
+def ready_draft(id):
+    draft = DraftMod.query.filter_by(id=id).first_or_404()
+    if draft.ready:
+        flash('This draft is already marked ready to merge.')
+        return redirect(url_for('edit.draft_page', id=draft.id))
+
+    diff = None
+    if draft.current:
+        diff = draft.draft_diff()
+        if diff.is_empty():
+            flash("This draft has no changes, so it can't be marked ready.")
+            return redirect(url_for('edit.draft_page', id=draft.id))
+
+    if request.method == 'POST':
+        draft.ready = True
+        db.session.commit()
+        return redirect(url_for('edit.draft_page', id=draft.id))
+    return render_template('editor/confirm-ready.html', draft=draft, readying=True, diff=diff)
+
+@edit.route('/drafts/<id>/unready', methods=['GET', 'POST'])
+@login_required(role=roles.moderator)
+def unready_draft(id):
+    draft = DraftMod.query.filter_by(id=id).first_or_404()
+    if draft.archived:
+        flash("This draft is archived and can't be marked un-ready.")
+        return redirect(url_for('edit.draft_page', id=draft.id))
+    if not draft.ready:
+        flash('This draft is already not marked ready.')
+        return redirect(url_for('edit.draft_page', id=draft.id))
+
+    if request.method == 'POST':
+        draft.ready = False
+        db.session.commit()
+        return redirect(url_for('edit.draft_page', id=draft.id))
+    return render_template('editor/confirm-ready.html', draft=draft, readying=False)
+
+
 class ReviewDraftForm(FlaskForm):
     slug = StringField('Slug', validators=[
         DataRequired(),

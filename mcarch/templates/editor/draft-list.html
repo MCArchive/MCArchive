@@ -16,6 +16,9 @@
             {% if draft.time_changed  %}
                 <p class="small">Last changed {{ draft.time_changed|timesince }}</p>
             {% endif %}
+            {% if draft.ready_time  %}
+                <p class="small">Marked ready {{ draft.ready_time|timesince }}</p>
+            {% endif %}
             {% if draft.merged_time  %}
                 <p class="small">Merged {{ draft.merged_time|timesince }}</p>
             {% elif draft.archived_time  %}

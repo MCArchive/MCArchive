@@ -8,6 +8,9 @@ class DraftMod(ModBase, db.Model):
     """Represents pending changes to a mod."""
     __tablename__ = "draft_mod"
 
+    # Time this was marked ready for merge by the user. Ready drafts are able
+    # to be merged, but cannot be edited.
+    ready_time = db.Column(db.DateTime, nullable=True)
     # Time this was merged if it was merged. Merged drafts can't be un-archived.
     merged_time = db.Column(db.DateTime, nullable=True)
     archived_time = db.Column(db.DateTime, nullable=True)
@@ -73,7 +76,17 @@ class DraftMod(ModBase, db.Model):
     @property
     def editable(self):
         """Checks if this draft should be editable by users."""
-        return not self.archived and not self.merged
+        return not self.ready and not self.archived and not self.merged
+
+    @property
+    def ready(self):
+        return self.ready_time != None
+    @ready.setter
+    def ready(self, ready):
+        if ready:
+            self.ready_time = datetime.utcnow()
+        else:
+            self.ready_time = None
 
     @property
     def archived(self):

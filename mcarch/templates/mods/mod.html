@@ -68,8 +68,11 @@
         It has been merged already.
         {% elif mod.archived %}
         It has been archived, and not merged into the main listing.
+        {% elif mod.ready %}
+        It has been marked ready for review and will be merged into the main
+        listing when a moderator approves it.
         {% else %}
-        It must be approved by a moderator before the changes become public.
+        It is a work-in-progress until it is marked ready for review by a moderator.
         {% endif %}
     {% else %}
         This is a draft of a new mod. It must be approved by a moderator before it becomes public.
@@ -99,11 +102,16 @@
 <div class="btngroup right floating">
 {% if is_draft %}
 
-{% if mod.editable %}
+{% if mod.ready and not mod.archived and not mod.merged %}
 <a class="button" href="{{ url_for('edit.draft_diff', id=mod.id) }}">Review Changes</a>
+{% endif %}
+{% if mod.editable %}
+<a class="button" href="{{ url_for('edit.ready_draft', id=mod.id) }}">Mark Ready</a>
 <a class="button" href="{{ url_for('edit.archive_draft', id=mod.id) }}">Archive Draft</a>
 <a class="button" href="{{ url_for('edit.edit_mod', id=mod.id) }}">Edit</a>
 <a class="button" href="{{ url_for('edit.new_mod_version', id=mod.id) }}">Add Version</a>
+{% elif mod.ready and not mod.merged and not mod.archived %}
+<a class="button" href="{{ url_for('edit.unready_draft', id=mod.id) }}">Mark Not Ready</a>
 {% elif mod.archived and not mod.merged %}
 <a class="button" href="{{ url_for('edit.unarchive_draft', id=mod.id) }}">Un-archive Draft</a>
 {% endif %}

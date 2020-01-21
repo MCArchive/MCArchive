@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Confirm Draft Ready{% endblock %}
+
+{% import 'macros/diff.html' as d with context %}
+
+{% block content %}
+<h1>Confirm Draft Ready</h1>
+
+{% if readying %}
+<p>Are you sure you want to mark this draft of {{ draft.name }} as ready for
+merging?</p>
+<p>This will let the moderation team know that you are done editing the draft
+and it can be merged. Drafts marked ready cannot be edited.</p>
+<p>If you change your mind, you can un-mark it as ready any time before it's
+merged.</p>
+{% if diff %}
+<p>For reference, here are the changes you made in this draft:</p>
+{{ d.change_list(diff, childname='versions') }}
+{% endif %}
+{% else %}
+<p>Are you sure you want to mark this draft of {{ draft.name }} as not
+ready?</p>
+<p>This will add it back to the list of work-in-progress drafts and will allow
+editing again. It will not be able to be merged until you mark it ready
+again.</p>
+{% endif %}
+
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    {% if readying %}
+    <input type="submit" value="Ready">
+    {% else %}
+    <input type="submit" value="Not Ready">
+    {% endif %}
+</form>
+{% endblock %}
+
+
