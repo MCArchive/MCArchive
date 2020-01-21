@@ -8,7 +8,6 @@ from flask_bcrypt import Bcrypt
 from flask_wtf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flaskext.markdown import Markdown
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -78,7 +77,6 @@ def create_app(config_object={}):
     return app
 
 def register_extensions(app):
-    Markdown(app)
     # import db tables before we init the DB
     import mcarch.model.mod
     import mcarch.model.file

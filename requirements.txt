@@ -9,13 +9,13 @@ arrow==0.15.5             # via b2sdk
 attrs==19.3.0             # via pytest
 b2sdk==1.0.2
 bcrypt==3.1.7             # via flask-bcrypt
+bleach==3.1.0
 certifi==2019.11.28       # via requests
 cffi==1.13.2              # via bcrypt
 chardet==3.0.4            # via requests
 click==7.0                # via flask
 flask-bcrypt==0.7.1
 flask-limiter==1.1.0
-flask-markdown==0.3
 flask-marshmallow==0.10.1
 flask-migrate==2.5.2
 flask-redis==0.4.0
@@ -31,7 +31,7 @@ jinja2==2.10.3            # via flask
 limits==1.4.1             # via flask-limiter
 logfury==0.1.2            # via b2sdk
 mako==1.1.0               # via alembic
-markdown==3.1.1           # via flask-markdown
+markdown==3.1.1
 markupsafe==1.1.1         # via jinja2, mako
 marshmallow-sqlalchemy==0.21.0
 marshmallow==3.3.0
@@ -52,12 +52,13 @@ python-editor==1.0.4      # via alembic
 pyyaml==5.2
 redis==3.3.11             # via flask-redis
 requests==2.22.0          # via b2sdk
-six==1.13.0               # via b2sdk, bcrypt, flask-limiter, flask-marshmallow, limits, logfury, packaging, python-dateutil, sqlalchemy-utils
+six==1.13.0               # via b2sdk, bcrypt, bleach, flask-limiter, flask-marshmallow, limits, logfury, packaging, python-dateutil, sqlalchemy-utils
 sqlalchemy-utils==0.36.1
 sqlalchemy==1.3.12        # via alembic, flask-sqlalchemy, marshmallow-sqlalchemy, pytest-flask-sqlalchemy, sqlalchemy-utils
 tqdm==4.41.1              # via b2sdk
 urllib3==1.25.7           # via requests
 wcwidth==0.1.8            # via pytest
+webencodings==0.5.1       # via bleach
 werkzeug==0.16.0          # via flask, pytest-flask
 wtforms==2.2.1            # via flask-wtf
 zipp==1.0.0               # via importlib-metadata

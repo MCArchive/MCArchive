@@ -18,7 +18,7 @@
 
     {% if vsn.desc %}
     <div class="vsn-desc">
-        {{ vsn.desc }}
+        {{ vsn.desc | safe_markdown }}
     </div>
     {% endif %}
 
@@ -32,6 +32,9 @@
         {% endif %}
 
         <h2 class="file-name">{{ file.stored.name }}</h2>
+        {% if file.desc %}
+            {{ file.desc | safe_markdown }}
+        {% endif %}
         <p class="small"><span class="sha256 hash">{{ file.stored.sha256 }}</span></p>
         <ul class="urls">
             <li>
@@ -132,9 +135,13 @@ Authored by
 </i></p>
 {% endif %}
 
+{% if mod.website and mod.website != "" %}
+Website: {{ mod.website }}
+{% endif %}
+
 {% if mod.desc %}
 <div class="mod-desc">
-    {{ mod.desc }}
+    {{ mod.desc | safe_markdown }}
 </div>
 {% endif %}
 

@@ -2,7 +2,6 @@ flask
 flask-sqlalchemy
 flask-migrate
 flask-redis
-flask-markdown
 flask-wtf
 flask-session
 flask-limiter
@@ -14,6 +13,8 @@ marshmallow_sqlalchemy
 sqlalchemy-utils
 
 pyYaml
+bleach
+markdown
 b2sdk
 pyotp
 

@@ -1,7 +1,11 @@
+import bleach
+from markdown import markdown
 from datetime import datetime
+from flask import Markup
 
 def register_filters(app):
     app.template_filter('timesince')(timesince)
+    app.template_filter('safe_markdown')(safe_markdown)
 
 # From http://flask.pocoo.org/snippets/33/
 def timesince(dt, default="just now", none='never'):
@@ -29,4 +33,17 @@ def timesince(dt, default="just now", none='never'):
             return "%d %s ago" % (period, singular if int(period) == 1 else plural)
 
     return default
+
+BLEACH_WHITELIST = bleach.sanitizer.ALLOWED_TAGS + [
+        "p", "h1", "h2", "h3", "h4", "h5", "h6", "br"
+    ]
+
+def safe_markdown(md):
+    """
+    This filter renders the input as markdown nd then cleans the output with bleach.
+
+    Output will be HTML with only safe, white-listed tags.
+    """
+    return Markup(bleach.clean(markdown(md),
+        tags=BLEACH_WHITELIST))
 
