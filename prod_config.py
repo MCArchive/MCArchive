@@ -1,5 +1,7 @@
 import os
 
+DEPLOYMENT='production'
+
 SECRET_KEY=os.environ['SECRET_KEY']
 
 SQLALCHEMY_DATABASE_URI='postgresql://postgres/mcarch'

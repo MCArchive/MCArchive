@@ -28,6 +28,7 @@ class DefaultConfig(object):
     SERV_PARTIAL_SESSION_EXPIRE_TIME = timedelta(hours=1)
     PASSWD_RESET_EXPIRE_TIME = timedelta(hours=1)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    DEPLOYMENT='develop'
     REQUIRE_2FA = True
     B2_KEY_ID = None
     B2_APP_KEY = None

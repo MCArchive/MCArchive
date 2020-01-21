@@ -60,6 +60,13 @@
     </nav>
 
     <header>
+        {% if config['DEPLOYMENT'] != 'production' %}
+        <div class='alert'>
+            This is not the production deployment of MCArchive. Changes made
+            here may be deleted at any time!
+        </div>
+        {% endif %}
+
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             <ul class="flashes">
