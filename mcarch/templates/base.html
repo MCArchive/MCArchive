@@ -32,12 +32,7 @@
             {{ nav_btn(url_for("mods.browse"), "Browse") }}
 
             {% if user and has_role(_roles.archivist) %}
-            {{ nav_btn(url_for("archivist.main"), "Panel") }}
-            {% endif %}
-
-
-            {% if user and has_role(_roles.moderator) %}
-            {{ nav_btn(url_for("admin.main"), "Admin") }}
+            {{ nav_btn(url_for("admin.main"), "Panel") }}
             {% endif %}
 
             {% if user %}

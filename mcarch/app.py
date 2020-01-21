@@ -111,8 +111,6 @@ def register_blueprints(app):
     app.register_blueprint(edit)
     from mcarch.views.admin import admin
     app.register_blueprint(admin)
-    from mcarch.views.archivist import arch
-    app.register_blueprint(arch)
     from mcarch.cli import bp as cli
     app.register_blueprint(cli)
 

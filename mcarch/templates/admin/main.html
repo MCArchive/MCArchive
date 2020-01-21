@@ -5,8 +5,9 @@
 
 {% block content %}
 
-<h1>Admin Panel</h1>
+<h1>Control Panel</h1>
 
+{% if has_role(_roles.admin) %}
 <div class='row'>
     <section class='column block'>
         <h1>Admin Tools</h1>
@@ -22,7 +23,6 @@
     </section>
     <section class='column block'>
         <h1>Recent Users</h1>
-        {% if has_role(_roles.admin) %}
         <ul>
             {% for user in users %}
             <li><a href="{{ url_for('admin.user', name=user.name) }}">
@@ -30,10 +30,59 @@
             {% endfor %}
         </ul>
         <a href="{{ url_for('admin.users') }}">All Users</a>
+    </section>
+</div>
+{% endif %}
+<div class='row'>
+    <section class='column block'>
+        <a class='button right' style='margin-top: 8px'
+            href="{{ url_for('edit.new_mod') }}">New Mod</a>
+        <h1>Your Drafts</h1>
+        {% if my_drafts %}
+        <ul>
+            {% for draft in my_drafts %}
+            <li><a href="{{ url_for('edit.draft_page', id=draft.id) }}">
+                    {{ draft.name }} (draft {{ draft.id }})</a></li>
+            {% endfor %}
+        </ul>
         {% else %}
-        <p><i>You don't have access to this.</i></p>
+        <p>None!</p>
         {% endif %}
     </section>
+    <section class='column block'>
+        <h1><a href="{{ url_for('edit.draft_list') }}">Drafts</a></h1>
+        {% if drafts %}
+        <ul>
+            {% for draft in drafts %}
+            <li>
+                <a href="{{ url_for('edit.draft_page', id=draft.id) }}">
+                    {{ draft.name }} (draft {{ draft.id }})</a>
+                    last change {{ draft.time_changed | timesince }}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>None!</p>
+        {% endif %}
+    </section>
+    {% if has_role(_roles.moderator) %}
+    <section class='column block'>
+        <h1>Ready for Review</h1>
+        {% if ready_drafts %}
+        <ul>
+            {% for draft in ready_drafts %}
+            <li>
+                <a href="{{ url_for('edit.draft_page', id=draft.id) }}">
+                    {{ draft.name }} (draft {{ draft.id }})</a>
+                    ready {{ draft.ready_time | timesince }}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>None!</p>
+        {% endif %}
+    </section>
+    {% endif %}
 </div>
 
 <section class='block'>

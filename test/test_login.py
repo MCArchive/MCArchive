@@ -82,6 +82,8 @@ def test_2fa_incomplete(sample_users, client):
     # Check a bunch of admin pages and make sure we get redirected back to the 2-factor page.
     rv = client.get(url_for('admin.main'), follow_redirects=True)
     assert b'2-factor' in rv.data
-    rv = client.get(url_for('archivist.main'), follow_redirects=True)
+    rv = client.get(url_for('admin.changes'), follow_redirects=True)
+    assert b'2-factor' in rv.data
+    rv = client.get(url_for('admin.users'), follow_redirects=True)
     assert b'2-factor' in rv.data
 

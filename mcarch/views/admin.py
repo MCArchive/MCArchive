@@ -4,6 +4,7 @@ from flask_wtf import FlaskForm
 from mcarch.app import db
 from mcarch.login import login_required
 from mcarch.model.mod.logs import LogMod, slow_gen_diffs
+from mcarch.model.mod.draft import DraftMod
 from mcarch.model.user import User, Session, roles, UserRole
 from mcarch.model.file import StoredFile
 
@@ -14,11 +15,19 @@ from wtforms.fields.html5 import EmailField
 admin = Blueprint('admin', __name__, template_folder="templates")
 
 @admin.route("/admin")
-@login_required(role=roles.moderator, pass_user=True)
+@login_required(role=roles.archivist, pass_user=True)
 def main(user):
     users = User.query.order_by(User.last_seen.desc()).limit(5).all()
     changes = slow_gen_diffs(LogMod.query.order_by(LogMod.date.desc()).limit(3).all())
-    return render_template('/admin/main.html', user=user, changes=changes, users=users)
+    drafts = DraftMod.query.filter(DraftMod.archived_time.is_(None)).limit(4).all()
+    my_drafts = DraftMod.query.filter(DraftMod.archived_time.is_(None)) \
+        .filter_by(user=user).limit(4).all()
+    ready_drafts = DraftMod.query.filter(DraftMod.archived_time.is_(None)) \
+        .filter(DraftMod.ready_time.isnot(None)).order_by(DraftMod.ready_time.desc()) \
+        .limit(4).all()
+    return render_template('/admin/main.html',
+            user=user, users=users, changes=changes,
+            drafts=drafts, my_drafts=my_drafts, ready_drafts=ready_drafts)
 
 
 @admin.route("/admin/changes")
