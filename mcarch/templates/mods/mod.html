@@ -98,7 +98,7 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 </form>
 
-{% if rev is not defined and insecure_cur_user() and has_role(_roles.archivist) %}
+{% if rev is not defined and cur_user() and has_role(_roles.archivist) %}
 <div class="btngroup right floating">
 {% if is_draft %}
 

@@ -27,28 +27,24 @@
                 <img src="/static/logo.svg" alt="">
                 <span class="text">MCArchive</span>
             </a>
-            {#
-            It's OK to use the insecure version here because we're just checking whether to show
-            nav buttons. This saves us a database query on every single page load.
-            #}
-            {% set iuser = insecure_cur_user() %}
+            {% set user = cur_user() %}
 
             {{ nav_btn(url_for("mods.browse"), "Browse") }}
 
-            {% if iuser and has_role(_roles.archivist) %}
+            {% if user and has_role(_roles.archivist) %}
             {{ nav_btn(url_for("archivist.main"), "Panel") }}
             {% endif %}
 
 
-            {% if iuser and has_role(_roles.moderator) %}
+            {% if user and has_role(_roles.moderator) %}
             {{ nav_btn(url_for("admin.main"), "Admin") }}
             {% endif %}
 
-            {% if iuser %}
+            {% if user %}
             <div class="dropdown right">
                 <a href="javascript:void();" class="dropbtn">
-                    <img src="{{ iuser.avatar }}" alt="">
-                    {{ iuser.name }}</a>
+                    <img src="{{ user.avatar }}" alt="">
+                    {{ user.name }}</a>
                 <div class="dropcontent">
                     {{ nav_btn(url_for("user.logout"), "Log Out") }}
 				</div>

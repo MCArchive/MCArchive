@@ -64,17 +64,6 @@ def log_out():
         db.session.commit()
     clear_session()
 
-def set_clientside_sess():
-    """Sets "insecure" session data which is stored entirely clientside for `insecure_cur_user`"""
-    user = cur_user()
-    if user:
-        session['user'] = dict(
-            id=user.id,
-            name=user.name,
-            email=user.email,
-            avatar=user.avatar_url(),
-        )
-
 def clear_session():
     session['sessid'] = None
     session['user'] = None
@@ -109,9 +98,6 @@ def create_sess(user):
 
     # Add the session ID to the flask session cookie.
     session['sessid'] = str(dbsess.sess_id)
-    # If we're fully authed, go ahead and set the clientside session info.
-    if dbsess.authed_2fa:
-        set_clientside_sess()
 
 def cur_session(only_fully_authed=True):
     """
@@ -158,21 +144,6 @@ def cur_user(only_fully_authed=True):
     if not sess: return None
     return sess.user
 
-def insecure_cur_user():
-    """
-    Gets information about the currently logged in user as stored in the user's cookies.
-
-    This information could potentially be modified by the user, but it doesn't
-    require a database query unlike `cur_user`, so it should only be used in
-    places where it doesn't really matter, such as in the navigation bar, where
-    you might not want to query the database for every page load.
-
-    Unlike `cur_user`, this returns a dict with a limited set of fields, not
-    the actual database entry.
-    """
-    if 'user' not in session: return None
-    return session['user']
-
 def has_role(role):
     """Returns true if the current user has the given role."""
     user = cur_user()
@@ -184,7 +155,7 @@ def register_conproc(app):
     Registers a context processor with the flask app which provides access to the following
     functions within jinja templates:
 
-    `cur_user`, `cur_session`, `insecure_cur_user`
+    `cur_user`, `cur_session`
     """
     @app.context_processor
     def inject():
@@ -192,7 +163,6 @@ def register_conproc(app):
             cur_session = cur_session,
             cur_user = cur_user,
             has_role = has_role,
-            insecure_cur_user = insecure_cur_user,
             _roles = roles,
         )
     

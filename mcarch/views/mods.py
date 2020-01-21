@@ -5,7 +5,7 @@ from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
 from mcarch.model.mod.draft import DraftMod
 from mcarch.model.mod.logs import LogMod, gen_diffs
 from mcarch.model.user import roles
-from mcarch.login import login_required, cur_user, insecure_cur_user
+from mcarch.login import login_required, cur_user
 from mcarch.jsonschema import ModSchema, ModAuthorSchema, GameVersionSchema
 from mcarch.util.minecraft import key_mc_version
 from mcarch.app import db

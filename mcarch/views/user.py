@@ -8,7 +8,7 @@ from wtforms.validators import DataRequired, Length, EqualTo
 from mcarch.app import db, limiter
 from mcarch.model.user import User, ResetToken, reset_type
 from mcarch.login import login_required, logout_required, log_in, log_out, \
-    cur_user, insecure_cur_user, cur_session, set_clientside_sess
+    cur_user, cur_session
 from mcarch.util.security import is_safe_url
 
 user = Blueprint('user', __name__, template_folder="templates")
@@ -75,7 +75,6 @@ def prompt_2fa():
     form = OtpForm()
     if request.method == 'POST':
         if form.validate() and sess.auth_2fa(form.code.data):
-            set_clientside_sess()
             flash('Logged in.')
             return redirect(nextpage)
         else:
