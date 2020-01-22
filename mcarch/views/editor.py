@@ -92,7 +92,7 @@ def unarchive_draft(id):
 
 
 @edit.route('/drafts/<id>/ready', methods=['GET', 'POST'])
-@login_required(role=roles.moderator)
+@login_required(role=roles.archivist)
 def ready_draft(id):
     draft = DraftMod.query.filter_by(id=id).first_or_404()
     if draft.ready:
@@ -113,7 +113,7 @@ def ready_draft(id):
     return render_template('editor/confirm-ready.html', draft=draft, readying=True, diff=diff)
 
 @edit.route('/drafts/<id>/unready', methods=['GET', 'POST'])
-@login_required(role=roles.moderator)
+@login_required(role=roles.archivist)
 def unready_draft(id):
     draft = DraftMod.query.filter_by(id=id).first_or_404()
     if draft.archived:
