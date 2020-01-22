@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /login
+Disallow: /logout
+Disallow: /2fa
+
+Disallow: /admin/
+Disallow: /drafts/
+Disallow: /edit/
+Disallow: /reset/
+
