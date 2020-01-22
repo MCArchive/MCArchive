@@ -8,9 +8,9 @@
 
 <div class="block-tabs">
     {{ t.tab_btn(url_for('edit.draft_list', kind='mine'), "Your Drafts") }}
-    {{ t.tab_btn(url_for('edit.draft_list'), "All Drafts") }}
     {{ t.tab_btn(url_for('edit.draft_list', kind='ready'), "Ready") }}
     {{ t.tab_btn(url_for('edit.draft_list', kind='archived'), "Archived") }}
+    {{ t.tab_btn(url_for('edit.draft_list'), "All Drafts") }}
 </div>
 
 <div id="mods list" class="list block">
@@ -37,7 +37,7 @@
         {% endif %}
     </section>
     {% else %}
-    <p>There are no drafts.</p>
+    <p>Nothing here!</p>
     {% endfor %}
 </div>
 
