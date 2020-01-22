@@ -1,0 +1,48 @@
+@import 'vars.scss';
+
+.block-tabs {
+    overflow: hidden;
+    display: inline-block;
+    border: none;
+    color: $lightgray;
+
+    padding-bottom: 0px;
+    margin-bottom: -4px;
+
+    & a {
+        overflow: hidden;
+        float: left;
+        outline: none;
+        border-right: solid 1px;
+        padding: 8px 10px;
+        text-decoration: none;
+        color: $lightergray;
+
+        margin-right: 4px;
+        border-radius: $border-rad $border-rad 0 0;
+        border: none;
+        background: rgba(0, 0, 0, $shadow-alpha);
+        transition: background $fade-dur color $fade-dur;
+
+        &:active, &.active {
+            color: $header-color;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        &:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: $header-color;
+        }
+        &.active {
+            border-top: solid 2px;
+            border-color: $primary;
+            padding-top: 6px;
+            padding-bottom: 8px;
+        }
+    }
+
+    & + .block {
+        margin-top: 0px;
+        border-radius: 0 $border-rad $border-rad $border-rad;
+    }
+}
+

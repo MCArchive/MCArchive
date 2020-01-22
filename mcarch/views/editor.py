@@ -25,14 +25,20 @@ from wtforms.validators import Length, DataRequired, Email, Regexp, ValidationEr
 edit = Blueprint('edit', __name__, template_folder="templates")
 
 @edit.route('/drafts')
-@login_required(role=roles.archivist)
-def draft_list():
-    archived = request.args.get('archived', False, type=bool)
-    if archived:
-        query = DraftMod.archived_time.isnot(None)
-    else:
-        query = DraftMod.archived_time.is_(None)
-    drafts = DraftMod.query.filter(query)
+@login_required(role=roles.archivist, pass_user=True)
+def draft_list(user):
+    kind = request.args.get('kind', None, type=str)
+    query = DraftMod.query.filter(DraftMod.archived_time.is_(None))
+    if kind == 'mine':
+        query = query.filter_by(user=user) \
+                .order_by(DraftMod.time_changed.desc())
+    elif kind == 'ready':
+        query = query.filter(DraftMod.ready_time.isnot(None)) \
+                .order_by(DraftMod.ready_time.asc())
+    elif kind == 'archived':
+        query = DraftMod.query.filter(DraftMod.archived_time.isnot(None)) \
+                .order_by(DraftMod.archived_time.desc())
+    drafts = query.all()
     return render_template("editor/draft-list.html", drafts=drafts)
 
 @edit.route('/drafts/<id>')

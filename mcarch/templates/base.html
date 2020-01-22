@@ -1,6 +1,4 @@
-{% macro nav_btn(url, text, cls="") %}
-<a href="{{ url }}" class="{{ cls }} {% if request.path == url %}active{% endif %}">{{ text }}</a>
-{% endmacro %}
+{% import 'macros/tabs.html' as t with context %}
 
 <!DOCTYPE html>
 <html lang="en-us">
@@ -29,10 +27,10 @@
             </a>
             {% set curuser = cur_user() %}
 
-            {{ nav_btn(url_for("mods.browse"), "Browse") }}
+            {{ t.tab_btn(url_for("mods.browse"), "Browse") }}
 
             {% if curuser and has_role(_roles.archivist) %}
-            {{ nav_btn(url_for("admin.main"), "Panel") }}
+            {{ t.tab_btn(url_for("admin.main"), "Panel") }}
             {% endif %}
 
             {% if curuser %}
@@ -41,11 +39,11 @@
                     <img src="{{ curuser.avatar_url() }}" alt="">
                     {{ curuser.name }}</a>
                 <div class="dropcontent">
-                    {{ nav_btn(url_for("user.logout"), "Log Out") }}
+                    {{ t.tab_btn(url_for("user.logout"), "Log Out") }}
 				</div>
             </div>
             {% else %}
-            {{ nav_btn(url_for("user.login"), "Log In", "right") }}
+            {{ t.tab_btn(url_for("user.login"), "Log In", "right") }}
             {% endif %}
         </div>
     </nav>

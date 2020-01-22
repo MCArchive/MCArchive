@@ -1,0 +1,12 @@
+{#
+Creates an `a` tag corresponding to a tab button in either the navbar or a
+tabbed element.
+
+The element's class will include `active` if the URL is the same as the current URL.
+#}
+{% macro tab_btn(url, text, cls="") %}
+<a href="{{ url }}" class="{{ cls }} {% if is_cur_page(url) %}active{% endif %}">
+    {{ text }}
+</a>
+{% endmacro %}
+

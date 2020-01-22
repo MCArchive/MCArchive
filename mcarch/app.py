@@ -17,7 +17,7 @@ limiter = Limiter(key_func=get_remote_address)
 b2api = None
 
 from mcarch import login
-from mcarch.util.filters import register_filters
+from mcarch.util.flask import register_filters, register_conproc as flaskutil_conproc
 
 class DefaultConfig(object):
     # Whether we're running the test suite
@@ -90,6 +90,7 @@ def register_extensions(app):
 
 def register_conprocs(app):
     login.register_conproc(app)
+    flaskutil_conproc(app)
     @app.context_processor
     def inject():
         return dict(

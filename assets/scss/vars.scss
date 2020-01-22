@@ -3,6 +3,7 @@ $primary: #67a;
 $prim-light: #78b;
 $prim-dark: #569;
 
+$lightergray: #999;
 $lightgray: #666;
 $gray: #333;
 
@@ -14,7 +15,8 @@ $h-offset:   4pt;
 
 $monofont: 'Source Code Pro';
 
-$shadow-color: rgba(0, 0, 0, 0.28); // color of shadows
+$shadow-alpha: 0.28;
+$shadow-color: rgba(0, 0, 0, $shadow-alpha); // color of shadows
 
 $fade-dur: 0.2s; // duration of fade transitions
 $border-rad: 6px; // border radius on rounded corners

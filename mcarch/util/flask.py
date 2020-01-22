@@ -1,11 +1,33 @@
+"""This file contains some utility functions for working with flask, many of
+which are exposed for use in jinja templates."""
+
 import bleach
 from markdown import markdown
 from datetime import datetime
-from flask import Markup
+from flask import Markup, request
 
-def register_filters(app):
-    app.template_filter('timesince')(timesince)
-    app.template_filter('safe_markdown')(safe_markdown)
+#### Functions ####
+
+def is_cur_page(url):
+    """Takes a URL and checks if the current page is at that URL."""
+    path = request.full_path.strip('?')
+    return path == url
+
+def register_conproc(app):
+    """
+    Registers a context processor with the flask app which provides access to the following
+    functions within jinja templates:
+
+    `is_cur_page`
+    """
+    @app.context_processor
+    def inject():
+        return dict(
+            is_cur_page=is_cur_page
+        )
+
+
+#### Filters ####
 
 # From http://flask.pocoo.org/snippets/33/
 def timesince(dt, default="just now", none='never'):
@@ -46,4 +68,8 @@ def safe_markdown(md):
     """
     return Markup(bleach.clean(markdown(md),
         tags=BLEACH_WHITELIST))
+
+def register_filters(app):
+    app.template_filter('timesince')(timesince)
+    app.template_filter('safe_markdown')(safe_markdown)
 
