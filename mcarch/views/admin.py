@@ -19,7 +19,8 @@ admin = Blueprint('admin', __name__, template_folder="templates")
 def main(user):
     users = User.query.order_by(User.last_seen.desc()).limit(5).all()
     changes = slow_gen_diffs(LogMod.query.order_by(LogMod.date.desc()).limit(3).all())
-    drafts = DraftMod.query.filter(DraftMod.archived_time.is_(None)).limit(4).all()
+    drafts = DraftMod.query.filter(DraftMod.archived_time.is_(None)) \
+        .order_by(DraftMod.time_changed.desc().nullslast()).limit(4).all()
     my_drafts = DraftMod.query.filter(DraftMod.archived_time.is_(None)) \
         .filter_by(user=user).limit(4).all()
     ready_drafts = DraftMod.query.filter(DraftMod.archived_time.is_(None)) \

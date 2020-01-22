@@ -38,6 +38,8 @@ def draft_list(user):
     elif kind == 'archived':
         query = DraftMod.query.filter(DraftMod.archived_time.isnot(None)) \
                 .order_by(DraftMod.archived_time.desc())
+    else:
+        query = query.order_by(DraftMod.time_changed.desc().nullslast())
     drafts = query.all()
     return render_template("editor/draft-list.html", drafts=drafts)
 
