@@ -27,19 +27,19 @@
                 <img src="/static/logo.svg" alt="">
                 <span class="text">MCArchive</span>
             </a>
-            {% set user = cur_user() %}
+            {% set curuser = cur_user() %}
 
             {{ nav_btn(url_for("mods.browse"), "Browse") }}
 
-            {% if user and has_role(_roles.archivist) %}
+            {% if curuser and has_role(_roles.archivist) %}
             {{ nav_btn(url_for("admin.main"), "Panel") }}
             {% endif %}
 
-            {% if user %}
+            {% if curuser %}
             <div class="dropdown right">
                 <a href="javascript:void();" class="dropbtn">
-                    <img src="{{ user.avatar_url() }}" alt="">
-                    {{ user.name }}</a>
+                    <img src="{{ curuser.avatar_url() }}" alt="">
+                    {{ curuser.name }}</a>
                 <div class="dropcontent">
                     {{ nav_btn(url_for("user.logout"), "Log Out") }}
 				</div>
