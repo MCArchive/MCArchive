@@ -14,11 +14,10 @@
                         <option value="" placeholder>Author</option>
                     </select>
                 </td>
-                {# TODO: keyword search
                 <td>
-                    <input type="text" name="kwd" placeholder="Keyword" />
+                    <input type="text" name="kw" value="{{ request.args['kw'] }}"
+                           placeholder="Keyword" />
                 </td>
-                #}
                 <td><input type="submit" value="Search"></input></td>
                 {% for btn in otherbtns %}
                     <td><a href="{{ btn['url'] }}" class="button">{{ btn['label'] }}</a></td>
