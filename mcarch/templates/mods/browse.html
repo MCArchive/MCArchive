@@ -11,9 +11,9 @@
 
 {% if len(filters) > 0 %}
 <div class='alert'>Showing mods
-{%- for (f, x) in filters %}
+{%- for (f, x) in filters.items() %}
 {%- if f == 'author' %} by {{ x }}{% endif %}
-{%- if f == 'gvsn' %} for Minecraft {{ x }}{% endif %}
+{%- if f == 'game_vsn' %} for Minecraft {{ x }}{% endif %}
 {%- endfor %}.
 <a href="{{ url_for('mods.browse') }}">Show all</a>
 </div>

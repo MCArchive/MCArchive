@@ -101,10 +101,7 @@ class ModFileBase(CopyDiff):
 
     @property
     def should_redist(self):
-        if self.direct_url != "" or self.redirect_url != "":
-            return False
-        else:
-            return True
+        return self.direct_url == "" and self.redirect_url == ""
 
     def copydiff_fields(self):
         return ['stored', 'page_url', 'redirect_url', 'direct_url']

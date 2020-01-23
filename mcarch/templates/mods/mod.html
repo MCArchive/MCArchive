@@ -87,6 +87,13 @@
 </div>
 {% endif %}
 
+{% if not mod.redist %}
+<div class="alert">
+    This mod is not listed publicly. Likely due to legal concerns. Do not share
+    the download links on this page.
+</div>
+{% endif %}
+
 {% if rev is defined %}
 <div class="alert">
     Showing an older version of this mod page (revision {{ rev.index }}).

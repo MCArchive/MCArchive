@@ -5,7 +5,7 @@ from mcarch.model.mod import Mod, ModAuthor, ModVersion, GameVersion
 from mcarch.model.mod.draft import DraftMod
 from mcarch.model.mod.logs import LogMod, gen_diffs
 from mcarch.model.user import roles
-from mcarch.login import login_required, cur_user
+from mcarch.login import login_required, cur_user, has_role
 from mcarch.jsonschema import ModSchema, ModAuthorSchema, GameVersionSchema
 from mcarch.util.minecraft import key_mc_version
 from mcarch.app import db
@@ -17,28 +17,27 @@ modbp = Blueprint('mods', __name__, template_folder="templates")
 def browse():
     by_author = request.args.get('author')
     by_gvsn = request.args.get('gvsn')
-    keywords = request.args.get('kw')
+    keyword = request.args.get('kw')
     
-    # list of filters to be listed on the page
-    filters = []
-    mod_query = Mod.query
+    filters = {}
     if by_author:
-        filters.append(('author', by_author))
-        mod_query = mod_query.join(ModAuthor, Mod.authors).filter(ModAuthor.name == by_author)
+        filters['author'] = by_author
     if by_gvsn:
-        filters.append(('gvsn', by_gvsn))
-        mod_query = mod_query.join(ModVersion) \
-                            .join(GameVersion, ModVersion.game_vsns) \
-                            .filter(GameVersion.name == by_gvsn)
-    if keywords and len(keywords) > 0:
-        mod_query = mod_query.filter(Mod.name.ilike("%"+keywords+"%"))
+        filters['game_vsn'] = by_gvsn
+    if keyword:
+        filters['keyword'] = keyword
+    # list of filters to be listed on the page
 
-    mods = mod_query.all()
+    mods = Mod.search_query(**filters).all()
     return render_template("mods/browse.html", mods=mods, filters=filters, gvsn=by_gvsn)
 
 @modbp.route("/mods/<slug>")
 def mod_page(slug):
     mod = Mod.query.filter_by(slug=slug).first_or_404()
+
+    if not mod.redist and not has_role(roles.archivist):
+        return abort(404)
+
     vsns = mod.vsns_by_game_vsn()
     by_gvsn = request.args.get('gvsn')
     if by_gvsn:

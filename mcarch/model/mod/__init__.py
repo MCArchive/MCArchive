@@ -17,6 +17,29 @@ class Mod(ModBase, db.Model):
         backref="mods")
     mod_vsns = db.relationship("ModVersion", back_populates="mod")
 
+    # If this is set to false, the mod will be de-listed.
+    redist = db.Column(db.Boolean, nullable=False, default=True)
+
+    @staticmethod
+    def search_query(game_vsn=None, author=None, keyword=None,
+            include_delisted=False):
+        """
+        Returns a pre-made standard search query for listing mods. Optional
+        parameters may be specified for filtering.
+        """
+        query = Mod.query
+        if not include_delisted:
+            query = query.filter_by(redist=True)
+        if author and len(author) > 0:
+            query = query.join(ModAuthor, Mod.authors).filter(ModAuthor.name == author)
+        if game_vsn and len(game_vsn) > 0:
+            query = query.join(ModVersion) \
+                                .join(GameVersion, ModVersion.game_vsns) \
+                                .filter(GameVersion.name == game_vsn)
+        if keyword and len(keyword) > 0:
+            query = query.filter(Mod.name.ilike("%"+keyword+"%"))
+        return query
+
     def game_versions(self):
         """Returns a list of game versions supported by all the versions of this mod."""
         gvs = GameVersion.query \
