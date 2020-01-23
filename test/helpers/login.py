@@ -1,12 +1,17 @@
-def login_as(client, user):
-    client.post('/login', data={
+def login_as(client, user, passwd=None):
+    return client.post('/login', data={
         'username': user.name,
-        'password': user.plainpasswd,
+        'password': user.plainpasswd if passwd == None else passwd,
     }, follow_redirects=True)
-    return client.post('/login', follow_redirects=True)
 
 def log_out(client):
     return client.get('/logout', follow_redirects=True).data
+
+def assert_no_login(client, user, passwd=None, msg=None):
+    """Asserts that the given username/password combo fails to login"""
+    if msg == None:
+        msg = "Expected to be unable to log in with credentials: {} {}".format(user.name, passwd)
+    assert b'failed' in login_as(client, user, passwd).data, msg
 
 def check_allowed(client, user, page, expect=True):
     """Checks if the site allows the given user to view the given page.
@@ -21,5 +26,4 @@ def check_allowed(client, user, page, expect=True):
         assert rv.status_code == 403, \
                 "Expected user {} to be blocked from accessing page {}".format(user.name, page)
     log_out(client)
-
 

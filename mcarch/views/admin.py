@@ -199,3 +199,4 @@ def diff_user_details(user, form):
         changes['Role'] = (user.role.name.capitalize(), form.role.data.capitalize())
 
     return changes
+

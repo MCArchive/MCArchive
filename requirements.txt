@@ -14,6 +14,7 @@ certifi==2019.11.28       # via requests
 cffi==1.13.2              # via bcrypt
 chardet==3.0.4            # via requests
 click==7.0                # via flask
+coverage==5.0.3           # via pytest-cov
 flask-bcrypt==0.7.1
 flask-limiter==1.1.0
 flask-marshmallow==0.10.1
@@ -43,6 +44,7 @@ py==1.8.1                 # via pytest
 pycparser==2.19           # via cffi
 pyotp==2.3.0
 pyparsing==2.4.6          # via packaging
+pytest-cov==2.8.1
 pytest-flask-sqlalchemy==1.0.2
 pytest-flask==0.15.0
 pytest-mock==2.0.0        # via pytest-flask-sqlalchemy

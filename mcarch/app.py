@@ -42,7 +42,6 @@ class DevelopmentConfig(object):
     DEBUG = True
     ASSETS_DEBUG = True
     SECRET_KEY = "notsecret"
-    REQUIRE_2FA = True
 
 def create_app(config_object={}):
     app = Flask(__name__)

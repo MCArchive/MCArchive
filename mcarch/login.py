@@ -72,7 +72,7 @@ def log_in(uname, passwd):
     """Attempts to log in with the given credentials. Returns true on success, false on failure."""
     user = User.query.filter_by(name=uname).first()
     if not user: return False
-    if user.disabled:
+    if user.disabled or not user.password:
         return False
 
     if bcrypt.check_password_hash(user.password, passwd):

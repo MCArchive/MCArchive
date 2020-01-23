@@ -19,6 +19,7 @@ b2sdk
 pyotp
 
 pytest
+pytest-cov
 pytest-flask
 pytest-flask-sqlalchemy
 
