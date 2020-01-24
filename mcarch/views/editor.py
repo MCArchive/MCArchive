@@ -221,7 +221,7 @@ def edit_mod(user, id):
 
 
 class EditVersionForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired(), Length(max=Mod.name.type.length)])
+    name = StringField('Version', validators=[DataRequired(), Length(max=Mod.name.type.length)])
     url = StringField('Web Page', validators=[Length(max=Mod.website.type.length)])
     desc = TextAreaField("Description")
     gamevsns = SelectMultipleField("Game Versions", coerce=int,
