@@ -23,5 +23,5 @@ def key_mc_version(a):
 
 def key_mod_version(vsn):
     """Takes a mod version and returns a key for sorting it"""
-    return re.split(r'\D', vsn)
+    return [int(x) for x in re.split(r'\D+', vsn) if x.isdigit()]
 
