@@ -8,7 +8,7 @@ from mcarch.app import db
 from mcarch.util.copydiff import CopyDiff
 from mcarch.model.file import StoredFile
 from mcarch.util.sqla_uuid import GUID
-from mcarch.util.minecraft import key_mc_version
+from mcarch.util.minecraft import key_mc_version, key_mod_version
 
 def mk_authored_by_table(mod_table):
     """Generates an association table between mods and the author table"""
@@ -51,8 +51,12 @@ class ModBase(CopyDiff):
                 vsns.setdefault(v.game_vsns[0].name, []).append(v)
             else:
                 vsns.setdefault('Unknown', []).append(v)
-        return OrderedDict(sorted(vsns.items(),
-            key=lambda vsn: key_mc_version(vsn[0]), reverse=True))
+        # Sort the list of versions by Minecraft version
+        lst = sorted(vsns.items(), key=lambda vsn: key_mc_version(vsn[0]), reverse=True)
+        # Sort each list of mod versions per Minecraft version
+        return OrderedDict([
+            (gvsn, sorted(modvsns, key=lambda vsn: key_mod_version(vsn.name), reverse=True))
+            for gvsn, modvsns in lst])
 
     # Methods for CopyDiff
     def copydiff_fields(self): return ['name', 'desc', 'website', 'authors']

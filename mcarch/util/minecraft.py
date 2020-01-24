@@ -1,3 +1,4 @@
+import re
 import itertools
 
 def key_mc_version(a):
@@ -19,4 +20,8 @@ def key_mc_version(a):
         a = a[1:]
 
     return [a0] + [int("".join(y)) for x, y in itertools.groupby(a, key=str.isdigit) if x]
+
+def key_mod_version(vsn):
+    """Takes a mod version and returns a key for sorting it"""
+    return re.split(r'\D', vsn)
 
