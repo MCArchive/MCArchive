@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_wtf import CSRFProtect
+from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
@@ -13,6 +14,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 bcrypt = Bcrypt()
 csrf = CSRFProtect()
+cache = Cache()
 limiter = Limiter(key_func=get_remote_address)
 b2api = None
 
@@ -33,6 +35,8 @@ class DefaultConfig(object):
     B2_KEY_ID = None
     B2_APP_KEY = None
     B2_BUCKET_NAME = None
+    CACHE_TYPE = 'simple'
+    CACHE_DEFAULT_TIMEOUT=300
     # Number of X-Forwarded-For addresses to trust. This should be equal to the
     # number of reverse proxies in front of the app that add to the
     # X-Forwarded-For header.
@@ -85,6 +89,7 @@ def register_extensions(app):
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     csrf.init_app(app)
+    cache.init_app(app)
     limiter.init_app(app)
 
 def register_conprocs(app):

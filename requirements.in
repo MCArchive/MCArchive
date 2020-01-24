@@ -4,6 +4,7 @@ flask-migrate
 flask-redis
 flask-wtf
 flask-session
+flask-caching
 flask-limiter
 flask-bcrypt
 flask-marshmallow

@@ -31,6 +31,7 @@ def app():
         SQLALCHEMY_ECHO = False
         SECRET_KEY = "secret!"
         TESTING = True
+        CACHE_TYPE = 'null'
         WTF_CSRF_ENABLED = False # disable CSRF protection so we can test forms
         RATELIMIT_ENABLED = False # the test suite exceeds the rate-limits, so disable them
     app = create_app(TestConfig)

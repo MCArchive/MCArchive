@@ -8,6 +8,9 @@ SECRET_KEY=os.environ['SECRET_KEY']
 SQLALCHEMY_DATABASE_URI='postgresql://postgres/mcarch'
 RATELIMIT_STORAGE_URL='redis://redis:6379'
 
+CACHE_TYPE='redis'
+CACHE_REDIS_URL='redis://redis:6379'
+
 # Database URI used for pytest
 TEST_DATABASE_URI='postgresql://localhost/mcarch-test'
 
