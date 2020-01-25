@@ -8,13 +8,13 @@ from mcarch.model.user import roles
 from mcarch.login import login_required, cur_user, has_role
 from mcarch.jsonschema import ModSchema, ModAuthorSchema, GameVersionSchema
 from mcarch.util.minecraft import key_mc_version
-from mcarch.util.cache import mk_cache_key, unless_cur_user
+from mcarch.util.cache import unless_cur_user
 from mcarch.app import db, cache
 
 modbp = Blueprint('mods', __name__, template_folder="templates")
 
 @modbp.route("/mods")
-@cache.cached(key_prefix=mk_cache_key, unless=unless_cur_user)
+@cache.cached(query_string=True, unless=unless_cur_user)
 def browse():
     by_author = request.args.get('author')
     by_gvsn = request.args.get('gvsn')
@@ -33,7 +33,7 @@ def browse():
     return render_template("mods/browse.html", mods=mods, filters=filters, gvsn=by_gvsn)
 
 @modbp.route("/mods/<slug>")
-@cache.cached(key_prefix=mk_cache_key, unless=unless_cur_user)
+@cache.cached(query_string=True, unless=unless_cur_user)
 def mod_page(slug):
     mod = Mod.query.filter_by(slug=slug).first_or_404()
 
