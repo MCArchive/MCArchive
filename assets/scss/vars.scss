@@ -42,6 +42,8 @@ $page-width: 1200px; // maximum width of page content for readability
 $nav-height: 32px;
 $total-nav-height: $nav-height + 12px;
 
+$undermidsize: "screen and (max-width: 800px)";
+$midsize: "screen and (min-width: 800px)";
 $mobile: "screen and (max-width: 1200px)";
 $fullsize: "screen and (min-width: 1200px)";
 

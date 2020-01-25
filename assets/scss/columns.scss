@@ -1,15 +1,22 @@
 @import 'vars.scss';
 
-.row {
+@mixin flexrow {
     display: flex;
     & .column {
-        flex: 1;
-        &.block {
+        flex: 1 0;
+        &.block, &.gaps {
             margin-left: 8px;
             margin-right: 8px;
         }
         &:first-child.block { margin-left: 0px; }
         &:last-child.block { margin-right: 0px; }
+    }
+    & .fixed {
+        flex: 0 0;
+        &.block, &.gaps {
+            margin-left: 8px;
+            margin-right: 8px;
+        }
     }
 
     // Clear floats
@@ -17,6 +24,43 @@
         content: "";
         display: table;
         clear: both;
+    }
+
+    &.gaps * {
+        margin-right: 4px;
+        &:last-child { margin-right: 0px; }
+    }
+}
+
+@media only #{$midsize} {
+    .row, .flexform {
+        @include flexrow;
+    }
+}
+
+@media only #{$undermidsize} {
+    .row {
+        &.gaps * {
+            margin-bottom: 4px;
+            &:last-child { margin-bottom: 0px; }
+        }
+    }
+
+    .flexform {
+        @include flexrow;
+        flex-wrap: wrap;
+
+        & * {
+            margin-bottom: 4px;
+            &:last-child { margin-bottom: 0px; }
+        }
+    }
+}
+
+.flexform {
+    & * {
+        margin-right: 4px;
+        &:last-child { margin-right: 0px; }
     }
 }
 
