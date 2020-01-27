@@ -14,7 +14,7 @@ from mcarch.model.mod import Mod, ModVersion, ModFile, ModAuthor, GameVersion
 from mcarch.model.mod.draft import DraftMod, DraftModVersion, DraftModFile
 from mcarch.model.mod.logs import LogMod, LogModVersion, LogModFile
 
-from mcarch.model.file import upload_b2_file
+from mcarch.model.file import upload_b2_file, StoredFile
 from mcarch.model.user import roles
 from mcarch.util.wtforms import BetterSelect, TagInput
 
@@ -304,6 +304,8 @@ def edit_mod_version(user, id):
 
 
 class EditFileForm(FlaskForm):
+    select_file = SelectField("Select File", coerce=int,
+            widget=BetterSelect(multiple=False, render_js=False))
     file = FileField("Mod File")
     desc = TextAreaField("Description")
     page_url = StringField('Web Page', validators=[Length(max=Mod.website.type.length)])
@@ -311,11 +313,38 @@ class EditFileForm(FlaskForm):
     redirect_url = StringField('Indirect Download', validators=[Length(max=Mod.website.type.length)])
     submit = SubmitField('Submit')
 
+    def load_files(self):
+        """Loads the file select choices from the database
+
+        This must be called before the form is used, or no files will be listed in the form.
+        """
+        files = StoredFile.query.all()
+        # The space at the beginning of " Upload File" is a hack to put it at
+        # the top of the select list.
+        choices = [(-1, ' Upload File')] + list(map(lambda f: (f.id, f.name), files))
+        self.select_file.choices = choices
+
+    def get_or_upload_file(self, user):
+        """
+        Gets the `StoredFile` the user selected in the form.
+
+        If "Upload File" is selected in `select_file`, this uploads the
+        submitted file to B2, creates a new `StoredFile` in the database, and
+        returns that.
+        """
+        fileid = self.select_file.data
+        # If -1 (Upload File) is not selected, find the selected file in the DB.
+        if fileid >= 0:
+            return StoredFile.query.get(fileid)
+        elif self.file.data:
+            return upload_file(self.file.data, user)
+        else:
+            return None
+
 def upload_file(file, user):
     """Uploads a file from a `FileField` to B2 and returns the StoredFile object."""
     with NamedTemporaryFile() as tfile:
         file.save(tfile)
-        print(file.filename)
         return upload_b2_file(tfile.name, file.filename, user)
 
 @edit.route("/drafts/<id>/edit/new-file", methods=['GET', 'POST'])
@@ -328,20 +357,23 @@ def new_mod_file(user, id):
         return redirect(url_for('edit.draft_page', id=mod.id))
 
     form = EditFileForm()
-    form.file.validators.append(FileRequired())
+    form.load_files()
     if form.validate_on_submit():
-        mod.touch()
-        stored = upload_file(form.file.data, user)
-        mfile = DraftModFile(
-            stored = stored,
-            desc = form.desc.data,
-            page_url = form.page_url.data,
-            redirect_url = form.redirect_url.data,
-            direct_url = form.direct_url.data,
-        )
-        vsn.files.append(mfile)
-        db.session.commit()
-        return redirect(url_for('edit.draft_page', id=mod.id))
+        stored = form.get_or_upload_file(user)
+        if stored:
+            mod.touch()
+            mfile = DraftModFile(
+                stored = stored,
+                desc = form.desc.data,
+                page_url = form.page_url.data,
+                redirect_url = form.redirect_url.data,
+                direct_url = form.direct_url.data,
+            )
+            vsn.files.append(mfile)
+            db.session.commit()
+            return redirect(url_for('edit.draft_page', id=mod.id))
+        else:
+            flash('No file selected.')
     return render_template('editor/edit-file.html', form=form, mod=mod, vsn=vsn)
 
 @edit.route("/drafts/edit/mod-file/<id>", methods=['GET', 'POST'])
@@ -357,17 +389,20 @@ def edit_mod_file(user, id):
         redirect_url=mfile.redirect_url,
         direct_url=mfile.direct_url,
     )
+    form.load_files()
     if form.validate_on_submit():
-        mod.touch()
-        if form.file.data:
-            stored = upload_file(form.file.data, user)
+        stored = form.get_or_upload_file(user)
+        if stored:
+            mod.touch()
             mfile.stored = stored
-        mfile.desc = form.desc.data
-        mfile.page_url = form.page_url.data
-        mfile.redirect_url = form.redirect_url.data
-        mfile.direct_url = form.direct_url.data
-        db.session.commit()
-        return redirect(url_for('edit.draft_page', id=mod.id))
+            mfile.desc = form.desc.data
+            mfile.page_url = form.page_url.data
+            mfile.redirect_url = form.redirect_url.data
+            mfile.direct_url = form.direct_url.data
+            db.session.commit()
+            return redirect(url_for('edit.draft_page', id=mod.id))
+        else:
+            flash('No file selected.')
     return render_template('editor/edit-file.html', form=form, mod=mod,
                 vsn=vsn, editing=mfile, curfile=mfile.stored)
 

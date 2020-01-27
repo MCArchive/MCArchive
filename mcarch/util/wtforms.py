@@ -9,7 +9,7 @@ from wtforms.widgets import TextInput, Select, HTMLString
 # modified to work with choices.js instead
 
 class BetterSelect(Select):
-    def __init__(self, multiple=False, renderer=None, options={}):
+    def __init__(self, multiple=False, renderer=None, render_js=True, options={}):
         """
             Initiate the widget. This offers you two general options.
             First off it allows you to configure the BetterSelect to
@@ -28,6 +28,7 @@ class BetterSelect(Select):
         """
         super(BetterSelect, self).__init__(multiple=multiple)
         self.renderer = renderer
+        self.render_js = render_js
         options.setdefault('removeItemButton', multiple)
         self.options = options
 
@@ -52,10 +53,11 @@ class BetterSelect(Select):
         else:
             html.append(super(BetterSelect, self).__call__(field, **kwargs))
         # attach the choices initiation with options
-        html.append(
-            """<script>new Choices("#%s", %s);</script>\n"""
-            % (kwargs['id'], json.dumps(self.options))
-        )
+        if self.render_js:
+            html.append(
+                """<script>new Choices("#%s", %s);</script>\n"""
+                % (kwargs['id'], json.dumps(self.options))
+            )
         # return the HTML (as safe markup)
         return HTMLString('\n'.join(html))
 

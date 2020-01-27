@@ -9,6 +9,11 @@ Add a new file to version {{ vsn.name }} of {{ mod.name }}
 
 {% import 'macros/forms.html' as d with context %}
 
+{# Load the select field JavaScript before the rest of the page so our select fields work #}
+{% block js %}
+<script type="text/javascript" src="/static/select.js"></script>
+{% endblock %}
+
 {% block content %}
 
 <h1>{%- if editing -%}
@@ -21,6 +26,15 @@ Add a new file to version {{ vsn.name }} of {{ mod.name }}
     <table class="form-table">
         <tbody>
             <tr>
+                <td class="label">
+                    {{ form.select_file.label }}
+                </td>
+                <td>
+                    {{ form.select_file }}
+                </td>
+                <td>{{ d.field_errors(form.file.errors) }}</td>
+            </tr>
+            <tr id='upload_row'>
                 <td class="label">
                     {% if curfile %}
                     <label for="file">Replace File</label>
