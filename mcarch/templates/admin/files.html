@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Stored Files{% endblock %}
 
-{% import "macros/diff.html" as d with context %}
+{% import "macros/paginate.html" as p with context %}
 
 {% block content %}
 <h1>Stored Files</h1>
@@ -13,6 +13,8 @@
 }
 </style>
 
+{{ p.page_nav(pagination, 'admin.files') }}
+
 <table class='pretty'>
     <thead>
         <tr>
@@ -23,21 +25,23 @@
         </tr>
     </thead>
     <tbody>
-        {% for f in files %}
+        {% for f in pagination.items %}
         <tr>
             <td>{{ f.id }}</td>
             <td>{{ f.name }}</td>
             <td>
-                {% if f.upload_by %}
+                {%- if f.upload_by -%}
                     {{ f.upload_by.name }}
-                {% else %}
+                {%- else -%}
                     script
-                {% endif %}
+                {%- endif -%}
             </td>
             <td><span class="hash trunc">{{ f.sha256 }}</span></td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+{{ p.page_nav(pagination, 'admin.files') }}
 {% endblock %}
 

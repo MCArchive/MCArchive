@@ -1,0 +1,30 @@
+{#
+    Takes a Flask-SQLAlchemy `Pagination` object and an endpoint and generates a
+    pagination element.
+#}
+{% macro page_nav(pages, endpoint) %}
+  <div class="pagination">
+  {%- if pages.has_prev %}
+  <a class='page' href="{{ url_for_current(page=pages.page-1) }}">&larr;</a>
+  {%- else -%}
+  <span class='disabled page'>&larr;</span>
+  {%- endif -%}
+  {%- for page in pages.iter_pages() -%}
+    {%- if page -%}
+      {%- if page != pages.page -%}
+        <a class='page' href="{{ url_for_current(page=page) }}">{{ page }}</a>
+      {%- else -%}
+        <span class='active page'>{{ page }}</span>
+      {%- endif -%}
+    {%- else -%}
+      <span class='ellipsis page'>&hellip;</span>
+    {%- endif -%}
+  {%- endfor -%}
+  {%- if pages.has_next -%}
+  <a class='page' href="{{ url_for_current(page=pages.page+1) }}">&rarr;</a>
+  {%- else -%}
+  <span class='disabled page'>&rarr;</span>
+  {%- endif -%}
+  </div>
+{% endmacro %}
+

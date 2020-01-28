@@ -1,8 +1,10 @@
-from flask import Blueprint, render_template, request, url_for, redirect, flash
+from flask import Blueprint, render_template, request, url_for, redirect, flash, \
+        current_app as app
 from flask_wtf import FlaskForm
 
-from mcarch.app import db
+from mcarch.app import db, cache
 from mcarch.login import login_required
+from mcarch.model.mod import ModFile
 from mcarch.model.mod.logs import LogMod, slow_gen_diffs
 from mcarch.model.mod.draft import DraftMod
 from mcarch.model.user import User, Session, roles, UserRole
@@ -37,11 +39,21 @@ def changes():
     changes = slow_gen_diffs(LogMod.query.order_by(LogMod.date.desc()).all())
     return render_template('/admin/changes.html', changes=changes)
 
+def orphaned_files():
+    """Generates a query that list of all files which do not have a
+    `ModFile` which links to them."""
+    return StoredFile.query.outerjoin(ModFile).filter(ModFile.id == None)
+
 @admin.route("/admin/files")
 @login_required(role=roles.admin)
 def files():
-    files = StoredFile.query.all()
-    return render_template('/admin/files.html', files=files)
+    orphaned = request.args.get('orphan', default=False)
+    if orphaned:
+        files = orphaned_files()
+    else:
+        files = StoredFile.query
+    files = files.paginate(per_page=app.config['FILES_PER_PAGE'])
+    return render_template('/admin/files.html', pagination=files)
 
 @admin.route("/admin/users")
 @login_required(role=roles.admin)

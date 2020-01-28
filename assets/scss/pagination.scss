@@ -1,0 +1,38 @@
+@import 'vars.scss';
+
+.pagination {
+    display: inline-block;
+    border-radius: $border-rad;
+    border: solid $lightgray 1px;
+    overflow: hidden;
+    margin: 8px 0px;
+
+    & .page {
+        color: $body-color;
+        float: left;
+        padding: 8px 16px;
+        text-decoration: none;
+        transition: background-color $fade-dur;
+
+        border-right: solid $lightgray 1px;
+
+        &:hover {
+            background-color: $shadow-color;
+        }
+        &:active, &.active {
+            background-color: $primary;
+        }
+
+        &.disabled {
+            color: $lightgray;
+        }
+        &.ellipsis, &.disabled {
+            &:active, &:hover {
+                background: none;
+            }
+        }
+
+        &:last-child { border-right: none; }
+    }
+}
+

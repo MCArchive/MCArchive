@@ -41,6 +41,8 @@ class DefaultConfig(object):
     # number of reverse proxies in front of the app that add to the
     # X-Forwarded-For header.
     TRUST_LEN_X_FORWARDED_FOR = 0
+    # Number of files per page in the file browser.
+    FILES_PER_PAGE = 100
 
 class DevelopmentConfig(object):
     DEBUG = True

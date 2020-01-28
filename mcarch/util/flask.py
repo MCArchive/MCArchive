@@ -4,7 +4,7 @@ which are exposed for use in jinja templates."""
 import bleach
 from markdown import markdown
 from datetime import datetime
-from flask import Markup, request
+from flask import Markup, request, url_for
 
 #### Functions ####
 
@@ -12,6 +12,17 @@ def is_cur_page(url):
     """Takes a URL and checks if the current page is at that URL."""
     path = request.full_path.strip('?')
     return path == url
+
+def url_for_current(**kwargs):
+    """
+    Generates a URL for this current page with the same query string.
+
+    Keyword arguments may be passed to override values or add new ones to the
+    current query string.
+    """
+    args = dict(request.args.copy())
+    args.update(kwargs)
+    return url_for(request.endpoint, **args)
 
 def register_conproc(app):
     """
@@ -23,7 +34,8 @@ def register_conproc(app):
     @app.context_processor
     def inject():
         return dict(
-            is_cur_page=is_cur_page
+            is_cur_page=is_cur_page,
+            url_for_current=url_for_current,
         )
 
 
