@@ -5,8 +5,9 @@
 #    pip-compile
 #
 alembic==1.3.2            # via flask-migrate
+aniso8601==8.0.0          # via flask-restx
 arrow==0.15.5             # via b2sdk
-attrs==19.3.0             # via pytest
+attrs==19.3.0             # via jsonschema, pytest
 b2sdk==1.0.2
 bcrypt==3.1.7             # via flask-bcrypt
 bleach==3.1.0
@@ -23,15 +24,16 @@ flask-mail==0.9.1
 flask-marshmallow==0.10.1
 flask-migrate==2.5.2
 flask-redis==0.4.0
+flask-restx==0.1.0
 flask-session==0.3.1
 flask-sqlalchemy==2.4.1
 flask-wtf==0.14.2
 flask==1.1.1
 funcsigs==1.0.2           # via logfury
 idna==2.8                 # via requests
-importlib-metadata==1.4.0  # via pluggy, pytest
 itsdangerous==1.1.0       # via flask
 jinja2==2.10.3            # via flask
+jsonschema==3.2.0         # via flask-restx
 limits==1.4.1             # via flask-limiter
 logfury==0.1.2            # via b2sdk
 mako==1.1.0               # via alembic
@@ -39,7 +41,7 @@ markdown==3.1.1
 markupsafe==1.1.1         # via jinja2, mako
 marshmallow-sqlalchemy==0.21.0
 marshmallow==3.3.0
-more-itertools==8.0.2     # via pytest, zipp
+more-itertools==8.0.2     # via pytest
 packaging==19.2           # via pytest, pytest-flask-sqlalchemy
 pluggy==0.13.1            # via pytest
 psycopg2==2.8.4
@@ -47,6 +49,7 @@ py==1.8.1                 # via pytest
 pycparser==2.19           # via cffi
 pyotp==2.3.0
 pyparsing==2.4.6          # via packaging
+pyrsistent==0.15.7        # via jsonschema
 pytest-cov==2.8.1
 pytest-flask-sqlalchemy==1.0.2
 pytest-flask==0.15.0
@@ -54,10 +57,11 @@ pytest-mock==2.0.0        # via pytest-flask-sqlalchemy
 pytest==5.3.2
 python-dateutil==2.8.1    # via alembic, arrow
 python-editor==1.0.4      # via alembic
+pytz==2019.3              # via flask-restx
 pyyaml==5.2
 redis==3.3.11             # via flask-redis
 requests==2.22.0          # via b2sdk
-six==1.13.0               # via b2sdk, bcrypt, bleach, flask-limiter, flask-marshmallow, limits, logfury, packaging, python-dateutil, sqlalchemy-utils
+six==1.13.0               # via b2sdk, bcrypt, bleach, flask-limiter, flask-marshmallow, flask-restx, jsonschema, limits, logfury, packaging, pyrsistent, python-dateutil, sqlalchemy-utils
 sqlalchemy-utils==0.36.1
 sqlalchemy==1.3.12        # via alembic, flask-sqlalchemy, marshmallow-sqlalchemy, pytest-flask-sqlalchemy, sqlalchemy-utils
 tqdm==4.41.1              # via b2sdk
@@ -66,7 +70,6 @@ wcwidth==0.1.8            # via pytest
 webencodings==0.5.1       # via bleach
 werkzeug==0.16.0          # via flask, pytest-flask
 wtforms==2.2.1            # via flask-wtf
-zipp==1.0.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

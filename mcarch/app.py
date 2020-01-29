@@ -123,6 +123,8 @@ def register_blueprints(app):
     app.register_blueprint(edit)
     from mcarch.views.admin import admin
     app.register_blueprint(admin)
+    from mcarch.apis import api_v1
+    app.register_blueprint(api_v1)
     from mcarch import cli
     cli.register_blueprints(app)
 

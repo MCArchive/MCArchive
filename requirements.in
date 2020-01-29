@@ -9,6 +9,7 @@ flask-caching
 flask-limiter
 flask-bcrypt
 flask-marshmallow
+flask-restx
 
 marshmallow
 marshmallow_sqlalchemy
