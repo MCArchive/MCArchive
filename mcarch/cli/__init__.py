@@ -12,6 +12,11 @@ from mcarch.model.file import *
 
 bp = Blueprint('commands', __name__, cli_group=None)
 
+def register_blueprints(app):
+    app.register_blueprint(bp)
+    from mcarch.cli.file import bp as f
+    app.register_blueprint(f)
+
 def role_from_str(s):
     strs = dict(
         user=roles.user,
@@ -27,6 +32,7 @@ def role_from_str(s):
 @click.argument('email')
 @click.argument('role')
 def add_user(name, email, role):
+    """Add a user."""
     role = role_from_str(role)
     if not role:
         print("Error: no such role {}".format(role))
@@ -49,6 +55,7 @@ def add_user(name, email, role):
 @bp.cli.command('import')
 @click.argument('path')
 def import_old_format(path):
+    """Import JSON files from the old MCArchive metarepo format."""
     from os import listdir
     from os.path import isdir, isfile, join, splitext
 
