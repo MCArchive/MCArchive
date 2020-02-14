@@ -37,7 +37,7 @@
     <section class='column block'>
         <a class='button right' style='margin-top: 8px'
             href="{{ url_for('edit.new_mod') }}">New Mod</a>
-        <h1>Your Drafts</h1>
+        <h1><a href="{{ url_for('edit.draft_list', kind='mine') }}">Your Drafts</a></h1>
         {% if my_drafts %}
         <ul>
             {% for draft in my_drafts %}
@@ -67,7 +67,7 @@
     </section>
     {% if has_role(_roles.moderator) %}
     <section class='column block'>
-        <h1>Ready for Review</h1>
+        <h1><a href="{{ url_for('edit.draft_list', kind='ready') }}">Ready for Review<a/></h1>
         {% if ready_drafts %}
         <ul>
             {% for draft in ready_drafts %}
