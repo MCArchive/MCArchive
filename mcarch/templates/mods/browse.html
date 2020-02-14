@@ -34,7 +34,7 @@
             </h1>
             <p class="gamevsn small">Supports Minecraft {{ mod.game_versions_str() }}</p>
             {% if mod.desc %}
-                <p class="moddesc">{{ mod.desc }}</p>
+                <p class="moddesc">{{ mod.desc | safe_markdown }}</p>
             {% endif %}
         </section>
         {% else %}

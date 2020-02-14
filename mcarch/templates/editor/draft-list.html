@@ -33,7 +33,7 @@
             <p class="small">Archived {{ draft.archived_time|timesince }}</p>
         {% endif %}
         {% if draft.desc %}
-            <p class="moddesc">{{ draft.desc }}</p>
+            <p class="moddesc">{{ draft.desc | safe_markdown }}</p>
         {% endif %}
     </section>
     {% else %}
