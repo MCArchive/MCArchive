@@ -1,7 +1,7 @@
 import os
 import enum
 import hashlib
-from urllib.parse import urljoin
+from urllib.parse import urljoin, quote as urlquote
 
 from flask import url_for, current_app as app
 
@@ -23,7 +23,7 @@ class StoredFile(db.Model):
     def b2_download_url(self):
         """Gets the URL to download this file from the archive's B2 bucket."""
         if self.b2_path:
-            return urljoin(app.config['B2_PUBLIC_URL'], self.b2_path)
+            return urljoin(app.config['B2_PUBLIC_URL'], urlquote(self.b2_path))
 
 def gen_b2_path(filename, sha):
     """Generates the path where a file should be stored in B2 based on name and hash."""
