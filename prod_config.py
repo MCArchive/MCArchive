@@ -5,7 +5,7 @@ REQUIRE_2FA = False
 
 SECRET_KEY=os.environ['SECRET_KEY']
 
-SQLALCHEMY_DATABASE_URI='postgresql://postgres/mcarch'
+SQLALCHEMY_DATABASE_URI='postgresql://root:pgpasswd@postgres/mcarch'
 RATELIMIT_STORAGE_URL='redis://redis:6379'
 
 CACHE_TYPE='redis'
