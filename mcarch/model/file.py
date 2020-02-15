@@ -49,9 +49,13 @@ def upload_b2_file(path, name, user=None):
     @param name: name of the file as it should be in B2
     @param user: user to associate the stored file with. Can be None
     """
+    fhash = sha256_file(path)
+    existing = StoredFile.query.filter_by(sha256=fhash, name=name).first()
+    if existing:
+        return existing
+
     bucket = get_b2bucket()
 
-    fhash = sha256_file(path)
     b2path = gen_b2_path(name, fhash)
     bucket.upload_local_file(path, b2path)
 
