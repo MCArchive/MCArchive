@@ -67,7 +67,7 @@
     </section>
     {% if has_role(_roles.moderator) %}
     <section class='column block'>
-        <h1><a href="{{ url_for('edit.draft_list', kind='ready') }}">Ready for Review<a/></h1>
+        <h1><a href="{{ url_for('edit.draft_list', kind='ready') }}">Ready for Review</a></h1>
         {% if ready_drafts %}
         <ul>
             {% for draft in ready_drafts %}
