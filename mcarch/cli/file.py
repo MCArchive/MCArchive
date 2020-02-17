@@ -56,8 +56,11 @@ def dedup(pretend, verbose):
             for ref in refs:
                 assert ref.stored.b2_path == fpath
                 if verbose:
-                    mod = ref.version.mod
-                    print("\t\tRemap reference {} by mod {}".format(ref, mod.name))
+                    if ref.version and ref.version.mod:
+                        modname = ref.version.mod.name
+                    else:
+                        modname = "no mod referenced"
+                    print("\t\tRemap reference {} by mod {}".format(ref, modname))
                 if not pretend:
                     ref.stored = canon
             if not pretend:
