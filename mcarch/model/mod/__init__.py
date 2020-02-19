@@ -112,5 +112,12 @@ class ModFile(ModFileBase, db.Model):
     # Whether we're providing our own download links for this file.
     redist = db.Column(db.Boolean)
 
+    @property
+    def should_redist(self):
+        if self.redist == None:
+            return super(ModFile, self).should_redist
+        else:
+            return self.redist
+
     def blank(self, **kwargs): return ModFile(**kwargs)
 

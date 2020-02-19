@@ -38,18 +38,32 @@
         <p class="small"><span class="sha256 hash">{{ file.stored.sha256 }}</span></p>
         <ul class="urls">
             <li>
+                {% set showed_link = False %}
+
                 {% if file.redirect_url %}
                 <a class="button" href="{{ file.redirect_url }}">Official Indirect Download</a>
+                {% set showed_link = True %}
                 {% endif %}
+
                 {% if file.direct_url %}
                 <a class="button" href="{{ file.direct_url }}">Official Direct Download</a>
+                {% set showed_link = True %}
                 {% endif %}
+
                 {% if file.page_url %}
                 <a class="button" href="{{ file.page_url }}">Download Page</a>
+                {% set showed_link = True %}
                 {% endif %}
+
                 {% if file.stored and file.stored.b2_download_url() and file.should_redist %}
                 <a class="button" href="{{ file.stored.b2_download_url() }}">Archive Download</a>
+                {% set showed_link = True %}
                 {% endif %}
+
+                {% if not showed_link %}
+                <span>Sorry, we aren't re-distributing this file right now.</span>
+                {% endif %}
+                {% set showed_link = False %}
             </li>
         </ul>
     </section>
