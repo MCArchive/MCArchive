@@ -7,12 +7,22 @@ class ArchiveUrl(fields.Raw):
         return value.b2_download_url()
 
 game_version = api.model('Game Version', {
-    'game_version': fields.String(attribute='name') 
+    'id': fields.Integer,
+    'name': fields.String
 })
 
-file = api.model('File', {
-    'uuid': fields.String,
+author = api.model('Author', {
+    'id': fields.Integer,
     'name': fields.String,
+    'description': fields.String(attribute='desc'),
+    'website': fields.String,
+})
+
+
+mod_file = api.model('File', {
+    'uuid': fields.String,
+    'name': fields.String(attribute=lambda f: f.stored.name if f.stored else None),
+    'sha256': fields.String(attribute=lambda f: f.stored.sha256 if f.stored else None),
     'description': fields.String(attribute='desc'),
     'page_url': fields.String,
     'redirect_url': fields.String,
@@ -20,11 +30,19 @@ file = api.model('File', {
     'archive_url': ArchiveUrl(attribute='stored')
 })
 
-author = api.model('Author', {
+
+mod_version = api.model('Mod Version', {
+    'uuid': fields.String,
     'name': fields.String,
+    'page_url': fields.String(attribute='url'),
     'description': fields.String(attribute='desc'),
-    'website': fields.String,
+    'game_versions': fields.List(fields.Nested(game_version, skip_none=True), attribute='game_vsns')
 })
+
+mod_version_files = api.inherit('Mod Version with Files', mod_version, {
+    'files': fields.List(fields.Nested(mod_file, skip_none=True))
+})
+
 
 mod = api.model('Mod', {
     'uuid': fields.String,
@@ -33,15 +51,18 @@ mod = api.model('Mod', {
     'description': fields.String(attribute='desc'),
     'website': fields.String,
     'authors': fields.List(fields.Nested(author, skip_none=True))
+}, mask='{slug,name}')
+
+mod_all = api.inherit('Mod Full', mod, {
+    'mod_version': fields.Nested(mod_version_files, attribute='version')
 })
 
-mod_version = api.model('Mod Version', {
-    'mod': fields.Nested(mod, skip_none=True),
-    'files': fields.List(fields.Nested(file, skip_none=True))
+
+mod_version_parent = api.inherit('Mod Version with Mod', mod_version, {
+    'mod': fields.Nested(mod, skip_none=True)
 })
 
-file_with_parent = api.inherit('File with Mod Information', file, {
-    'mod_version': fields.Nested(mod_version, attribute='version')
+file_with_version = api.inherit('File with Version', mod_file, {
+    'mod_version': fields.Nested(mod_version_parent, attribute='version')
 })
-
 

@@ -6,12 +6,12 @@ from mcarch.model.mod import Mod
 
 from flask_restx import Resource, fields
 
-ns = api.namespace('mods')
+ns = api.namespace('mods', 'Provides access to information about mods in the archive.')
 
 @ns.route("/")
 class ModsList(Resource):
     @api.doc("mod_list")
-    @api.marshal_with(models.mod, skip_none=True)
+    @api.marshal_with(models.mod, skip_none=True, mask='{slug,name}')
     def get(self, **kwargs):
         '''Returns a list of all available mods.'''
         return Mod.query.filter(Mod.redist == True).all()
@@ -19,7 +19,8 @@ class ModsList(Resource):
 @ns.route("/by_slug/<slug>")
 class ModBySlug(Resource):
     @api.doc("mod_info_by_slug")
-    @api.marshal_with(models.mod, skip_none=True)
+    @api.marshal_with(models.mod_all, skip_none=True, mask='{}')
     def get(self, slug, **kwargs):
         '''Returns info on a specific mod and its versions'''
         return Mod.query.filter(Mod.slug == slug, Mod.redist == True).first_or_404()
+
