@@ -45,6 +45,7 @@ class DefaultConfig(object):
     TRUST_LEN_X_FORWARDED_FOR = 0
     # Number of files per page in the file browser.
     FILES_PER_PAGE = 100
+    MAIL_DEFAULT_SENDER = 'noreply@mg.mcarchive.net'
 
 class DevelopmentConfig(object):
     DEBUG = True
