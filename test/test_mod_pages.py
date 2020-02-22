@@ -18,14 +18,6 @@ def test_mod_page(client, sample_mods):
             for f in vsn.files:
                 assert f.stored.name.encode('utf-8') in rv.data
 
-def test_mod_page_json(client, sample_mods):
-    for mod in sample_mods:
-        rv = client.get('/mods/{}.json'.format(mod.slug))
-        for vsn in mod.mod_vsns:
-            assert vsn.name.encode('utf-8') in rv.data
-            for f in vsn.files:
-                assert f.stored.name.encode('utf-8') in rv.data
-
 def test_authors(client, sample_authors):
     rv = client.get('/authors')
     for a in sample_authors:

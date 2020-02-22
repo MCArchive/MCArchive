@@ -6,7 +6,6 @@ from mcarch.model.mod.draft import DraftMod
 from mcarch.model.mod.logs import LogMod, gen_diffs
 from mcarch.model.user import roles
 from mcarch.login import login_required, cur_user, has_role
-from mcarch.jsonschema import ModSchema, ModAuthorSchema, GameVersionSchema
 from mcarch.util.minecraft import key_mc_version
 from mcarch.util.cache import unless_cur_user
 from mcarch.app import db, cache
@@ -47,31 +46,16 @@ def mod_page(slug):
 
     return render_template("mods/mod.html", mod=mod, vsns_grouped=vsns, by_gvsn=by_gvsn)
 
-@modbp.route("/mods/<slug>.json")
-def mod_page_json(slug):
-    mod = Mod.query.filter_by(slug=slug).first_or_404()
-    return jsonify(ModSchema().dump(mod))
-
 
 @modbp.route("/authors")
 def authors():
     authors = ModAuthor.query.all()
     return render_template('mods/authors.html', authors=authors)
 
-@modbp.route("/authors.json")
-def authors_json():
-    authors = ModAuthor.query.all()
-    return jsonify([{"id": a.id, "name": a.name} for a in authors])
-
 @modbp.route("/gamevsns")
 def gamevsns():
     gamevsns = sorted(GameVersion.query.all(), key=lambda a: key_mc_version(a.name), reverse=True)
     return render_template('mods/gamevsns.html', gamevsns=gamevsns)
-
-@modbp.route("/gamevsns.json")
-def gamevsns_json():
-    gamevsns = sorted(GameVersion.query.all(), key=lambda a: key_mc_version(a.name), reverse=True)
-    return jsonify([{"id": g.id, "name": g.name} for g in gamevsns])
 
 
 @modbp.route("/mods/<slug>/history")

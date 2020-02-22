@@ -16,7 +16,7 @@ if (document.getElementById(GAMEVSN_ID) && document.getElementById(AUTHOR_ID)) {
     });
 
     gvsn.ajax(function(callback) {
-        fetch('/gamevsns.json')
+        fetch('/api/v1/game_versions')
             .then(function(response) {
                 response.json().then(function(data) {
                     console.log(data)
@@ -29,7 +29,7 @@ if (document.getElementById(GAMEVSN_ID) && document.getElementById(AUTHOR_ID)) {
     });
 
     author.ajax(function(callback) {
-        fetch('/authors.json')
+        fetch('/api/v1/authors')
             .then(function(response) {
                 response.json().then(function(data) {
                     console.log(data)
