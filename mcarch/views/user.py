@@ -6,7 +6,8 @@ from wtforms.fields import StringField, PasswordField
 from wtforms.validators import DataRequired, Length, EqualTo
 
 from mcarch.app import db, limiter
-from mcarch.model.user import User, ResetToken, reset_type
+from mcarch.model.user import User, ResetToken, reset_type, roles
+from mcarch.model.settings import SettingsForm
 from mcarch.login import login_required, logout_required, log_in, log_out, \
     cur_user, cur_session
 from mcarch.util.security import is_safe_url
@@ -18,6 +19,16 @@ MAX_PASSWORD_LEN = 72
 
 AUTH_RATELIMIT='10 per 5 minutes;30 per hour'
 AUTH_RATELIMIT_ERRMSG='Too many attempts. Try again later.'
+
+@user.route('/user/settings', methods=['GET', 'POST'])
+@login_required(pass_user=True)
+def settings(user):
+    form = user.settings.form()
+    if form.validate_on_submit():
+        user.settings.apply_form(form)
+        db.session.commit()
+        flash("Settings saved.")
+    return render_template("user/settings.html", form=form, user=user, roles=roles)
 
 class LoginForm(FlaskForm):
     username = StringField('Username',

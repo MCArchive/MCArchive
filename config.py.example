@@ -3,6 +3,8 @@
 
 SQLALCHEMY_DATABASE_URI='postgresql://localhost/mcarch'
 RATELIMIT_STORAGE_URL='redis://localhost:6379'
+CACHE_TYPE='redis'
+CACHE_REDIS_URL='redis://localhost:6379'
 
 # Database URI used for pytest
 TEST_DATABASE_URI='postgresql://localhost/mcarch-test'
@@ -11,4 +13,10 @@ TEST_DATABASE_URI='postgresql://localhost/mcarch-test'
 #B2_APP_KEY='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
 B2_PUBLIC_URL='https://b2.mcarchive.net/file/mcarchive/'
 B2_BUCKET_NAME='mcarchive'
+
+MAIL_SERVER='localhost'
+#MAIL_USE_TLS=True
+#MAIL_USERNAME=''
+#MAIL_PASSWORD=''
+#MAIL_DEFAULT_SENDER='noreply@example.com'
 

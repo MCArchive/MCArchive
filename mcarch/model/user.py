@@ -7,6 +7,7 @@ from flask import Flask, request, current_app as app
 from flask_sqlalchemy import SQLAlchemy
 
 from mcarch.app import db, bcrypt
+from mcarch.model.settings import UserSettings
 from mcarch.util.sqla_uuid import GUID
 
 class UserRole(enum.IntEnum):
@@ -28,6 +29,8 @@ class User(db.Model):
     last_seen = db.Column(db.DateTime)
     disabled = db.Column(db.Boolean)
 
+    _settings = None
+
     def __init__(self, *args, password=None, passhash=None, **kwargs):
         """
         Creates a new `User` object. The given password will be hashed automatically.
@@ -40,6 +43,15 @@ class User(db.Model):
         elif password: pwd = bcrypt.generate_password_hash(password)
 
         super(User, self).__init__(*args, password=pwd, **kwargs)
+
+    @property
+    def settings(self):
+        """
+        Returns a `UserSettings` object which provides access to the user's settings.
+        """
+        if not self._settings:
+            self._settings = UserSettings(self)
+        return self._settings
 
     def has_role(self, role):
         """Returns True if the user's role is equal or greater than the given role.

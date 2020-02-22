@@ -1,0 +1,5 @@
+A draft of the mod {{ draft.name }} drafted by {{ draft.user.name }} is ready
+for review.
+
+You can review this draft at {{ url_for('edit.draft_page', id=draft.id, _external=True) }}
+

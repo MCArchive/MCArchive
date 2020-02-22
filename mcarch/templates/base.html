@@ -39,6 +39,7 @@
                     <img src="{{ curuser.avatar_url() }}" alt="">
                     {{ curuser.name }}</a>
                 <div class="dropcontent">
+                    {{ t.tab_btn(url_for("user.settings"), "Settings") }}
                     {{ t.tab_btn(url_for("user.logout"), "Log Out") }}
 				</div>
             </div>

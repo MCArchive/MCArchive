@@ -1,3 +1,5 @@
+# Base production config. Some secret stuff (API keys, email stuff) is added to
+# this in the actual deployment.
 import os
 
 DEPLOYMENT='production'
@@ -23,4 +25,6 @@ SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "Lax"
 
 SQLALCHEMY_ECHO=False
+
+MAIL_USE_TLS=True
 

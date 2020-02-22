@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title -%}
+User Settings
+{%- endblock %}
+
+{% import 'macros/forms.html' as d with context %}
+
+{% block content %}
+<h1>User Settings</h1>
+<form method="post">
+    {{ form.csrf_token }}
+
+    <h2>Email Settings</h2>
+
+    {% if user.role in [roles.moderator, roles.admin] %}
+    <p>
+        {{ form.notify_draft_ready.label }}
+        {{ form.notify_draft_ready }}
+        {{ d.field_errors(form.notify_draft_ready.errors) }}
+    </p>
+    {% endif %}
+
+    <p>
+        {{ form.notify_draft_merged.label }}
+        {{ form.notify_draft_merged }}
+        {{ d.field_errors(form.notify_draft_merged.errors) }}
+    </p>
+
+    {{ form.submit }}
+</form>
+{% endblock %}
+
+

@@ -1,0 +1,11 @@
+{% extends "mail/base.html" %}
+
+{% block title %}Draft of {{ draft.name }} is Ready{% endblock title %}
+
+{% block content %}
+<p>A draft of the mod {{ draft.name }} drafted by {{ draft.user.name }} is ready
+for review.</p>
+
+<a href="{{ url_for('edit.draft_page', id=draft.id, _external=True) }}">Review this draft here.</a>
+{% endblock %}
+

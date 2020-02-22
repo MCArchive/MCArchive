@@ -10,6 +10,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from mcarch.app import db
 from mcarch.login import login_required
 import mcarch.login as login
+import mcarch.notify as notify
 from mcarch.model.mod import Mod, ModVersion, ModFile, ModAuthor, GameVersion
 from mcarch.model.mod.draft import DraftMod, DraftModVersion, DraftModFile
 from mcarch.model.mod.logs import LogMod, LogModVersion, LogModFile
@@ -111,6 +112,7 @@ def ready_draft(id):
     if request.method == 'POST':
         draft.ready = True
         db.session.commit()
+        notify.draft_ready(draft)
         return redirect(url_for('edit.draft_page', id=draft.id))
     return render_template('editor/confirm-ready.html', draft=draft, readying=True, diff=diff)
 
@@ -153,11 +155,13 @@ def draft_diff(user, id):
         if draft.current:
             if not draft.draft_diff().is_empty():
                 draft.merge(user)
+                notify.draft_merged(draft, draft.current)
                 return redirect(url_for('mods.mod_page', slug=draft.current.slug))
             else:
                 flash("Can't merge a draft with no changes.")
         elif form.validate():
             mod = draft.into_mod(form.slug.data, user)
+            notify.draft_merged(draft, mod)
             return redirect(url_for('mods.mod_page', slug=mod.slug))
     return render_template("editor/draft_diff.html", mod=draft, diff=diff, form=form)
 

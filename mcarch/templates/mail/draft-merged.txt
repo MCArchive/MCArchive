@@ -1,0 +1,3 @@
+Your draft of the mod {{ mod.name }} was merged.
+Your changes are live here: {{ url_for('mods.mod_page', slug=mod.slug, _external=True)}}
+

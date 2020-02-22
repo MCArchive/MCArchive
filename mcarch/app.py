@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_wtf import CSRFProtect
+from flask_mail import Mail
 from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -16,6 +17,7 @@ bcrypt = Bcrypt()
 csrf = CSRFProtect()
 cache = Cache()
 limiter = Limiter(key_func=get_remote_address)
+mail = Mail()
 b2api = None
 
 from mcarch import login
@@ -87,12 +89,14 @@ def register_extensions(app):
     import mcarch.model.mod
     import mcarch.model.file
     import mcarch.model.user
+    import mcarch.model.settings
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     csrf.init_app(app)
     cache.init_app(app)
     limiter.init_app(app)
+    mail.init_app(app)
 
 def register_conprocs(app):
     login.register_conproc(app)

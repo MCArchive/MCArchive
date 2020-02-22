@@ -1,0 +1,10 @@
+{% extends "mail/base.html" %}
+
+{% block title %}Draft of {{ mod.name }} Merged{% endblock title %}
+
+{% block content %}
+<p>Your draft of the mod {{ mod.name }} was merged.
+<a href="{{ url_for('mods.mod_page', slug=mod.slug, _external=True)}}">Your
+    changes are live here.</a></p>
+{% endblock %}
+

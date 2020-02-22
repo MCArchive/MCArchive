@@ -3,6 +3,7 @@ flask-sqlalchemy
 flask-migrate
 flask-redis
 flask-wtf
+flask-mail
 flask-session
 flask-caching
 flask-limiter

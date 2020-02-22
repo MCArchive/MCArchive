@@ -10,6 +10,7 @@ attrs==19.3.0             # via pytest
 b2sdk==1.0.2
 bcrypt==3.1.7             # via flask-bcrypt
 bleach==3.1.0
+blinker==1.4              # via flask-mail
 certifi==2019.11.28       # via requests
 cffi==1.13.2              # via bcrypt
 chardet==3.0.4            # via requests
@@ -18,6 +19,7 @@ coverage==5.0.3           # via pytest-cov
 flask-bcrypt==0.7.1
 flask-caching==1.8.0
 flask-limiter==1.1.0
+flask-mail==0.9.1
 flask-marshmallow==0.10.1
 flask-migrate==2.5.2
 flask-redis==0.4.0
