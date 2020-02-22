@@ -3,7 +3,7 @@
 import os
 
 DEPLOYMENT='production'
-REQUIRE_2FA = False
+REQUIRE_2FA = True
 
 SECRET_KEY=os.environ['SECRET_KEY']
 
