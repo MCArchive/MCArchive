@@ -54,7 +54,7 @@ mod = api.model('Mod', {
 }, mask='{slug,name}')
 
 mod_all = api.inherit('Mod Full', mod, {
-    'mod_version': fields.Nested(mod_version_files, attribute='version')
+    'mod_versions': fields.Nested(mod_version_files, attribute='mod_vsns')
 })
 
 

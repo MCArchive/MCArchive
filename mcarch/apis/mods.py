@@ -4,6 +4,7 @@ from . import models
 from mcarch.app import db
 from mcarch.model.mod import Mod
 
+from flask import request
 from flask_restx import Resource, fields
 
 ns = api.namespace('mods', 'Provides access to information about mods in the archive.')
@@ -11,10 +12,19 @@ ns = api.namespace('mods', 'Provides access to information about mods in the arc
 @ns.route("/")
 class ModsList(Resource):
     @api.doc("mod_list")
+    @api.param('author', 'Optionally filter mods by author name', required=False)
+    @api.param('game_version', 'Optionally filter mods by supported game versions', required=False)
     @api.marshal_with(models.mod, skip_none=True, mask='{slug,name}')
     def get(self, **kwargs):
         '''Returns a list of all available mods.'''
-        return Mod.query.filter(Mod.redist == True).all()
+        by_author = request.args.get('author')
+        by_gvsn = request.args.get('gvsn')
+        filters = {}
+        if by_author:
+            filters['author'] = by_author
+        if by_gvsn:
+            filters['game_vsn'] = by_gvsn
+        return Mod.search_query(**filters).all()
 
 @ns.route("/by_slug/<slug>")
 class ModBySlug(Resource):
