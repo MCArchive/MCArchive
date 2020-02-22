@@ -46,6 +46,8 @@ class DefaultConfig(object):
     # Number of files per page in the file browser.
     FILES_PER_PAGE = 100
     MAIL_DEFAULT_SENDER = 'noreply@mg.mcarchive.net'
+    # Rate limit settings
+    RATELIMIT_API = '5 per 1 seconds;20 per 1 minutes'
 
 class DevelopmentConfig(object):
     DEBUG = True
@@ -124,6 +126,7 @@ def register_blueprints(app):
     from mcarch.views.admin import admin
     app.register_blueprint(admin)
     from mcarch.apis import api_v1
+    limiter.limit(app.config['RATELIMIT_API'])(api_v1)
     app.register_blueprint(api_v1)
     from mcarch import cli
     cli.register_blueprints(app)
