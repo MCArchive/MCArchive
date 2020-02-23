@@ -4,7 +4,8 @@ from flask_restx import fields
 
 class ArchiveUrl(fields.Raw):
     def format(self, value):
-        return value.b2_download_url()
+        if value.should_redist:
+            return value.stored.b2_download_url()
 
 game_version = api.model('Game Version', {
     'id': fields.Integer,
@@ -27,7 +28,7 @@ mod_file = api.model('File', {
     'page_url': fields.String,
     'redirect_url': fields.String,
     'direct_url': fields.String,
-    'archive_url': ArchiveUrl(attribute='stored')
+    'archive_url': ArchiveUrl(attribute=lambda f: f)
 })
 
 
