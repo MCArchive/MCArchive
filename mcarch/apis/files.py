@@ -13,7 +13,7 @@ class FilesByHash(Resource):
     @api.doc("files_by_hash_sha256")
     @api.marshal_with(models.file_with_version, skip_none=True, mask='{}')
     def get(self, shasum, **kwargs):
-        '''Returns info on a file based on its hash.'''
+        '''Returns a list of archived files with the given hash.'''
         return ModFile.query \
             .join(StoredFile) \
             .filter(StoredFile.sha256 == shasum, ) \
@@ -24,7 +24,7 @@ class FilesByName(Resource):
     @api.doc("files_by_filename")
     @api.marshal_with(models.file_with_version, skip_none=True, mask='{}')
     def get(self, filename, **kwargs):
-        '''Returns info on a file based on its hash.'''
+        '''Returns a list of archived files with the given filename.'''
         return ModFile.query \
             .join(StoredFile) \
             .filter(StoredFile.name == filename, ) \
