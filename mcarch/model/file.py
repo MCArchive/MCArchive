@@ -29,6 +29,11 @@ def gen_b2_path(filename, sha):
     """Generates the path where a file should be stored in B2 based on name and hash."""
     return os.path.join(sha, filename)
 
+class FileIntegrityException(Exception):
+    """Indicates that a file passed to `upload_b2_file` has a different hash
+    than expected."""
+    pass
+
 def sha256_file(path):
     BUF_SZ = 65536
     h = hashlib.sha256()
@@ -39,8 +44,7 @@ def sha256_file(path):
             buf = f.read(BUF_SZ)
     return h.hexdigest()
 
-
-def upload_b2_file(path, name, user=None):
+def upload_b2_file(path, name, expect_hash, user=None):
     """Uploads a local file to B2, adds it to the DB, and returns the StoredFile.
 
     This adds the StoredFile to the database and does a commit.
@@ -50,6 +54,10 @@ def upload_b2_file(path, name, user=None):
     @param user: user to associate the stored file with. Can be None
     """
     fhash = sha256_file(path)
+    if fhash != expect_hash:
+        raise FileIntegrityException('Expected file {} to have hash {} but it has {}'
+                .format(name, expect_hash, fhash))
+
     existing = StoredFile.query.filter_by(sha256=fhash, name=name).first()
     if existing:
         return existing

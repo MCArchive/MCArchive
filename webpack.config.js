@@ -24,6 +24,7 @@ module.exports = {
     entry: {
         main: './assets/js/main.js',
         select: './assets/js/select.js',
+        editor: './assets/js/editor.js',
         qr: './assets/js/qr.js',
     },
     output: {

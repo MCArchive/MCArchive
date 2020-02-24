@@ -1,5 +1,6 @@
 """Views for archivists to edit and manage mods on the archive"""
 
+from typing import Optional
 from tempfile import NamedTemporaryFile
 
 from flask import Blueprint, render_template, request, url_for, redirect, flash, abort
@@ -14,13 +15,12 @@ import mcarch.notify as notify
 from mcarch.model.mod import Mod, ModVersion, ModFile, ModAuthor, GameVersion
 from mcarch.model.mod.draft import DraftMod, DraftModVersion, DraftModFile
 from mcarch.model.mod.logs import LogMod, LogModVersion, LogModFile
-
-from mcarch.model.file import upload_b2_file, StoredFile
-from mcarch.model.user import roles
+from mcarch.model.file import upload_b2_file, StoredFile, FileIntegrityException
+from mcarch.model.user import User, roles
 from mcarch.util.wtforms import BetterSelect, TagInput
 
 from wtforms import StringField, SelectField, SelectMultipleField, TextAreaField, BooleanField, \
-        SubmitField
+        SubmitField, HiddenField
 from wtforms.validators import Length, DataRequired, Email, Regexp, ValidationError
 
 edit = Blueprint('edit', __name__, template_folder="templates")
@@ -311,6 +311,7 @@ class EditFileForm(FlaskForm):
     select_file = SelectField("Select File", coerce=int,
             widget=BetterSelect(multiple=False, render_js=False))
     file = FileField("Mod File")
+    file_hash = HiddenField('File Hash')
     desc = TextAreaField("Description")
     page_url = StringField('Web Page', validators=[Length(max=Mod.website.type.length)])
     direct_url = StringField('Direct Download', validators=[Length(max=Mod.website.type.length)])
@@ -328,7 +329,7 @@ class EditFileForm(FlaskForm):
         choices = [(-1, ' Upload File')] + list(map(lambda f: (f.id, f.name), files))
         self.select_file.choices = choices
 
-    def get_or_upload_file(self, user):
+    def get_or_upload_file(self, user: User) -> Optional[StoredFile]:
         """
         Gets the `StoredFile` the user selected in the form.
 
@@ -341,15 +342,12 @@ class EditFileForm(FlaskForm):
         if fileid >= 0:
             return StoredFile.query.get(fileid)
         elif self.file.data:
-            return upload_file(self.file.data, user)
+            with NamedTemporaryFile() as tfile:
+                self.file.data.save(tfile)
+                return upload_b2_file(tfile.name, self.file.data.filename, user=user,
+                            expect_hash=self.file_hash.data)
         else:
             return None
-
-def upload_file(file, user):
-    """Uploads a file from a `FileField` to B2 and returns the StoredFile object."""
-    with NamedTemporaryFile() as tfile:
-        file.save(tfile)
-        return upload_b2_file(tfile.name, file.filename, user)
 
 @edit.route("/drafts/<id>/edit/new-file", methods=['GET', 'POST'])
 @login_required(role=roles.archivist, pass_user=True)
@@ -363,21 +361,25 @@ def new_mod_file(user, id):
     form = EditFileForm()
     form.load_files()
     if form.validate_on_submit():
-        stored = form.get_or_upload_file(user)
-        if stored:
-            mod.touch()
-            mfile = DraftModFile(
-                stored = stored,
-                desc = form.desc.data,
-                page_url = form.page_url.data,
-                redirect_url = form.redirect_url.data,
-                direct_url = form.direct_url.data,
-            )
-            vsn.files.append(mfile)
-            db.session.commit()
-            return redirect(url_for('edit.draft_page', id=mod.id))
+        try:
+            stored = form.get_or_upload_file(user)
+        except FileIntegrityException as e:
+            flash(str(e))
         else:
-            flash('No file selected.')
+            if stored:
+                mod.touch()
+                mfile = DraftModFile(
+                    stored = stored,
+                    desc = form.desc.data,
+                    page_url = form.page_url.data,
+                    redirect_url = form.redirect_url.data,
+                    direct_url = form.direct_url.data,
+                )
+                vsn.files.append(mfile)
+                db.session.commit()
+                return redirect(url_for('edit.draft_page', id=mod.id))
+            else:
+                flash('No file selected.')
     return render_template('editor/edit-file.html', form=form, mod=mod, vsn=vsn)
 
 @edit.route("/drafts/edit/mod-file/<id>", methods=['GET', 'POST'])
@@ -395,18 +397,22 @@ def edit_mod_file(user, id):
     )
     form.load_files()
     if form.validate_on_submit():
-        stored = form.get_or_upload_file(user)
-        if stored:
-            mod.touch()
-            mfile.stored = stored
-            mfile.desc = form.desc.data
-            mfile.page_url = form.page_url.data
-            mfile.redirect_url = form.redirect_url.data
-            mfile.direct_url = form.direct_url.data
-            db.session.commit()
-            return redirect(url_for('edit.draft_page', id=mod.id))
+        try:
+            stored = form.get_or_upload_file(user)
+        except FileIntegrityException as e:
+            flash(e.message)
         else:
-            flash('No file selected.')
+            if stored:
+                mod.touch()
+                mfile.stored = stored
+                mfile.desc = form.desc.data
+                mfile.page_url = form.page_url.data
+                mfile.redirect_url = form.redirect_url.data
+                mfile.direct_url = form.direct_url.data
+                db.session.commit()
+                return redirect(url_for('edit.draft_page', id=mod.id))
+            else:
+                flash('No file selected.')
     return render_template('editor/edit-file.html', form=form, mod=mod,
                 vsn=vsn, editing=mfile, curfile=mfile.stored)
 

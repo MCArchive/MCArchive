@@ -12,6 +12,7 @@ Add a new file to version {{ vsn.name }} of {{ mod.name }}
 {# Load the select field JavaScript before the rest of the page so our select fields work #}
 {% block js %}
 <script type="text/javascript" src="/static/select.js"></script>
+<script type="text/javascript" src="/static/editor.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -23,6 +24,7 @@ Add a new file to version {{ vsn.name }} of {{ mod.name }}
 {%- endif -%}</h1>
 <form method="post" enctype="multipart/form-data">
     {{ form.csrf_token }}
+    {{ form.file_hash }}
     <table class="form-table">
         <tbody>
             <tr>
