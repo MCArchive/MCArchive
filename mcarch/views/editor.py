@@ -1,7 +1,8 @@
 """Views for archivists to edit and manage mods on the archive"""
 
 from typing import Optional
-from tempfile import NamedTemporaryFile
+from tempfile import TemporaryDirectory
+import os
 
 from flask import Blueprint, render_template, request, url_for, redirect, flash, abort
 from flask_wtf import FlaskForm
@@ -342,9 +343,10 @@ class EditFileForm(FlaskForm):
         if fileid >= 0:
             return StoredFile.query.get(fileid)
         elif self.file.data:
-            with NamedTemporaryFile() as tfile:
-                self.file.data.save(tfile)
-                return upload_b2_file(tfile.name, self.file.data.filename, user=user,
+            with TemporaryDirectory() as tdir:
+                path = os.path.join(tdir, 'uploaded_file')
+                self.file.data.save(path)
+                return upload_b2_file(path, self.file.data.filename, user=user,
                             expect_hash=self.file_hash.data)
         else:
             return None
