@@ -98,6 +98,7 @@ def create_sess(user):
 
     # Add the session ID to the flask session cookie.
     session['sessid'] = str(dbsess.sess_id)
+    session.permanent = True
 
 def cur_session(only_fully_authed=True):
     """
