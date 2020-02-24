@@ -19,7 +19,7 @@ period is over, we will remove this notice and no more breaking changes will be
 made to this version of the API.
 
 The testing period is planned to end Tuesday, February 25, 2020.
-""", catch_all_404s=True)
+""")
 
 from .mods import ns as mods
 api.add_namespace(mods)
