@@ -10,7 +10,7 @@ arrow==0.15.5             # via b2sdk
 attrs==19.3.0             # via jsonschema, pytest
 b2sdk==1.0.2              # via -r requirements.in (line 18)
 bcrypt==3.1.7             # via flask-bcrypt
-bleach==3.1.0             # via -r requirements.in (line 16)
+bleach==3.1.1             # via -r requirements.in (line 16)
 blinker==1.4              # via flask-mail
 certifi==2019.11.28       # via requests
 cffi==1.13.2              # via bcrypt
