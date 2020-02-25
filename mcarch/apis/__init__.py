@@ -11,14 +11,6 @@ The MCArchive API provides access to information about the mods we have archived
 The endpoints on this API require an `X-Fields` header specifying which fields
 of the object should be returned. We kindly ask that you avoid requesting extra
 information that you don't need in order to conserve our server resources.
-
-This API is currently undergoing a testing period for a couple days. During
-this time, we may introduce some breaking changes. If you have any questions or
-requests regarding the API, come talk to us on Discord.  After the testing
-period is over, we will remove this notice and no more breaking changes will be
-made to this version of the API.
-
-The testing period is planned to end Tuesday, February 25, 2020.
 """)
 
 from .mods import ns as mods
