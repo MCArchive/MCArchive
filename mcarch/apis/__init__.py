@@ -5,7 +5,7 @@ from mcarch.model.mod import ModAuthor, GameVersion
 
 api_v1 = Blueprint("api", __name__, url_prefix="/api/v1")
 
-api = Api(api_v1, version="1.0", title="MCArchive API", description="""
+api = Api(api_v1, version="1.1", title="MCArchive API", description="""
 The MCArchive API provides access to information about the mods we have archived.
 
 The endpoints on this API require an `X-Fields` header specifying which fields

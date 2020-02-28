@@ -77,9 +77,10 @@
     {% block footer %}
     <footer>
         <p>Copyright &copy; 2017-2020 Minecraft Mod Archive</p>
-        <p>
+        <p class="container">
             <a href="https://github.com/MCArchive/MCArchive">GitHub</a>
             <a href="https://discord.gg/WuexGpP">Discord</a>
+            <a href="{{ url_for('api.doc') }}" class="right">API</a>
         </p>
    </footer>
    {% endblock %}
