@@ -64,11 +64,15 @@ def new_draft(user, slug):
 
 
 @edit.route('/drafts/<id>/archive', methods=['GET', 'POST'])
-@login_required(role=roles.moderator)
-def archive_draft(id):
+@login_required(role=roles.archivist, pass_user=True)
+def archive_draft(user, id):
     draft = DraftMod.query.filter_by(id=id).first_or_404()
     if draft.archived:
         flash('This draft is already archived.')
+        return redirect(url_for('edit.draft_page', id=draft.id))
+
+    if draft.user != user and not user.has_role(roles.moderator):
+        flash("You don't own this draft.")
         return redirect(url_for('edit.draft_page', id=draft.id))
 
     if request.method == 'POST':
