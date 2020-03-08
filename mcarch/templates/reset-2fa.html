@@ -22,7 +22,7 @@ code below to test it.</p>
         {% endfor %}
     </ul>
     {{ form.csrf_token }}
-    {{ form.code(placeholder="Code", tabindex=1, autofocus=True) }}
+    {{ form.code(placeholder="Code", tabindex=1, autofocus=True, inputmode="numeric", pattern="[0-9]*", autocomplete="one-time-code") }}
     <input type="submit" value="Submit" tabindex="3">
 </form>
 {% endblock %}
