@@ -5,7 +5,7 @@
 <p>Please enter your current 2-factor authentication code.</p>
 <form method="POST">
     {{ form.csrf_token }}
-    {{ form.code(placeholder="Code", autofocus=True, tabindex=1) }}
+    {{ form.code(placeholder="Code", autofocus=True, tabindex=1, inputmode="numeric", pattern="[0-9]*", autocomplete="one-time-code") }}
     <input type="submit" value="Submit" tabindex="3">
 </form>
 {% endblock %}
