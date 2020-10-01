@@ -15,7 +15,7 @@ It is recommended to install pip-tools (`pip install pip-tools`) in your
 virtualenv if you're going to be contributing. This will allow you to use
 pip-sync to keep your dependencies in sync with the requirements.
 
-Before you run any `flask` commands, set the following environment variables.
+Before you run any`flask` commands, set the following environment variables.
 You can add this to the end of `bin/activate` in your virtualenv to have it set
 for you when you activate your environment.
 
