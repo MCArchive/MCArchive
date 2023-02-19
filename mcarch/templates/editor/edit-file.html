@@ -71,6 +71,26 @@ Add a new file to version {{ vsn.name }} of {{ mod.name }}
                 <td>{{ d.field_errors(form.redirect_url.errors) }}</td>
             </tr>
             <tr>
+                <td class="label">{{ form.client_classes.label }}</td>
+                <td>{{ form.client_classes }}</td>
+                <td>{{ d.field_errors(form.client_classes.errors) }}</td>
+            </tr>
+            <tr>
+                <td class="label">{{ form.server_classes.label }}</td>
+                <td>{{ form.server_classes }}</td>
+                <td>{{ d.field_errors(form.server_classes.errors) }}</td>
+            </tr>
+            <tr>
+                <td class="label">{{ form.resources_dir.label }}</td>
+                <td>{{ form.resources_dir }}</td>
+                <td>{{ d.field_errors(form.resources_dir.errors) }}</td>
+            </tr>
+            <tr>
+                <td class="label">{{ form.minecraft_dir.label }}</td>
+                <td>{{ form.minecraft_dir }}</td>
+                <td>{{ d.field_errors(form.minecraft_dir.errors) }}</td>
+            </tr>
+            <tr>
                 <td class="label">{{ form.desc.label }}</td>
                 <td>{{ form.desc }}</td>
                 <td>{{ d.field_errors(form.desc.errors) }}</td>

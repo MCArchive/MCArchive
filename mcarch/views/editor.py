@@ -321,6 +321,10 @@ class EditFileForm(FlaskForm):
     page_url = StringField('Web Page', validators=[Length(max=Mod.website.type.length)])
     direct_url = StringField('Direct Download', validators=[Length(max=Mod.website.type.length)])
     redirect_url = StringField('Indirect Download', validators=[Length(max=Mod.website.type.length)])
+    client_classes = StringField('Client Classes', validators=[Length(max=Mod.website.type.length)])
+    server_classes = StringField('Server Classes', validators=[Length(max=Mod.website.type.length)])
+    resources_dir = StringField('Resources Path in Mod', validators=[Length(max=Mod.website.type.length)])
+    minecraft_dir = StringField('Minecraft Dir in Mod', validators=[Length(max=Mod.website.type.length)])    
     submit = SubmitField('Submit')
 
     def load_files(self):
@@ -380,6 +384,10 @@ def new_mod_file(user, id):
                     page_url = form.page_url.data,
                     redirect_url = form.redirect_url.data,
                     direct_url = form.direct_url.data,
+                    client_classes = form.client_classes.data,
+                    server_classes = form.server_classes.data,
+                    resources_dir = form.resources_dir.data,
+                    minecraft_dir = form.minecraft_dir.data,
                 )
                 vsn.files.append(mfile)
                 db.session.commit()
@@ -400,6 +408,10 @@ def edit_mod_file(user, id):
         page_url=mfile.page_url,
         redirect_url=mfile.redirect_url,
         direct_url=mfile.direct_url,
+        client_classes=mfile.client_classes,
+        server_classes=mfile.server_classes,
+        resources_dir=mfile.resources_dir,
+        minecraft_dir=mfile.minecraft_dir,
     )
     form.load_files()
     if form.validate_on_submit():
@@ -415,6 +427,11 @@ def edit_mod_file(user, id):
                 mfile.page_url = form.page_url.data
                 mfile.redirect_url = form.redirect_url.data
                 mfile.direct_url = form.direct_url.data
+                mfile.client_classes = form.client_classes.data
+                mfile.server_classes = form.server_classes.data
+                mfile.resources_dir = form.resources_dir.data
+                mfile.minecraft_dir = form.minecraft_dir.data
+
                 db.session.commit()
                 return redirect(url_for('edit.draft_page', id=mod.id))
             else:
