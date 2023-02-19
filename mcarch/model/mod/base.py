@@ -103,12 +103,20 @@ class ModFileBase(CopyDiff):
     # Official direct file download link.
     direct_url = db.Column(db.String(2048), nullable=False, default="")
 
+    #Paths inside Mod file
+    resources_dir = db.Column(db.String(2048), nullable=False, default="")
+    minecraft_dir = db.Column(db.String(2048), nullable=False, default="")
+
+    client_classes = db.Column(db.String(2048), nullable=False, default="")
+    server_classes = db.Column(db.String(2048), nullable=False, default="")
+
+
     @property
     def should_redist(self):
         return self.direct_url == "" and self.redirect_url == ""
 
     def copydiff_fields(self):
-        return ['stored', 'page_url', 'redirect_url', 'direct_url']
+        return ['stored', 'page_url', 'redirect_url', 'direct_url', 'resources_dir', 'minecraft_dir', 'client_classes', 'server_classes']
     def get_children(self): return []
 
 

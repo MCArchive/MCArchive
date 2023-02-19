@@ -38,7 +38,11 @@ mod_file = api.model('File', {
         description="A direct download link to the file as stored in the archive. Unlike direct_url, \
             this will never return an intermediary download page.\
             May be excluded for legal reasons.",
-        example="https://b2.mcarchive.net/file/mcarchive/b4451368e478fb9a2192ed35176198c0bcef038d57880c8bf0189eae0543086d/Crossbows-0.2a.zip")
+        example="https://b2.mcarchive.net/file/mcarchive/b4451368e478fb9a2192ed35176198c0bcef038d57880c8bf0189eae0543086d/Crossbows-0.2a.zip"),
+    'client_classes': fields.String(example="Client"),
+    'server_classes': fields.String(example="Server"),
+    'minecraft_dir': fields.String(example=".minecraft"),
+    'resources_dir': fields.String(example="resources")
 })
 
 
